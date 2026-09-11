@@ -22,6 +22,12 @@ describe("useBreakpoint", () => {
     expect(result.current).toBe("desktop");
   });
 
+  it("has no fractional-pixel gap: every width resolves to exactly one breakpoint, with 768.5px resolving to tablet", () => {
+    installMatchMediaStub(768.5);
+    const { result } = renderHook(() => useBreakpoint());
+    expect(result.current).toBe("tablet");
+  });
+
   it("re-evaluates when the media query change listener fires, without polling or reload", () => {
     const stub = installMatchMediaStub(320);
     const { result } = renderHook(() => useBreakpoint());

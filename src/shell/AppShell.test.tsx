@@ -31,7 +31,7 @@ describe("AppShell", () => {
     const shell = main.parentElement as HTMLElement;
 
     expect(shell.style.flexDirection).toBe("column");
-    expect(shell.style.height).toBe("100vh");
+    expect(shell.style.height).toBe("100dvh");
     expect(main.style.flex).toBe("1 1 0%");
     expect(main.style.minHeight).toBe("0px");
     expect(nav.style.flexShrink).toBe("0");
