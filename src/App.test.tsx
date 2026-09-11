@@ -1,30 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { Component } from "react";
-import type { ReactNode } from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { saveExpense } from "./domain/expenseRepository";
-import { buildNavigation } from "./navigation/buildNavigation";
-import { AppShell } from "./shell/AppShell";
-
-class NavErrorBoundary extends Component<
-  { children: ReactNode },
-  { errored: boolean }
-> {
-  state = { errored: false };
-
-  static getDerivedStateFromError() {
-    return { errored: true };
-  }
-
-  render() {
-    if (this.state.errored) {
-      return <p>Navigation configuration failed to build.</p>;
-    }
-    return this.props.children;
-  }
-}
 
 beforeEach(() => {
   localStorage.clear();
@@ -76,38 +54,37 @@ describe("App", () => {
     });
   });
 
-  it("renders no nav item for either conflicting entry (AC8)", () => {
-    const moduleA = [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        route: "/dashboard",
-        render: () => null,
-      },
-    ];
-    const moduleB = [
-      {
-        id: "dashboard",
-        label: "Duplicate Dashboard",
-        route: "/duplicate-dashboard",
-        render: () => null,
-      },
-    ];
+  it("throws at composition time, before any render, when two modules contribute conflicting entries (AC8)", async () => {
+    vi.resetModules();
+    vi.doMock("./features/dashboard/navigation", () => ({
+      dashboardNavigation: [
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          route: "/dashboard",
+          render: () => null,
+        },
+      ],
+    }));
+    vi.doMock("./features/expenses/navigation", () => ({
+      expensesNavigation: [
+        {
+          id: "dashboard",
+          label: "Duplicate Dashboard",
+          route: "/duplicate-dashboard",
+          render: () => null,
+        },
+      ],
+    }));
 
-    function ConflictingComposition() {
-      return <AppShell destinations={buildNavigation(moduleA, moduleB)} />;
-    }
-
-    render(
-      <NavErrorBoundary>
-        <ConflictingComposition />
-      </NavErrorBoundary>,
+    await expect(import("./App")).rejects.toThrow(
+      /Duplicate navigation entry key "dashboard"/,
     );
-
-    expect(
-      screen.getByText("Navigation configuration failed to build."),
-    ).toBeInTheDocument();
     expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
     expect(screen.queryByText("Duplicate Dashboard")).not.toBeInTheDocument();
+
+    vi.doUnmock("./features/dashboard/navigation");
+    vi.doUnmock("./features/expenses/navigation");
+    vi.resetModules();
   });
 });
