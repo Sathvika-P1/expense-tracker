@@ -15,7 +15,7 @@ function shellStyle(flexDirection: CSSProperties["flexDirection"]): CSSPropertie
   return {
     display: "flex",
     flexDirection,
-    height: "100vh",
+    height: "100dvh",
     width: "100%",
   };
 }
