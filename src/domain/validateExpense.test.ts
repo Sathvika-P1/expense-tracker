@@ -15,14 +15,14 @@ describe("validateExpense", () => {
 
   it("reports errors for all missing required fields at once", () => {
     const errors = validateExpense({ amount: "", date: "", category: "", notes: "" });
-    expect(errors.amount).toBeDefined();
-    expect(errors.date).toBeDefined();
-    expect(errors.category).toBeDefined();
+    expect(errors.amount).toMatch(/amount is required/i);
+    expect(errors.date).toMatch(/date is required/i);
+    expect(errors.category).toMatch(/category is required/i);
   });
 
   it.each(["0", "-5", "abc"])("rejects non-positive/non-numeric amount %s", (amount) => {
     const errors = validateExpense({ ...validInput, amount });
-    expect(errors.amount).toBeDefined();
+    expect(errors.amount).toMatch(/positive number/i);
   });
 
   it("rejects amounts with more than two decimal places", () => {
@@ -57,6 +57,6 @@ describe("validateExpense", () => {
 
   it("rejects an invalid category", () => {
     const errors = validateExpense({ ...validInput, category: "NotACategory" });
-    expect(errors.category).toBeDefined();
+    expect(errors.category).toMatch(/fixed options/i);
   });
 });

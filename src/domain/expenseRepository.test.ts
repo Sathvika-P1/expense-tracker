@@ -42,4 +42,10 @@ describe("expenseRepository", () => {
     expect(loaded[0].id).toBe("2");
     expect(loaded[1].id).toBe("1");
   });
+
+  it("returns an empty list when localStorage contains corrupted JSON", () => {
+    localStorage.setItem("expenses", "{not valid json");
+
+    expect(loadExpenses()).toEqual([]);
+  });
 });
