@@ -94,7 +94,7 @@ describe("AppShell", () => {
       </MemoryRouter>,
     );
     expect(screen.getByRole("navigation", { name: "Bottom tab bar" })).toBeInTheDocument();
-    const rootBeforeResize = container;
+    const shellBeforeResize = container.firstElementChild;
 
     act(() => {
       stub.setWidth(1440);
@@ -102,7 +102,7 @@ describe("AppShell", () => {
 
     expect(screen.getByRole("navigation", { name: "Sidebar" })).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Bottom tab bar" })).not.toBeInTheDocument();
-    expect(container).toBe(rootBeforeResize);
+    expect(container.firstElementChild).toBe(shellBeforeResize);
   });
 
   it("AC8: chrome elements declare zero transition/animation duration, and the swap happens synchronously in one commit", () => {
