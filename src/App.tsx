@@ -1,23 +1,23 @@
-import { useRef, useState } from "react";
-import { AddExpenseForm } from "./components/AddExpenseForm";
-import { ExpenseList } from "./components/ExpenseList";
-import type { Expense } from "./domain/expense";
-import { loadExpenses } from "./domain/expenseRepository";
+import { Outlet, Route, Routes } from "react-router-dom";
+import { AppShell } from "./shell/AppShell";
+import { PlaceholderPage } from "./shell/PlaceholderPage";
+import { HomePage } from "./pages/HomePage";
 
-export default function App() {
-  const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
-  const formRef = useRef<HTMLDivElement>(null);
-
+function ShellLayout() {
   return (
-    <main>
-      <h1>Expense Tracker</h1>
-      <div ref={formRef}>
-        <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
-      </div>
-      <ExpenseList
-        expenses={expenses}
-        onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
-      />
-    </main>
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}
+
+export function App() {
+  return (
+    <Routes>
+      <Route element={<ShellLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/reports" element={<PlaceholderPage title="Reports" />} />
+      </Route>
+    </Routes>
   );
 }
