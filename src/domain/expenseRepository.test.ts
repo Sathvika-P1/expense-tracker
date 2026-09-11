@@ -48,4 +48,13 @@ describe("expenseRepository", () => {
 
     expect(loadExpenses()).toEqual([]);
   });
+
+  it.each(['{"foo":1}', "null", "42", '"a string"'])(
+    "returns an empty list when localStorage contains valid JSON that is not an array (%s)",
+    (value) => {
+      localStorage.setItem("expenses", value);
+
+      expect(loadExpenses()).toEqual([]);
+    },
+  );
 });

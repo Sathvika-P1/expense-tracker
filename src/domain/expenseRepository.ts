@@ -6,7 +6,8 @@ export function loadExpenses(): Expense[] {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   try {
-    return JSON.parse(raw) as Expense[];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Expense[]) : [];
   } catch {
     return [];
   }
