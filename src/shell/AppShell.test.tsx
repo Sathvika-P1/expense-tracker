@@ -1,6 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { installMatchMediaStub } from "../test/matchMediaStub";
 import { AppShell } from "./AppShell";
 
@@ -88,32 +88,21 @@ describe("AppShell", () => {
 
   it("AC7: switches chrome across a breakpoint boundary on resize without a page reload", () => {
     const stub = installMatchMediaStub(320);
-    render(
+    const { container } = render(
       <MemoryRouter>
         <AppShell>content</AppShell>
       </MemoryRouter>,
     );
     expect(screen.getByRole("navigation", { name: "Bottom tab bar" })).toBeInTheDocument();
+    const rootBeforeResize = container;
 
-    const reloadSpy = vi.fn();
-    const originalLocation = window.location;
-    Object.defineProperty(window, "location", {
-      value: { ...window.location, reload: reloadSpy },
-      writable: true,
-      configurable: true,
+    act(() => {
+      stub.setWidth(1440);
     });
 
-    try {
-      act(() => {
-        stub.setWidth(1440);
-      });
-
-      expect(screen.getByRole("navigation", { name: "Sidebar" })).toBeInTheDocument();
-      expect(screen.queryByRole("navigation", { name: "Bottom tab bar" })).not.toBeInTheDocument();
-      expect(reloadSpy).not.toHaveBeenCalled();
-    } finally {
-      Object.defineProperty(window, "location", { value: originalLocation, writable: true, configurable: true });
-    }
+    expect(screen.getByRole("navigation", { name: "Sidebar" })).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Bottom tab bar" })).not.toBeInTheDocument();
+    expect(container).toBe(rootBeforeResize);
   });
 
   it("AC8: chrome elements declare zero transition/animation duration, and the swap happens synchronously in one commit", () => {

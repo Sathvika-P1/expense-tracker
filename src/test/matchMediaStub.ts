@@ -8,7 +8,15 @@ function evaluateQuery(query: string, width: number): boolean {
   return true;
 }
 
+let activeRestore: (() => void) | undefined;
+
+export function restoreMatchMediaStub() {
+  activeRestore?.();
+  activeRestore = undefined;
+}
+
 export function installMatchMediaStub(initialWidth: number) {
+  const originalMatchMedia = window.matchMedia;
   let width = initialWidth;
   const listenersByQuery = new Map<string, Set<Listener>>();
   const mqlByQuery = new Map<string, MediaQueryList>();
@@ -44,6 +52,11 @@ export function installMatchMediaStub(initialWidth: number) {
 
   window.matchMedia = ((query: string) => getMql(query)) as typeof window.matchMedia;
 
+  const restore = () => {
+    window.matchMedia = originalMatchMedia;
+  };
+  activeRestore = restore;
+
   return {
     setWidth(nextWidth: number) {
       width = nextWidth;
@@ -53,5 +66,6 @@ export function installMatchMediaStub(initialWidth: number) {
         for (const listener of listeners) listener(event);
       }
     },
+    restore,
   };
 }

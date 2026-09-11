@@ -4,20 +4,20 @@ import { installMatchMediaStub } from "../test/matchMediaStub";
 import { useBreakpoint } from "./useBreakpoint";
 
 describe("useBreakpoint", () => {
-  it("returns mobile at 320px and 768px", () => {
-    installMatchMediaStub(320);
+  it.each([320, 768])("returns mobile at %dpx", (width) => {
+    installMatchMediaStub(width);
     const { result } = renderHook(() => useBreakpoint());
     expect(result.current).toBe("mobile");
   });
 
-  it("returns tablet at 769px and 1024px", () => {
-    installMatchMediaStub(1024);
+  it.each([769, 1024])("returns tablet at %dpx", (width) => {
+    installMatchMediaStub(width);
     const { result } = renderHook(() => useBreakpoint());
     expect(result.current).toBe("tablet");
   });
 
-  it("returns desktop at 1025px and 1440px", () => {
-    installMatchMediaStub(1440);
+  it.each([1025, 1440])("returns desktop at %dpx", (width) => {
+    installMatchMediaStub(width);
     const { result } = renderHook(() => useBreakpoint());
     expect(result.current).toBe("desktop");
   });
