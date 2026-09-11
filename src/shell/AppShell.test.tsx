@@ -74,4 +74,27 @@ describe("AppShell", () => {
     const nav = screen.getByRole("navigation");
     expect(within(nav).queryByText("Expense list")).not.toBeInTheDocument();
   });
+
+  it("renders a single top-level page heading", () => {
+    render(<AppShell destinations={[dashboard, expenseList]} />);
+
+    expect(
+      screen.getByRole("heading", { level: 1 }),
+    ).toBeInTheDocument();
+  });
+
+  it("falls back to the first destination when the active one is removed via rerender", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <AppShell destinations={[dashboard, expenseList]} />,
+    );
+
+    await user.click(screen.getByText("Expense list"));
+    expect(screen.getByText("Expense list view")).toBeInTheDocument();
+
+    rerender(<AppShell destinations={[dashboard]} />);
+
+    expect(screen.getByText("Dashboard view")).toBeInTheDocument();
+    expect(screen.queryByText("Expense list view")).not.toBeInTheDocument();
+  });
 });

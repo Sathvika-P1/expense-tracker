@@ -1,10 +1,30 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { Component } from "react";
+import type { ReactNode } from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { saveExpense } from "./domain/expenseRepository";
-import { buildNavigation, NavigationConfigError } from "./navigation/buildNavigation";
+import { buildNavigation } from "./navigation/buildNavigation";
 import { AppShell } from "./shell/AppShell";
+
+class NavErrorBoundary extends Component<
+  { children: ReactNode },
+  { errored: boolean }
+> {
+  state = { errored: false };
+
+  static getDerivedStateFromError() {
+    return { errored: true };
+  }
+
+  render() {
+    if (this.state.errored) {
+      return <p>Navigation configuration failed to build.</p>;
+    }
+    return this.props.children;
+  }
+}
 
 beforeEach(() => {
   localStorage.clear();
@@ -78,10 +98,15 @@ describe("App", () => {
       return <AppShell destinations={buildNavigation(moduleA, moduleB)} />;
     }
 
-    expect(() => render(<ConflictingComposition />)).toThrow(
-      NavigationConfigError,
+    render(
+      <NavErrorBoundary>
+        <ConflictingComposition />
+      </NavErrorBoundary>,
     );
 
+    expect(
+      screen.getByText("Navigation configuration failed to build."),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
     expect(screen.queryByText("Duplicate Dashboard")).not.toBeInTheDocument();
   });

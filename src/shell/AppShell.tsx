@@ -15,6 +15,7 @@ export function AppShell({ destinations }: AppShellProps) {
 
   return (
     <div>
+      <h1>Expense Tracker</h1>
       <nav aria-label="Main navigation">
         <ul>
           {destinations.map((destination) => {
