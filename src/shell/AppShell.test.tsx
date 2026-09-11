@@ -103,15 +103,17 @@ describe("AppShell", () => {
       configurable: true,
     });
 
-    act(() => {
-      stub.setWidth(1440);
-    });
+    try {
+      act(() => {
+        stub.setWidth(1440);
+      });
 
-    expect(screen.getByRole("navigation", { name: "Sidebar" })).toBeInTheDocument();
-    expect(screen.queryByRole("navigation", { name: "Bottom tab bar" })).not.toBeInTheDocument();
-    expect(reloadSpy).not.toHaveBeenCalled();
-
-    Object.defineProperty(window, "location", { value: originalLocation, writable: true, configurable: true });
+      expect(screen.getByRole("navigation", { name: "Sidebar" })).toBeInTheDocument();
+      expect(screen.queryByRole("navigation", { name: "Bottom tab bar" })).not.toBeInTheDocument();
+      expect(reloadSpy).not.toHaveBeenCalled();
+    } finally {
+      Object.defineProperty(window, "location", { value: originalLocation, writable: true, configurable: true });
+    }
   });
 
   it("AC8: chrome elements declare zero transition/animation duration, and the swap happens synchronously in one commit", () => {

@@ -1,13 +1,9 @@
 import type { CSSProperties } from "react";
 import { navBarBaseStyle } from "./navBarStyle";
-import { NavLinks } from "./NavLinks";
+import { NavBar } from "./NavBar";
 
 const barStyle: CSSProperties = { ...navBarBaseStyle, width: 240, flexDirection: "column" };
 
 export function Sidebar() {
-  return (
-    <nav aria-label="Sidebar" style={barStyle}>
-      <NavLinks />
-    </nav>
-  );
+  return <NavBar ariaLabel="Sidebar" barStyle={barStyle} />;
 }
