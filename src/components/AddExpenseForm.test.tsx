@@ -141,6 +141,22 @@ describe("AddExpenseForm", () => {
     expect(expenseRepository.loadExpenses()).toHaveLength(0);
   });
 
+  it("shows an error and does not reset the form when saving fails", async () => {
+    vi.spyOn(expenseRepository, "saveExpense").mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+    const user = userEvent.setup();
+    const onSaved = vi.fn();
+    render(<AddExpenseForm onSaved={onSaved} />);
+
+    await fillValidForm(user);
+    await user.click(screen.getByRole("button", { name: /add expense/i }));
+
+    expect(await screen.findByText(/could not save/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/amount/i)).toHaveValue("25.50");
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
   it("saves notes of exactly 200 characters intact (AC11)", async () => {
     const user = userEvent.setup();
     render(<AddExpenseForm onSaved={vi.fn()} />);

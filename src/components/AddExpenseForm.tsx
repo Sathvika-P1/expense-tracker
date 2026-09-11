@@ -18,6 +18,7 @@ interface AddExpenseFormProps {
 export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
   const [form, setForm] = useState<ExpenseInput>(EMPTY_FORM);
   const [errors, setErrors] = useState<ValidationErrors>({});
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const amountId = useId();
   const dateId = useId();
@@ -27,6 +28,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
   const dateErrorId = useId();
   const categoryErrorId = useId();
   const notesErrorId = useId();
+  const saveErrorId = useId();
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -37,17 +39,23 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
       return;
     }
 
-    saveExpense({
-      id: crypto.randomUUID(),
-      amount: Number(form.amount),
-      date: form.date,
-      category: form.category as (typeof CATEGORIES)[number],
-      notes: form.notes || undefined,
-      createdAt: Date.now(),
-    });
+    try {
+      saveExpense({
+        id: crypto.randomUUID(),
+        amount: Number(form.amount),
+        date: form.date,
+        category: form.category as (typeof CATEGORIES)[number],
+        notes: form.notes || undefined,
+        createdAt: Date.now(),
+      });
+    } catch {
+      setSaveError("Could not save the expense. Please try again.");
+      return;
+    }
 
     setForm(EMPTY_FORM);
     setErrors({});
+    setSaveError(null);
     onSaved();
   }
 
@@ -122,6 +130,12 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
           </p>
         )}
       </div>
+
+      {saveError && (
+        <p id={saveErrorId} role="alert">
+          {saveError}
+        </p>
+      )}
 
       <button type="submit">Add Expense</button>
     </form>
