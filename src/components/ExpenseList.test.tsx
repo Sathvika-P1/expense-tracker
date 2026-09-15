@@ -102,6 +102,23 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("resets to the first page when the expenses prop changes", async () => {
+    const firstSet = Array.from({ length: 12 }, (_, i) =>
+      makeExpense({ id: `a${i}`, notes: `first-${i}` }),
+    );
+    const { rerender } = render(<ExpenseList expenses={firstSet} onAddExpenseClick={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(screen.getByText(/page 2 of 2/i)).toBeInTheDocument();
+
+    const secondSet = Array.from({ length: 12 }, (_, i) =>
+      makeExpense({ id: `b${i}`, notes: `second-${i}` }),
+    );
+    rerender(<ExpenseList expenses={secondSet} onAddExpenseClick={vi.fn()} />);
+
+    expect(screen.getByText(/page 1 of 2/i)).toBeInTheDocument();
+    expect(screen.getByText("second-0")).toBeInTheDocument();
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 

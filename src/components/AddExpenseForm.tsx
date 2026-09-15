@@ -62,7 +62,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} aria-label="Add expense">
       <div>
         <label htmlFor={amountId}>Amount</label>
         <input
