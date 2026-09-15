@@ -16,6 +16,8 @@ describe("App", () => {
       date: "2026-01-01",
       category: "Bills",
       createdAt: Date.now(),
+      status: "draft",
+      ownerId: "current-user",
     });
 
     render(<App />);
@@ -30,6 +32,8 @@ describe("App", () => {
       date: "2026-01-01",
       category: "Bills",
       createdAt: Date.now(),
+      status: "draft",
+      ownerId: "current-user",
     });
 
     const user = userEvent.setup();
