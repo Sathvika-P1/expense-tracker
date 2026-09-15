@@ -27,8 +27,11 @@ export function validateExpense(input: ExpenseInput): ValidationErrors {
     errors.amount = "Amount must be a positive number.";
   }
 
-  if (!input.date.trim()) {
+  const date = input.date.trim();
+  if (!date) {
     errors.date = "Date is required.";
+  } else if (Number.isNaN(Date.parse(date))) {
+    errors.date = "Date must be a valid date.";
   }
 
   if (!input.category.trim()) {

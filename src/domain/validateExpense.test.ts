@@ -55,6 +55,11 @@ describe("validateExpense", () => {
     expect(errors.date).toBeUndefined();
   });
 
+  it("rejects an invalid date string", () => {
+    const errors = validateExpense({ ...validInput, date: "not-a-date" });
+    expect(errors.date).toMatch(/valid date/i);
+  });
+
   it("rejects an invalid category", () => {
     const errors = validateExpense({ ...validInput, category: "NotACategory" });
     expect(errors.category).toMatch(/fixed options/i);
