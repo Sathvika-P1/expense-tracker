@@ -32,7 +32,7 @@ export default function App() {
   return (
     <main>
       <h1>Expense Tracker</h1>
-      <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
+      <AddExpenseForm currentUserId={CURRENT_USER_ID} onSaved={() => setExpenses(loadExpenses())} />
       {deleteMessage && <p role="status">{deleteMessage}</p>}
       {deleteError && <p role="alert">{deleteError}</p>}
       <ExpenseList expenses={expenses} onDelete={handleDelete} />

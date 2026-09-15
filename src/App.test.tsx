@@ -66,6 +66,26 @@ describe("App", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(/deleted/i);
   });
 
+  it("moves focus to a stable element instead of the document body after the trigger button unmounts on delete (AC12)", async () => {
+    saveExpense({
+      id: "existing",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: Date.now(),
+    });
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(document.body).not.toHaveFocus();
+    });
+  });
+
   it("does not delete the expense when Cancel is selected", async () => {
     saveExpense({
       id: "existing",
