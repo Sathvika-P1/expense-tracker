@@ -11,7 +11,7 @@ beforeEach(() => {
 });
 
 describe("App", () => {
-  it("renders expenses already present in localStorage at mount (AC7)", () => {
+  it("renders expenses already present in localStorage at mount", () => {
     installMatchMediaStub(1024);
     saveExpense({
       id: "existing",
@@ -31,7 +31,7 @@ describe("App", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
   });
 
-  it("shows a newly submitted expense at the top of the list without a reload (AC1)", async () => {
+  it("shows a newly submitted expense at the top of the list without a reload", async () => {
     installMatchMediaStub(1024);
     saveExpense({
       id: "existing",
@@ -62,8 +62,13 @@ describe("App", () => {
   });
 
   it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
+    installMatchMediaStub(1024);
     const user = userEvent.setup();
-    render(<App />);
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <App />
+      </MemoryRouter>,
+    );
 
     await user.click(screen.getByRole("button", { name: "Add an expense" }));
 
