@@ -9,7 +9,7 @@ beforeEach(() => {
 });
 
 describe("App", () => {
-  it("renders expenses already present in localStorage at mount (AC7)", () => {
+  it("renders expenses already present in localStorage at mount (AC7)", async () => {
     saveExpense({
       id: "existing",
       amount: 5,
@@ -20,7 +20,7 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getAllByRole("listitem")[0]).toHaveTextContent("Bills");
+    expect((await screen.findAllByRole("listitem"))[0]).toHaveTextContent("Bills");
   });
 
   it("shows a newly submitted expense at the top of the list without a reload (AC1)", async () => {
@@ -35,7 +35,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.type(screen.getByLabelText(/amount/i), "20");
+    await user.type(await screen.findByLabelText(/amount/i), "20");
     await user.type(screen.getByLabelText(/date/i), "2026-02-01");
     await user.selectOptions(screen.getByLabelText(/category/i), "Travel");
     await user.click(screen.getByRole("button", { name: /add expense/i }));
