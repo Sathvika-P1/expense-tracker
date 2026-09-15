@@ -12,6 +12,7 @@ describe("App", () => {
   it("renders expenses already present in localStorage at mount (AC7)", () => {
     saveExpense({
       id: "existing",
+      userId: "local-user",
       amount: 5,
       date: "2026-01-01",
       category: "Bills",
@@ -20,12 +21,13 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getAllByRole("listitem")[0]).toHaveTextContent("Bills");
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
   });
 
   it("shows a newly submitted expense at the top of the list without a reload (AC1)", async () => {
     saveExpense({
       id: "existing",
+      userId: "local-user",
       amount: 5,
       date: "2026-01-01",
       category: "Bills",
@@ -41,9 +43,18 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /add expense/i }));
 
     await waitFor(() => {
-      const items = screen.getAllByRole("listitem");
-      expect(items).toHaveLength(2);
-      expect(items[0]).toHaveTextContent("Travel");
+      const rows = screen.getAllByRole("row");
+      expect(rows).toHaveLength(3);
+      expect(rows[1]).toHaveTextContent("Travel");
     });
+  });
+
+  it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Add an expense" }));
+
+    expect(screen.getByLabelText(/amount/i)).toHaveFocus();
   });
 });
