@@ -42,7 +42,9 @@ describe("AppShell", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const failing = vi.fn().mockRejectedValue(new Error("boom"));
 
-    render(<AppShell loaders={{ expenses: vi.fn(), reports: failing }} />);
+    const ok = vi.fn().mockResolvedValue({ default: () => <div>Expenses</div> });
+
+    render(<AppShell loaders={{ expenses: ok, reports: failing }} />);
 
     await userEvent.click(screen.getByRole("button", { name: /reports/i }));
     await screen.findByRole("alert");
@@ -61,7 +63,9 @@ describe("AppShell", () => {
       .mockRejectedValueOnce(new Error("boom"))
       .mockResolvedValue({ default: () => <div>Reports</div> });
 
-    render(<AppShell loaders={{ expenses: vi.fn(), reports: flaky }} />);
+    const ok = vi.fn().mockResolvedValue({ default: () => <div>Expenses</div> });
+
+    render(<AppShell loaders={{ expenses: ok, reports: flaky }} />);
 
     await userEvent.click(screen.getByRole("button", { name: /reports/i }));
     await screen.findByRole("alert");
