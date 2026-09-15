@@ -7,6 +7,7 @@ export interface Expense {
   category: Category;
   notes?: string;
   createdAt: number;
+  createdBy?: string;
 }
 
 export interface ExpenseInput {

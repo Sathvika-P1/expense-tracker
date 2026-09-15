@@ -18,3 +18,27 @@ export function saveExpense(expense: Expense): Expense[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return expenses;
 }
+
+export type DeleteResult =
+  | { ok: true; expenses: Expense[] }
+  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" };
+
+export function deleteExpense(id: string, requesterId: string): DeleteResult {
+  if (id.trim().length === 0) {
+    return { ok: false, error: "invalid-id" };
+  }
+
+  const expenses = loadExpenses();
+  const expense = expenses.find((item) => item.id === id);
+  if (!expense) {
+    return { ok: false, error: "not-found" };
+  }
+
+  if (expense.createdBy !== undefined && expense.createdBy !== requesterId) {
+    return { ok: false, error: "forbidden" };
+  }
+
+  const remaining = expenses.filter((item) => item.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  return { ok: true, expenses: remaining };
+}

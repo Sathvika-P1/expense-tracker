@@ -19,7 +19,7 @@ describe("AddExpenseForm", () => {
   it("saves a valid expense and notifies the parent (AC1, AC9)", async () => {
     const user = userEvent.setup();
     const onSaved = vi.fn();
-    render(<AddExpenseForm onSaved={onSaved} />);
+    render(<AddExpenseForm onSaved={onSaved} currentUserId="test-user" />);
 
     await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /add expense/i }));
@@ -28,10 +28,23 @@ describe("AddExpenseForm", () => {
     expect(expenseRepository.loadExpenses()).toHaveLength(1);
   });
 
+  it("saves the expense with the given currentUserId as its owner", async () => {
+    const user = userEvent.setup();
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
+
+    await fillValidForm(user);
+    await user.click(screen.getByRole("button", { name: /add expense/i }));
+
+    await waitFor(() => {
+      const [saved] = expenseRepository.loadExpenses();
+      expect(saved.createdBy).toBe("test-user");
+    });
+  });
+
   it("saves successfully with a future date (AC9)", async () => {
     const user = userEvent.setup();
     const onSaved = vi.fn();
-    render(<AddExpenseForm onSaved={onSaved} />);
+    render(<AddExpenseForm onSaved={onSaved} currentUserId="test-user" />);
 
     const futureDate = new Date();
     futureDate.setFullYear(futureDate.getFullYear() + 1);
@@ -48,7 +61,7 @@ describe("AddExpenseForm", () => {
 
   it("shows inline errors for amount, date, and category when blank (AC2)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await user.click(screen.getByRole("button", { name: /add expense/i }));
 
@@ -61,7 +74,7 @@ describe("AddExpenseForm", () => {
   it("does not save when the form is invalid (AC3)", async () => {
     const saveSpy = vi.spyOn(expenseRepository, "saveExpense");
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await user.click(screen.getByRole("button", { name: /add expense/i }));
 
@@ -74,7 +87,7 @@ describe("AddExpenseForm", () => {
     "shows a validation error for a non-positive or non-numeric amount %s (AC4)",
     async (amount) => {
       const user = userEvent.setup();
-      render(<AddExpenseForm onSaved={vi.fn()} />);
+      render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
       await user.type(screen.getByLabelText(/amount/i), amount);
       await user.type(screen.getByLabelText(/date/i), "2026-01-15");
@@ -88,7 +101,7 @@ describe("AddExpenseForm", () => {
 
   it("displays notes with a valid submission (AC5)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await fillValidForm(user);
     await user.type(screen.getByLabelText(/notes/i), "Lunch with team");
@@ -102,7 +115,7 @@ describe("AddExpenseForm", () => {
 
   it("resets the form to empty state after a successful save (AC6)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await fillValidForm(user);
     await user.type(screen.getByLabelText(/notes/i), "Some notes");
@@ -118,7 +131,7 @@ describe("AddExpenseForm", () => {
 
   it("shows an error requiring at most two decimal places (AC8)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await user.type(screen.getByLabelText(/amount/i), "12.345");
     await user.type(screen.getByLabelText(/date/i), "2026-01-15");
@@ -131,7 +144,7 @@ describe("AddExpenseForm", () => {
 
   it("shows a max length error for notes exceeding 200 characters (AC10)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     await fillValidForm(user);
     await user.type(screen.getByLabelText(/notes/i), "a".repeat(201));
@@ -147,7 +160,7 @@ describe("AddExpenseForm", () => {
     });
     const user = userEvent.setup();
     const onSaved = vi.fn();
-    render(<AddExpenseForm onSaved={onSaved} />);
+    render(<AddExpenseForm onSaved={onSaved} currentUserId="test-user" />);
 
     await fillValidForm(user);
     await user.click(screen.getByRole("button", { name: /add expense/i }));
@@ -159,7 +172,7 @@ describe("AddExpenseForm", () => {
 
   it("saves notes of exactly 200 characters intact (AC11)", async () => {
     const user = userEvent.setup();
-    render(<AddExpenseForm onSaved={vi.fn()} />);
+    render(<AddExpenseForm onSaved={vi.fn()} currentUserId="test-user" />);
 
     const notes = "a".repeat(200);
     await fillValidForm(user);
