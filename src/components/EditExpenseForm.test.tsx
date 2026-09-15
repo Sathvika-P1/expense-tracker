@@ -99,6 +99,34 @@ describe("EditExpenseForm", () => {
     expect(onCancel).toHaveBeenCalled();
   });
 
+  it("asks for confirmation when cancelling after replacing the receipt with a same-named file", async () => {
+    const user = userEvent.setup();
+    const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(true);
+    const onCancel = vi.fn();
+    const expenseWithReceipt: Expense = {
+      ...expense,
+      receipt: { name: "receipt.png", dataUrl: "data:image/png;base64,AAAA" },
+    };
+
+    render(
+      <EditExpenseForm
+        expense={expenseWithReceipt}
+        currentUserId="current-user"
+        onSaved={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+
+    const file = new File(["different-content"], "receipt.png", { type: "image/png" });
+    await user.upload(screen.getByLabelText(/receipt/i), file);
+    await waitFor(() => expect(screen.getByText("receipt.png")).toBeInTheDocument());
+
+    await user.click(screen.getByRole("button", { name: /cancel/i }));
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(onCancel).toHaveBeenCalled();
+  });
+
   it("cancels without a confirmation dialog when nothing changed", async () => {
     const user = userEvent.setup();
     const confirmSpy = vi.spyOn(window, "confirm");

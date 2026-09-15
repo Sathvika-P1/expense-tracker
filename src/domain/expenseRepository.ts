@@ -1,9 +1,10 @@
 import { recordEdit } from "./auditRepository";
 import { CURRENT_USER_ID } from "./currentUser";
 import { ForbiddenError } from "./errors";
-import type { Expense, ExpenseEditableFields } from "./expense";
+import type { Expense, ExpenseEditableFields, ExpenseStatus } from "./expense";
 
 const STORAGE_KEY = "expenses";
+export const NON_EDITABLE_STATUSES: ExpenseStatus[] = ["submitted", "approved", "reimbursed"];
 
 function withDefaults(expense: Partial<Expense>): Expense {
   return {
@@ -55,11 +56,12 @@ export function updateExpense(
   if (existing.ownerId !== editorId) {
     throw new ForbiddenError();
   }
+  if (NON_EDITABLE_STATUSES.includes(existing.status)) {
+    throw new ForbiddenError(`Expenses in '${existing.status}' status cannot be edited.`);
+  }
 
   const before = toEditableFields(existing);
   const updated: Expense = { ...existing, ...changes };
-  expenses[index] = updated;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
 
   recordEdit({
     expenseId: id,
@@ -67,6 +69,9 @@ export function updateExpense(
     before,
     after: toEditableFields(updated),
   });
+
+  expenses[index] = updated;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
 
   return updated;
 }

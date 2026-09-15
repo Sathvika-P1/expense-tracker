@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { loadAuditRecords } from "./auditRepository";
 import { loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
 import { ForbiddenError } from "./errors";
@@ -89,6 +89,28 @@ describe("expenseRepository", () => {
     expect(() => updateExpense(expense.id, { amount: 5 }, "owner-b")).toThrow(ForbiddenError);
   });
 
+  it.each(["submitted", "approved", "reimbursed"] as const)(
+    "throws ForbiddenError when updating an expense with status %s",
+    (status) => {
+      const expense = makeExpense({ ownerId: "current-user", status });
+      saveExpense(expense);
+
+      expect(() => updateExpense(expense.id, { amount: 5 }, "current-user")).toThrow(
+        ForbiddenError,
+      );
+    },
+  );
+
+  it("does not persist or audit a rejected status-gated update", () => {
+    const expense = makeExpense({ ownerId: "current-user", status: "submitted", amount: 10 });
+    saveExpense(expense);
+
+    expect(() => updateExpense(expense.id, { amount: 99 }, "current-user")).toThrow();
+
+    expect(loadExpenses()[0].amount).toBe(10);
+    expect(loadAuditRecords(expense.id)).toHaveLength(0);
+  });
+
   it("records an audit entry with timestamp, editor, and before/after values", () => {
     const expense = makeExpense({ ownerId: "current-user", amount: 10 });
     saveExpense(expense);
@@ -100,5 +122,20 @@ describe("expenseRepository", () => {
     expect(entry.before.amount).toBe(10);
     expect(entry.after.amount).toBe(20);
     expect(typeof entry.editedAt).toBe("number");
+  });
+
+  it("does not persist the update if writing the audit record fails", async () => {
+    const auditRepository = await import("./auditRepository");
+    const recordEditSpy = vi.spyOn(auditRepository, "recordEdit").mockImplementation(() => {
+      throw new Error("quota exceeded");
+    });
+
+    const expense = makeExpense({ ownerId: "current-user", amount: 10 });
+    saveExpense(expense);
+
+    expect(() => updateExpense(expense.id, { amount: 20 }, "current-user")).toThrow();
+
+    expect(loadExpenses()[0].amount).toBe(10);
+    recordEditSpy.mockRestore();
   });
 });

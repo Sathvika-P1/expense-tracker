@@ -1,8 +1,7 @@
 import { useState } from "react";
-import type { Expense, ExpenseStatus } from "../domain/expense";
+import type { Expense } from "../domain/expense";
+import { NON_EDITABLE_STATUSES } from "../domain/expenseRepository";
 import { ExpenseHistory } from "./ExpenseHistory";
-
-const NON_EDITABLE_STATUSES: ExpenseStatus[] = ["submitted", "approved", "reimbursed"];
 
 interface ExpenseListProps {
   expenses: Expense[];

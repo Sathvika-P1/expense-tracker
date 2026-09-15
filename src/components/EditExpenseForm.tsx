@@ -53,7 +53,7 @@ export function EditExpenseForm({ expense, currentUserId, onSaved, onCancel }: E
     form.date !== initialForm.date ||
     form.category !== initialForm.category ||
     form.notes !== initialForm.notes ||
-    form.receipt?.name !== initialForm.receipt?.name;
+    form.receipt?.dataUrl !== initialForm.receipt?.dataUrl;
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
