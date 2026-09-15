@@ -1,8 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { ExpenseList } from "./ExpenseList";
 import type { Expense } from "../domain/expense";
+
+function ExpenseListHarness({ initialExpenses }: { initialExpenses: Expense[] }) {
+  const [expenses, setExpenses] = useState(initialExpenses);
+  return (
+    <ExpenseList
+      expenses={expenses}
+      onDelete={(id) => setExpenses((current) => current.filter((expense) => expense.id !== id))}
+    />
+  );
+}
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
   id: "1",
@@ -53,6 +64,33 @@ describe("ExpenseList", () => {
     await user.click(screen.getByRole("button", { name: /cancel/i }));
 
     expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it("moves focus to the next remaining Delete button when the deleted expense's own button unmounts", async () => {
+    const user = userEvent.setup();
+    const expenses = [makeExpense({ id: "1", category: "Food" }), makeExpense({ id: "2", category: "Travel" })];
+    render(<ExpenseListHarness initialExpenses={expenses} />);
+
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    await user.click(deleteButtons[0]);
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /delete/i })).toHaveFocus();
+    });
+  });
+
+  it("falls back to focusing the labelled container when no Delete buttons remain", async () => {
+    const user = userEvent.setup();
+    const expenses = [makeExpense({ id: "1", category: "Food" })];
+    render(<ExpenseListHarness initialExpenses={expenses} />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("region", { name: /expense list/i })).toHaveFocus();
+    });
   });
 
   it("calls onDelete with the expense id when Confirm is selected", async () => {

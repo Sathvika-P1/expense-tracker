@@ -11,6 +11,7 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [restoreFocusToken, setRestoreFocusToken] = useState(0);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const pendingIndexRef = useRef<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,13 +19,23 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
     const trigger = triggerRef.current;
     if (trigger && document.body.contains(trigger)) {
       trigger.focus();
+      return;
+    }
+
+    const deleteButtons = containerRef.current?.querySelectorAll<HTMLButtonElement>(
+      'button[data-role="delete"]',
+    );
+    const nextTrigger = deleteButtons?.[Math.min(pendingIndexRef.current, deleteButtons.length - 1)];
+    if (nextTrigger) {
+      nextTrigger.focus();
     } else {
       containerRef.current?.focus();
     }
   }, [restoreFocusToken]);
 
-  function openConfirm(id: string, trigger: HTMLButtonElement) {
+  function openConfirm(id: string, trigger: HTMLButtonElement, index: number) {
     triggerRef.current = trigger;
+    pendingIndexRef.current = index;
     setPendingDeleteId(id);
   }
 
@@ -41,12 +52,12 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
   }
 
   return (
-    <div ref={containerRef} tabIndex={-1}>
+    <div ref={containerRef} tabIndex={-1} role="region" aria-label="Expense list">
       {expenses.length === 0 ? (
         <p>No expenses recorded yet.</p>
       ) : (
         <ul>
-          {expenses.map((expense) => (
+          {expenses.map((expense, index) => (
             <li key={expense.id}>
               <span>{expense.category}</span>
               <span>{expense.amount.toFixed(2)}</span>
@@ -54,7 +65,8 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
               {expense.notes && <p>{expense.notes}</p>}
               <button
                 type="button"
-                onClick={(event) => openConfirm(expense.id, event.currentTarget)}
+                data-role="delete"
+                onClick={(event) => openConfirm(expense.id, event.currentTarget, index)}
               >
                 Delete
               </button>

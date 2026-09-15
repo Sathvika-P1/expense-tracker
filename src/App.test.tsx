@@ -66,7 +66,7 @@ describe("App", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(/deleted/i);
   });
 
-  it("moves focus to a stable element instead of the document body after the trigger button unmounts on delete (AC12)", async () => {
+  it("moves focus to the labelled expense list region when the last expense is deleted (AC12)", async () => {
     saveExpense({
       id: "existing",
       amount: 5,
@@ -82,7 +82,35 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /confirm/i }));
 
     await waitFor(() => {
-      expect(document.body).not.toHaveFocus();
+      expect(screen.getByRole("region", { name: /expense list/i })).toHaveFocus();
+    });
+  });
+
+  it("moves focus to the next remaining Delete button after the deleted expense's button unmounts (AC12)", async () => {
+    saveExpense({
+      id: "first",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: Date.now(),
+    });
+    saveExpense({
+      id: "second",
+      amount: 15,
+      date: "2026-01-02",
+      category: "Food",
+      createdAt: Date.now() + 1,
+    });
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
+    await user.click(deleteButtons[0]);
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /delete/i })).toHaveFocus();
     });
   });
 
