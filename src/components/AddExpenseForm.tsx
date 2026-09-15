@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { CATEGORIES } from "../domain/categories";
+import { getCurrentUserId } from "../domain/currentUser";
 import type { ExpenseInput } from "../domain/expense";
 import { saveExpense } from "../domain/expenseRepository";
 import { validateExpense, type ValidationErrors } from "../domain/validateExpense";
@@ -42,6 +43,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
     try {
       saveExpense({
         id: crypto.randomUUID(),
+        userId: getCurrentUserId(),
         amount: Number(form.amount),
         date: form.date,
         category: form.category as (typeof CATEGORIES)[number],

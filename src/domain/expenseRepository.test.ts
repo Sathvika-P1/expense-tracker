@@ -4,6 +4,7 @@ import type { Expense } from "./expense";
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
   id: "1",
+  userId: "local-user",
   amount: 10,
   date: "2026-01-01",
   category: "Food",
@@ -57,4 +58,18 @@ describe("expenseRepository", () => {
       expect(loadExpenses()).toEqual([]);
     },
   );
+
+  it("only returns expenses belonging to the given user", () => {
+    saveExpense(makeExpense({ id: "1", userId: "user-a" }));
+    saveExpense(makeExpense({ id: "2", userId: "user-b" }));
+
+    expect(loadExpenses("user-a").map((e) => e.id)).toEqual(["1"]);
+  });
+
+  it("orders expenses by date descending regardless of save order", () => {
+    saveExpense(makeExpense({ id: "old", date: "2026-01-01", userId: "u" }));
+    saveExpense(makeExpense({ id: "new", date: "2026-03-01", userId: "u" }));
+
+    expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
+  });
 });
