@@ -14,6 +14,15 @@ export const EMPTY_FILTERS: ExpenseFilters = {
   keyword: "",
 };
 
+export function hasActiveFilters(filters: ExpenseFilters): boolean {
+  return (
+    filters.startDate !== EMPTY_FILTERS.startDate ||
+    filters.endDate !== EMPTY_FILTERS.endDate ||
+    filters.category !== EMPTY_FILTERS.category ||
+    filters.keyword !== EMPTY_FILTERS.keyword
+  );
+}
+
 export function filterExpenses(expenses: Expense[], filters: ExpenseFilters): Expense[] {
   return expenses.filter((expense) => {
     if (filters.startDate && expense.date < filters.startDate) return false;

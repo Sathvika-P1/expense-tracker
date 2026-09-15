@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Expense } from "./expense";
-import { EMPTY_FILTERS, filterExpenses } from "./expenseFilters";
+import { EMPTY_FILTERS, filterExpenses, hasActiveFilters } from "./expenseFilters";
 
 function makeExpense(overrides: Partial<Expense> = {}): Expense {
   return {
@@ -49,5 +49,18 @@ describe("filterExpenses", () => {
     expect(filterExpenses(expenses, { ...EMPTY_FILTERS, keyword: "movie" })).toEqual([
       expenses[1],
     ]);
+  });
+});
+
+describe("hasActiveFilters", () => {
+  it("returns false when filters are empty", () => {
+    expect(hasActiveFilters(EMPTY_FILTERS)).toBe(false);
+  });
+
+  it("returns true when any field differs from the default", () => {
+    expect(hasActiveFilters({ ...EMPTY_FILTERS, category: "Food" })).toBe(true);
+    expect(hasActiveFilters({ ...EMPTY_FILTERS, keyword: "lunch" })).toBe(true);
+    expect(hasActiveFilters({ ...EMPTY_FILTERS, startDate: "2026-01-01" })).toBe(true);
+    expect(hasActiveFilters({ ...EMPTY_FILTERS, endDate: "2026-01-01" })).toBe(true);
   });
 });

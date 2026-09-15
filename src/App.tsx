@@ -3,7 +3,12 @@ import { AddExpenseForm } from "./components/AddExpenseForm";
 import { ExpenseFiltersForm } from "./components/ExpenseFiltersForm";
 import { ExpenseList } from "./components/ExpenseList";
 import type { Expense } from "./domain/expense";
-import { EMPTY_FILTERS, filterExpenses, type ExpenseFilters } from "./domain/expenseFilters";
+import {
+  EMPTY_FILTERS,
+  filterExpenses,
+  hasActiveFilters,
+  type ExpenseFilters,
+} from "./domain/expenseFilters";
 import { loadExpenses } from "./domain/expenseRepository";
 
 export default function App() {
@@ -12,6 +17,7 @@ export default function App() {
   const formRef = useRef<HTMLDivElement>(null);
 
   const visibleExpenses = filterExpenses(expenses, filters);
+  const clearFilters = () => setFilters(EMPTY_FILTERS);
 
   return (
     <main>
@@ -19,14 +25,12 @@ export default function App() {
       <div ref={formRef}>
         <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
       </div>
-      <ExpenseFiltersForm
-        filters={filters}
-        onChange={setFilters}
-        onClear={() => setFilters(EMPTY_FILTERS)}
-      />
+      <ExpenseFiltersForm filters={filters} onChange={setFilters} onClear={clearFilters} />
       <ExpenseList
         expenses={visibleExpenses}
+        hasActiveFilters={hasActiveFilters(filters)}
         onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
+        onClearFilters={clearFilters}
       />
     </main>
   );
