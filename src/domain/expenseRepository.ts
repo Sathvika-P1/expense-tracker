@@ -8,20 +8,28 @@ export type LoadResult = { ok: true; expenses: Expense[] } | { ok: false; messag
 
 export const SUMMARY_LOAD_ERROR = "We couldn't load your spending data. Please try again later.";
 
-function loadAll(): Expense[] {
+type RawReadResult = { ok: true; data: unknown[] } | { ok: false };
+
+function readRawExpenses(): RawReadResult {
   let raw: string | null;
   try {
     raw = localStorage.getItem(STORAGE_KEY);
   } catch {
-    return [];
+    return { ok: false };
   }
-  if (!raw) return [];
+  if (!raw) return { ok: true, data: [] };
+
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Expense[]) : [];
+    return Array.isArray(parsed) ? { ok: true, data: parsed } : { ok: false };
   } catch {
-    return [];
+    return { ok: false };
   }
+}
+
+function loadAll(): Expense[] {
+  const result = readRawExpenses();
+  return result.ok ? (result.data as Expense[]) : [];
 }
 
 export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
@@ -31,23 +39,10 @@ export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
 }
 
 export function loadExpensesStrict(userId: string = getCurrentUserId()): LoadResult {
-  let raw: string | null;
-  try {
-    raw = localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return { ok: false, message: SUMMARY_LOAD_ERROR };
-  }
-  if (!raw) return { ok: true, expenses: [] };
+  const result = readRawExpenses();
+  if (!result.ok) return { ok: false, message: SUMMARY_LOAD_ERROR };
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return { ok: false, message: SUMMARY_LOAD_ERROR };
-  }
-  if (!Array.isArray(parsed)) return { ok: false, message: SUMMARY_LOAD_ERROR };
-
-  const userExpenses = (parsed as Expense[]).filter((e) => e?.userId === userId);
+  const userExpenses = (result.data as Expense[]).filter((e) => e?.userId === userId);
   if (userExpenses.some((e) => !isValidDate(e?.date))) {
     return { ok: false, message: SUMMARY_LOAD_ERROR };
   }
@@ -55,7 +50,11 @@ export function loadExpensesStrict(userId: string = getCurrentUserId()): LoadRes
 }
 
 export function saveExpense(expense: Expense): Expense[] {
-  const expenses = [expense, ...loadAll()];
+  const result = readRawExpenses();
+  if (!result.ok) {
+    throw new Error("Unable to read existing expenses; refusing to overwrite stored data.");
+  }
+  const expenses = [expense, ...(result.data as Expense[])];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return expenses;
 }
