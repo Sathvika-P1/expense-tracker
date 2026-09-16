@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { loadExpenses, saveExpense } from "./expenseRepository";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { loadExpenses, loadExpensesStrict, saveExpense, SUMMARY_LOAD_ERROR } from "./expenseRepository";
 import type { Expense } from "./expense";
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
@@ -14,6 +14,10 @@ const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
 
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe("expenseRepository", () => {
@@ -71,5 +75,62 @@ describe("expenseRepository", () => {
     saveExpense(makeExpense({ id: "new", date: "2026-03-01", userId: "u" }));
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
+  });
+});
+
+describe("loadExpensesStrict", () => {
+  it("returns an ok result with an empty list when nothing is stored", () => {
+    expect(loadExpensesStrict()).toEqual({ ok: true, expenses: [] });
+  });
+
+  it("returns an ok result with the current user's expenses", () => {
+    const expense = makeExpense({ id: "1", userId: "local-user" });
+    saveExpense(expense);
+    expect(loadExpensesStrict()).toEqual({ ok: true, expenses: [expense] });
+  });
+
+  it("returns an error result when localStorage contains corrupted JSON", () => {
+    localStorage.setItem("expenses", "{not valid json");
+    expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+  });
+
+  it.each(['{"foo":1}', "null", "42", '"a string"'])(
+    "returns an error result when localStorage contains valid JSON that is not an array (%s)",
+    (value) => {
+      localStorage.setItem("expenses", value);
+      expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+    },
+  );
+
+  it("returns an error result when localStorage access throws", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("access denied");
+    });
+    expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+  });
+
+  it.each(["", "not-a-date", "2026-02-31", undefined])(
+    "returns an error result when an expense has an invalid date (%s)",
+    (date) => {
+      localStorage.setItem(
+        "expenses",
+        JSON.stringify([{ id: "1", userId: "local-user", amount: 1, date, category: "Food", createdAt: 1 }]),
+      );
+      expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+    },
+  );
+
+  it("ignores a malformed date belonging to a different user", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        { id: "1", userId: "other-user", amount: 1, date: "not-a-date", category: "Food", createdAt: 1 },
+        { id: "2", userId: "local-user", amount: 5, date: "2026-01-01", category: "Food", createdAt: 2 },
+      ]),
+    );
+    expect(loadExpensesStrict()).toEqual({
+      ok: true,
+      expenses: [{ id: "2", userId: "local-user", amount: 5, date: "2026-01-01", category: "Food", createdAt: 2 }],
+    });
   });
 });

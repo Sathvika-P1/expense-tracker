@@ -1,11 +1,15 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
-import { saveExpense } from "./domain/expenseRepository";
+import { saveExpense, SUMMARY_LOAD_ERROR } from "./domain/expenseRepository";
 
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe("App", () => {
@@ -56,5 +60,30 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "Add an expense" }));
 
     expect(screen.getByLabelText(/amount/i)).toHaveFocus();
+  });
+
+  it("updates the monthly summary after adding an expense without a page reload (AC5)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.type(screen.getByLabelText(/amount/i), "20");
+    await user.type(screen.getByLabelText(/date/i), "2026-04-01");
+    await user.selectOptions(screen.getByLabelText(/category/i), "Travel");
+    await user.click(screen.getByRole("button", { name: /add expense/i }));
+
+    const region = within(screen.getByRole("region", { name: /monthly spending/i }));
+    await waitFor(() => {
+      expect(region.getByText("April 2026")).toBeInTheDocument();
+    });
+  });
+
+  it("shows the summary error message when localStorage is unavailable (AC6)", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("access denied");
+    });
+
+    render(<App />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(SUMMARY_LOAD_ERROR);
   });
 });
