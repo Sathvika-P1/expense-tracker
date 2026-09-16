@@ -110,6 +110,22 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("resets to the first page when the expenses prop changes to a shorter filtered list", () => {
+    const many = Array.from({ length: 12 }, (_, i) =>
+      makeExpense({ id: String(i), notes: `note-${i}` }),
+    );
+    const { rerender } = render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(screen.getByText("note-11")).toBeInTheDocument();
+
+    const filtered = many.slice(0, 6);
+    rerender(<ExpenseList expenses={filtered} onAddExpenseClick={vi.fn()} filterActive />);
+
+    expect(screen.getByText("note-0")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /next page/i })).not.toBeInTheDocument();
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 

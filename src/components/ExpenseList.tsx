@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Expense } from "../domain/expense";
 
 interface ExpenseListProps {
@@ -11,6 +11,10 @@ const PAGE_SIZE = 10;
 
 export function ExpenseList({ expenses, onAddExpenseClick, filterActive = false }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    setPage(0);
+  }, [expenses]);
 
   if (expenses.length === 0) {
     if (filterActive) {
