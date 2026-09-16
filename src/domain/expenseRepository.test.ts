@@ -14,6 +14,9 @@ const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
 
 beforeEach(() => {
   localStorage.clear();
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.spyOn(console, "warn").mockImplementation(() => {});
+  vi.spyOn(console, "info").mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -48,10 +51,29 @@ describe("expenseRepository", () => {
     expect(loaded[1].id).toBe("1");
   });
 
+  it("throws when unable to read existing expenses during save", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("access denied");
+    });
+    expect(() => saveExpense(makeExpense())).toThrow(
+      "Unable to read existing expenses; refusing to overwrite stored data.",
+    );
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it("throws when localStorage.setItem fails during save", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("quota exceeded");
+    });
+    expect(() => saveExpense(makeExpense())).toThrow("Unable to save expense.");
+    expect(console.error).toHaveBeenCalled();
+  });
+
   it("returns an empty list when localStorage contains corrupted JSON", () => {
     localStorage.setItem("expenses", "{not valid json");
 
     expect(loadExpenses()).toEqual([]);
+    expect(console.error).toHaveBeenCalled();
   });
 
   it.each(['{"foo":1}', "null", "42", '"a string"'])(
@@ -107,6 +129,7 @@ describe("loadExpensesStrict", () => {
       throw new Error("access denied");
     });
     expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+    expect(console.error).toHaveBeenCalled();
   });
 
   it.each(["", "not-a-date", "2026-02-31", undefined])(
@@ -117,6 +140,7 @@ describe("loadExpensesStrict", () => {
         JSON.stringify([{ id: "1", userId: "local-user", amount: 1, date, category: "Food", createdAt: 1 }]),
       );
       expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+      expect(console.warn).toHaveBeenCalled();
     },
   );
 
