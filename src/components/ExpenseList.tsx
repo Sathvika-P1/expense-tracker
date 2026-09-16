@@ -18,7 +18,7 @@ export function ExpenseList({ expenses, onAddExpenseClick, onDelete, hasActiveFi
   if (expenses.length === 0) {
     if (hasActiveFilters) {
       return (
-        <div>
+        <div role="status">
           <p>No expenses match your filters.</p>
         </div>
       );
