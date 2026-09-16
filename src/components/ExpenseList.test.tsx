@@ -18,13 +18,13 @@ describe("ExpenseList", () => {
   it("renders expenses in the given order", () => {
     render(
       <ExpenseList
-        expenses={[makeExpense({ id: "2", category: "Travel" }), makeExpense({ id: "1" })]}
+        expenses={[makeExpense({ id: "2", category: "Transport" }), makeExpense({ id: "1" })]}
         onAddExpenseClick={vi.fn()}
       />,
     );
 
     const rows = screen.getAllByRole("row");
-    expect(rows[1]).toHaveTextContent("Travel");
+    expect(rows[1]).toHaveTextContent("Transport");
     expect(rows[2]).toHaveTextContent("Food");
   });
 
@@ -56,6 +56,14 @@ describe("ExpenseList", () => {
 
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByText(/no expenses recorded yet/i)).toBeInTheDocument();
+  });
+
+  it("shows a dedicated empty-state message when the filter matches no expenses", () => {
+    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} filterActive />);
+
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses match the selected categories/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /add.*expense/i })).not.toBeInTheDocument();
   });
 
   it("shows a call-to-action to add a new expense when the list is empty", () => {

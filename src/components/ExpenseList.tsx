@@ -4,14 +4,23 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  filterActive?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, filterActive = false }: ExpenseListProps) {
   const [page, setPage] = useState(0);
 
   if (expenses.length === 0) {
+    if (filterActive) {
+      return (
+        <div>
+          <p>No expenses match the selected categories.</p>
+        </div>
+      );
+    }
+
     return (
       <div>
         <p>No expenses recorded yet.</p>
