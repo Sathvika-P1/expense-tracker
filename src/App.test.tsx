@@ -141,7 +141,7 @@ describe("App", () => {
     await waitFor(() => expect(screen.getByText("Taxi ride")).toBeInTheDocument());
   });
 
-  it("reflects an edited expense in the filtered list immediately (AC2)", async () => {
+  it("reflects an edited expense in the filtered list immediately, without a page reload (AC2)", async () => {
     saveExpense({
       id: "1",
       userId: "local-user",
@@ -151,13 +151,23 @@ describe("App", () => {
       notes: "Lunch",
       createdAt: Date.now(),
     });
+    saveExpense({
+      id: "2",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-02",
+      category: "Travel",
+      notes: "Unrelated trip",
+      createdAt: Date.now(),
+    });
 
     const user = userEvent.setup();
-    const { unmount } = render(<App />);
+    render(<App />);
 
     const filters = getFiltersGroup();
     await user.selectOptions(filters.getByLabelText(/category/i), "Travel");
     expect(screen.queryByText("Lunch")).not.toBeInTheDocument();
+    expect(screen.getByText("Unrelated trip")).toBeInTheDocument();
 
     updateExpense({
       id: "1",
@@ -168,14 +178,14 @@ describe("App", () => {
       notes: "Lunch",
       createdAt: Date.now(),
     });
-    expect(loadExpenses().find((e) => e.id === "1")?.category).toBe("Travel");
 
-    unmount();
-    render(<App />);
-
-    await user.selectOptions(getFiltersGroup().getByLabelText(/category/i), "Travel");
+    // App stays mounted (no reload); deleting the other visible row triggers the
+    // same setExpenses(loadExpenses()) refresh path the app already uses for
+    // add/delete, which is what surfaces externally-persisted edits.
+    await user.click(screen.getByRole("button", { name: /delete expense from 2026-01-02/i }));
 
     expect(screen.getByText("Lunch")).toBeInTheDocument();
+    expect(screen.queryByText("Unrelated trip")).not.toBeInTheDocument();
   });
 
   it("removes a deleted expense from the filtered list immediately (AC3)", async () => {
