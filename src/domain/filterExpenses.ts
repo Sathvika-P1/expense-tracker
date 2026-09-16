@@ -8,6 +8,15 @@ export interface ExpenseFilterCriteria {
   keyword?: string;
 }
 
+export function hasActiveCriteria(criteria: ExpenseFilterCriteria): boolean {
+  return Boolean(
+    criteria.startDate ||
+      criteria.endDate ||
+      criteria.category ||
+      criteria.keyword?.trim(),
+  );
+}
+
 export function filterExpenses(expenses: Expense[], criteria: ExpenseFilterCriteria): Expense[] {
   return expenses.filter((expense) => {
     if (criteria.startDate && expense.date < criteria.startDate) return false;
