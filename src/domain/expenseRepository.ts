@@ -3,12 +3,27 @@ import type { Expense } from "./expense";
 
 const STORAGE_KEY = "expenses";
 
+// Maps categories renamed in ET-STORY-015 so expenses saved under the old
+// names still match the current (and only selectable) category set.
+const LEGACY_CATEGORY_MIGRATIONS: Record<string, string> = {
+  Travel: "Transport",
+  Shopping: "Housing",
+  Bills: "Utilities",
+  Healthcare: "Entertainment",
+  Others: "Other",
+};
+
+function migrateCategory(expense: Expense): Expense {
+  const migrated = LEGACY_CATEGORY_MIGRATIONS[expense.category as string];
+  return migrated ? { ...expense, category: migrated as Expense["category"] } : expense;
+}
+
 function loadAll(): Expense[] {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Expense[]) : [];
+    return Array.isArray(parsed) ? (parsed as Expense[]).map(migrateCategory) : [];
   } catch {
     return [];
   }

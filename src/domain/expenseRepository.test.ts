@@ -72,4 +72,25 @@ describe("expenseRepository", () => {
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
   });
+
+  it.each([
+    ["Travel", "Transport"],
+    ["Shopping", "Housing"],
+    ["Bills", "Utilities"],
+    ["Healthcare", "Entertainment"],
+    ["Others", "Other"],
+  ])("migrates expenses stored under the old category name %s to %s", (oldCategory, newCategory) => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([{ ...makeExpense(), category: oldCategory }]),
+    );
+
+    expect(loadExpenses()[0].category).toBe(newCategory);
+  });
+
+  it("leaves expenses already using a current category name unchanged", () => {
+    saveExpense(makeExpense({ category: "Transport" }));
+
+    expect(loadExpenses()[0].category).toBe("Transport");
+  });
 });

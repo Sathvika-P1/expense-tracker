@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Expense } from "../domain/expense";
 
 interface ExpenseListProps {
@@ -11,10 +11,14 @@ const PAGE_SIZE = 10;
 
 export function ExpenseList({ expenses, onAddExpenseClick, filterActive = false }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+  const [expensesForPage, setExpensesForPage] = useState(expenses);
 
-  useEffect(() => {
+  // Reset to page 0 during render (not in an effect) so the very first
+  // render after `expenses` changes never slices with a stale page index.
+  if (expenses !== expensesForPage) {
+    setExpensesForPage(expenses);
     setPage(0);
-  }, [expenses]);
+  }
 
   if (expenses.length === 0) {
     if (filterActive) {
