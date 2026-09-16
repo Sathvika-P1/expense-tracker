@@ -3,27 +3,54 @@ import type { Expense } from "../domain/expense";
 
 interface ExpenseListProps {
   expenses: Expense[];
+  hasActiveFilters: boolean;
   onAddExpenseClick: () => void;
+  onClearFilters: () => void;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({
+  expenses,
+  hasActiveFilters,
+  onAddExpenseClick,
+  onClearFilters,
+}: ExpenseListProps) {
   const [page, setPage] = useState(0);
+  const [prevExpenses, setPrevExpenses] = useState(expenses);
+
+  // Reset synchronously during render (not in an effect) to avoid a stale out-of-range page flash.
+  let currentPage = page;
+  if (expenses !== prevExpenses) {
+    setPrevExpenses(expenses);
+    setPage(0);
+    currentPage = 0;
+  }
 
   if (expenses.length === 0) {
     return (
       <div>
-        <p>No expenses recorded yet.</p>
-        <button type="button" onClick={onAddExpenseClick}>
-          Add an expense
-        </button>
+        {hasActiveFilters ? (
+          <>
+            <p>No matching expenses found.</p>
+            <button type="button" onClick={onClearFilters}>
+              Clear all filters
+            </button>
+          </>
+        ) : (
+          <>
+            <p>No expenses recorded yet.</p>
+            <button type="button" onClick={onAddExpenseClick}>
+              Add an expense
+            </button>
+          </>
+        )}
       </div>
     );
   }
 
   const totalPages = Math.ceil(expenses.length / PAGE_SIZE);
-  const pageItems = expenses.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const pageItems = expenses.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <div>
@@ -54,18 +81,18 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
             type="button"
             aria-label="Previous page"
             onClick={() => setPage((p) => p - 1)}
-            disabled={page === 0}
+            disabled={currentPage === 0}
           >
             Previous
           </button>
           <span>
-            Page {page + 1} of {totalPages}
+            Page {currentPage + 1} of {totalPages}
           </span>
           <button
             type="button"
             aria-label="Next page"
             onClick={() => setPage((p) => p + 1)}
-            disabled={page >= totalPages - 1}
+            disabled={currentPage >= totalPages - 1}
           >
             Next
           </button>
