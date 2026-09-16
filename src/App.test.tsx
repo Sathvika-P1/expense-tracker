@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
-import { saveExpense } from "./domain/expenseRepository";
+import { loadExpenses, saveExpense, updateExpense } from "./domain/expenseRepository";
 
 function getFiltersGroup() {
   return within(screen.getByRole("group", { name: /filters/i }));
@@ -139,6 +139,43 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: /add expense/i }));
 
     await waitFor(() => expect(screen.getByText("Taxi ride")).toBeInTheDocument());
+  });
+
+  it("reflects an edited expense in the filtered list immediately (AC2)", async () => {
+    saveExpense({
+      id: "1",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Food",
+      notes: "Lunch",
+      createdAt: Date.now(),
+    });
+
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    const filters = getFiltersGroup();
+    await user.selectOptions(filters.getByLabelText(/category/i), "Travel");
+    expect(screen.queryByText("Lunch")).not.toBeInTheDocument();
+
+    updateExpense({
+      id: "1",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Travel",
+      notes: "Lunch",
+      createdAt: Date.now(),
+    });
+    expect(loadExpenses().find((e) => e.id === "1")?.category).toBe("Travel");
+
+    unmount();
+    render(<App />);
+
+    await user.selectOptions(getFiltersGroup().getByLabelText(/category/i), "Travel");
+
+    expect(screen.getByText("Lunch")).toBeInTheDocument();
   });
 
   it("removes a deleted expense from the filtered list immediately (AC3)", async () => {
