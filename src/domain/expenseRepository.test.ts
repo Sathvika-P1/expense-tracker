@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadExpenses, saveExpense } from "./expenseRepository";
+import { deleteExpense, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
 import type { Expense } from "./expense";
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
@@ -71,5 +71,22 @@ describe("expenseRepository", () => {
     saveExpense(makeExpense({ id: "new", date: "2026-03-01", userId: "u" }));
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
+  });
+
+  it("removes the expense from subsequent loadExpenses() results after deleteExpense (AC3)", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    saveExpense(makeExpense({ id: "2" }));
+
+    deleteExpense("1");
+
+    expect(loadExpenses().map((e) => e.id)).toEqual(["2"]);
+  });
+
+  it("persists changes to an expense so loadExpenses() reflects them after updateExpense (AC2)", () => {
+    saveExpense(makeExpense({ id: "1", category: "Food", notes: "Lunch" }));
+
+    updateExpense(makeExpense({ id: "1", category: "Travel", notes: "Lunch" }));
+
+    expect(loadExpenses().find((e) => e.id === "1")?.category).toBe("Travel");
   });
 });
