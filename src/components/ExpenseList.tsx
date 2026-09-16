@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { Expense } from "../domain/expense";
 
 interface ExpenseListProps {
@@ -12,7 +12,7 @@ const PAGE_SIZE = 10;
 export function ExpenseList({ expenses, onAddExpenseClick, filterKey }: ExpenseListProps) {
   const [page, setPage] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setPage(0);
   }, [filterKey]);
 
