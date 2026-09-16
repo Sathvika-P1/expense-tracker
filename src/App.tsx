@@ -4,7 +4,7 @@ import { ExpenseFilters } from "./components/ExpenseFilters";
 import { ExpenseList } from "./components/ExpenseList";
 import type { Expense } from "./domain/expense";
 import { deleteExpense, loadExpenses } from "./domain/expenseRepository";
-import { filterExpenses, type ExpenseFilterCriteria } from "./domain/filterExpenses";
+import { filterExpenses, hasActiveCriteria, type ExpenseFilterCriteria } from "./domain/filterExpenses";
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
@@ -12,9 +12,7 @@ export default function App() {
   const formRef = useRef<HTMLDivElement>(null);
 
   const filteredExpenses = filterExpenses(expenses, criteria);
-  const hasActiveFilters = Boolean(
-    criteria.startDate || criteria.endDate || criteria.category || criteria.keyword,
-  );
+  const hasActiveFilters = hasActiveCriteria(criteria);
 
   return (
     <main>
