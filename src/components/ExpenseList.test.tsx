@@ -102,6 +102,84 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("shows the first page again after navigating back with Previous", async () => {
+    const many = Array.from({ length: 12 }, (_, i) =>
+      makeExpense({ id: String(i), notes: `note-${i}` }),
+    );
+    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: /next page/i }));
+    await userEvent.click(screen.getByRole("button", { name: /previous page/i }));
+
+    expect(screen.getByText("note-0")).toBeInTheDocument();
+    expect(screen.queryByText("note-11")).not.toBeInTheDocument();
+  });
+
+  it("shows pagination based on the currently rendered (filtered) result set, not the unfiltered total", () => {
+    const all = Array.from({ length: 25 }, (_, i) => makeExpense({ id: String(i) }));
+    const { rerender } = render(
+      <ExpenseList expenses={all} onAddExpenseClick={vi.fn()} filterKey="all" />,
+    );
+
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 1 of 3");
+
+    rerender(
+      <ExpenseList
+        expenses={all.slice(0, 12)}
+        onAddExpenseClick={vi.fn()}
+        filterKey="category:Food"
+      />,
+    );
+
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 1 of 2");
+  });
+
+  it("resets to the first page when the filter changes while on a later page", async () => {
+    const wide = Array.from({ length: 25 }, (_, i) => makeExpense({ id: String(i) }));
+    const { rerender } = render(
+      <ExpenseList expenses={wide} onAddExpenseClick={vi.fn()} filterKey="all" />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 2 of 3");
+
+    const narrow = Array.from({ length: 12 }, (_, i) => makeExpense({ id: String(i) }));
+    rerender(
+      <ExpenseList expenses={narrow} onAddExpenseClick={vi.fn()} filterKey="category:Food" />,
+    );
+
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 1 of 2");
+  });
+
+  it("resets to the first page when the filter key changes even if the result count stays the same", async () => {
+    const setOne = Array.from({ length: 25 }, (_, i) => makeExpense({ id: `a${i}` }));
+    const { rerender } = render(
+      <ExpenseList expenses={setOne} onAddExpenseClick={vi.fn()} filterKey="category:Food" />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 2 of 3");
+
+    const setTwo = Array.from({ length: 25 }, (_, i) => makeExpense({ id: `b${i}` }));
+    rerender(
+      <ExpenseList expenses={setTwo} onAddExpenseClick={vi.fn()} filterKey="category:Travel" />,
+    );
+
+    expect(
+      screen.getByRole("navigation", { name: /pagination/i }),
+    ).toHaveTextContent("Page 1 of 3");
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 
