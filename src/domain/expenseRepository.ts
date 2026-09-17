@@ -25,3 +25,30 @@ export function saveExpense(expense: Expense): Expense[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return expenses;
 }
+
+export type LoadResult =
+  | { ok: true; expenses: Expense[] }
+  | { ok: false; reason: "corrupted" | "unavailable" };
+
+export function loadExpensesResult(userId: string = getCurrentUserId()): LoadResult {
+  let raw: string | null;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return { ok: false, reason: "unavailable" };
+  }
+  if (!raw) return { ok: true, expenses: [] };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { ok: false, reason: "corrupted" };
+  }
+  if (!Array.isArray(parsed)) {
+    return { ok: false, reason: "corrupted" };
+  }
+  const expenses = (parsed as Expense[])
+    .filter((expense) => expense.userId === userId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  return { ok: true, expenses };
+}
