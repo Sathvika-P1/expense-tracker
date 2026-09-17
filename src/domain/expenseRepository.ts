@@ -47,8 +47,13 @@ export function loadExpensesResult(userId: string = getCurrentUserId()): LoadRes
   if (!Array.isArray(parsed)) {
     return { ok: false, reason: "corrupted" };
   }
-  const expenses = (parsed as Expense[])
-    .filter((expense) => expense.userId === userId)
-    .sort((a, b) => b.date.localeCompare(a.date));
+  let expenses: Expense[];
+  try {
+    expenses = (parsed as Expense[])
+      .filter((expense) => expense.userId === userId)
+      .sort((a, b) => b.date.localeCompare(a.date));
+  } catch {
+    return { ok: false, reason: "corrupted" };
+  }
   return { ok: true, expenses };
 }
