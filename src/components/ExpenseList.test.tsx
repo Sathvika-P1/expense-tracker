@@ -18,13 +18,13 @@ describe("ExpenseList", () => {
   it("renders expenses in the given order", () => {
     render(
       <ExpenseList
-        expenses={[makeExpense({ id: "2", category: "Travel" }), makeExpense({ id: "1" })]}
+        expenses={[makeExpense({ id: "2", category: "Transport" }), makeExpense({ id: "1" })]}
         onAddExpenseClick={vi.fn()}
       />,
     );
 
     const rows = screen.getAllByRole("row");
-    expect(rows[1]).toHaveTextContent("Travel");
+    expect(rows[1]).toHaveTextContent("Transport");
     expect(rows[2]).toHaveTextContent("Food");
   });
 
@@ -56,6 +56,14 @@ describe("ExpenseList", () => {
 
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByText(/no expenses recorded yet/i)).toBeInTheDocument();
+  });
+
+  it("shows a dedicated empty-state message when the filter matches no expenses", () => {
+    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} filterActive />);
+
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses match the selected categories/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /add.*expense/i })).not.toBeInTheDocument();
   });
 
   it("shows a call-to-action to add a new expense when the list is empty", () => {
@@ -100,6 +108,22 @@ describe("ExpenseList", () => {
 
     expect(screen.getByText("note-11")).toBeInTheDocument();
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
+  });
+
+  it("resets to the first page when the expenses prop changes to a shorter filtered list", () => {
+    const many = Array.from({ length: 12 }, (_, i) =>
+      makeExpense({ id: String(i), notes: `note-${i}` }),
+    );
+    const { rerender } = render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(screen.getByText("note-11")).toBeInTheDocument();
+
+    const filtered = many.slice(0, 6);
+    rerender(<ExpenseList expenses={filtered} onAddExpenseClick={vi.fn()} filterActive />);
+
+    expect(screen.getByText("note-0")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /next page/i })).not.toBeInTheDocument();
   });
 
   it("exposes the expense list as a table with labeled columns", () => {
