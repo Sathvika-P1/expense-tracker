@@ -125,4 +125,16 @@ describe("loadExpensesResult", () => {
   it("returns an empty successful result when nothing is stored", () => {
     expect(loadExpensesResult()).toEqual({ ok: true, expenses: [] });
   });
+
+  it("reports corrupted when an array element is malformed (e.g. missing date)", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        { userId: "local-user", date: null },
+        { userId: "local-user", date: "2026-01-01" },
+      ]),
+    );
+
+    expect(loadExpensesResult()).toEqual({ ok: false, reason: "corrupted" });
+  });
 });
