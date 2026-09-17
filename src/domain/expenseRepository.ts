@@ -47,8 +47,8 @@ function loadAll(userId: string): Expense[] {
 
 export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
   return loadAll(userId)
-    .filter((expense) => expense.userId === userId)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .filter((expense) => expense?.userId === userId)
+    .sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
 }
 
 export function loadExpensesStrict(userId: string = getCurrentUserId()): LoadResult {
@@ -56,11 +56,11 @@ export function loadExpensesStrict(userId: string = getCurrentUserId()): LoadRes
   if (!result.ok) return { ok: false, message: SUMMARY_LOAD_ERROR };
 
   const userExpenses = (result.data as Expense[]).filter((e) => e?.userId === userId);
-  const invalidDateExpenses = userExpenses.filter((e) => !isValidDate(e?.date));
-  if (invalidDateExpenses.length > 0) {
-    console.warn("[expenseRepository] expenses with invalid dates", {
+  const invalidExpenses = userExpenses.filter((e) => !isValidDate(e?.date) || !Number.isFinite(e?.amount));
+  if (invalidExpenses.length > 0) {
+    console.warn("[expenseRepository] expenses with invalid data", {
       userId,
-      invalid: invalidDateExpenses.map((e) => ({ id: e?.id, date: e?.date })),
+      invalid: invalidExpenses.map((e) => ({ id: e?.id, date: e?.date, amount: e?.amount })),
     });
     return { ok: false, message: SUMMARY_LOAD_ERROR };
   }

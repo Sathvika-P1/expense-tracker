@@ -98,6 +98,21 @@ describe("expenseRepository", () => {
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
   });
+
+  it("does not crash and drops malformed records (null entries, missing or non-string dates)", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        null,
+        { id: "1", userId: "local-user", amount: 5, category: "Food", createdAt: 1 },
+        { id: "2", userId: "local-user", amount: 5, date: 123, category: "Food", createdAt: 1 },
+        { id: "3", userId: "local-user", amount: 5, date: "2026-01-01", category: "Food", createdAt: 1 },
+      ]),
+    );
+
+    expect(() => loadExpenses()).not.toThrow();
+    expect(loadExpenses().map((e) => e.id).sort()).toEqual(["1", "2", "3"]);
+  });
 });
 
 describe("loadExpensesStrict", () => {
@@ -138,6 +153,20 @@ describe("loadExpensesStrict", () => {
       localStorage.setItem(
         "expenses",
         JSON.stringify([{ id: "1", userId: "local-user", amount: 1, date, category: "Food", createdAt: 1 }]),
+      );
+      expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
+      expect(console.warn).toHaveBeenCalled();
+    },
+  );
+
+  it.each([undefined, "not-a-number", null, NaN])(
+    "returns an error result when an expense has an invalid amount (%s)",
+    (amount) => {
+      localStorage.setItem(
+        "expenses",
+        JSON.stringify([
+          { id: "1", userId: "local-user", amount, date: "2026-01-01", category: "Food", createdAt: 1 },
+        ]),
       );
       expect(loadExpensesStrict()).toEqual({ ok: false, message: SUMMARY_LOAD_ERROR });
       expect(console.warn).toHaveBeenCalled();
