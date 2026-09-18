@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expense Tracker — Design System Style Guide</title>
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="prototype-utils.css" />
+<style>
+  .sg-page-header {
+    background-color: var(--color-primary);
+    color: var(--color-primary-fg);
+    padding: var(--space-4);
+  }
+  .sg-page-header h1 {
+    color: var(--color-primary-fg);
+    margin: 0;
+  }
+  .sg-page-header p {
+    margin: var(--space-1) 0 0 0;
+  }
+  main { max-width: calc(var(--space-4) * 40); margin: 0 auto; padding: var(--space-4); }
+  .sg-section {
+    margin: var(--space-4) 0;
+    padding: var(--space-4);
+    background-color: var(--color-bg);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+  .sg-section h2 { margin-top: 0; }
+  .sg-swatch-row { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .sg-swatch { width: calc(var(--space-4) * 6); }
+  .sg-swatch-color {
+    height: calc(var(--space-4) * 3);
+    border-radius: var(--radius-sm);
+    border: var(--border-width-thin) solid var(--color-border);
+  }
+  .sg-swatch-label { font-size: var(--font-size-sm); margin-top: var(--space-1); }
+  .sg-dim-bar { background-color: var(--color-primary); height: var(--space-2); border-radius: var(--radius-sm); }
+  .sg-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+  .sg-component-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-start; }
+</style>
+</head>
+<body>
+  <header class="sg-page-header">
+    <h1 class="text-xl">Ledger — Expense Tracker Design System</h1>
+    <p class="text-md">Tokens, utilities, and components for a warm, editorial ledger aesthetic.</p>
+  </header>
+
+  <main>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Colors</h2>
+    <div class="sg-swatch-row">
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-fg);"></div>
+        <div class="sg-swatch-label">color-fg</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-bg);"></div>
+        <div class="sg-swatch-label">color-bg</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-primary);"></div>
+        <div class="sg-swatch-label">color-primary</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-primary-fg); border: var(--border-width-thin) solid var(--color-border);"></div>
+        <div class="sg-swatch-label">color-primary-fg</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-border);"></div>
+        <div class="sg-swatch-label">color-border</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-muted);"></div>
+        <div class="sg-swatch-label">color-muted</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-positive);"></div>
+        <div class="sg-swatch-label">color-positive</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color" style="background-color: var(--color-negative);"></div>
+        <div class="sg-swatch-label">color-negative</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Spacing (.p-1–.p-4)</h2>
+    <div class="sg-component-row">
+      <div class="p-1" style="background-color: var(--color-primary);"><span class="bg-surface" style="display:block; width: var(--space-2); height: var(--space-2);"></span></div>
+      <div class="p-2" style="background-color: var(--color-primary);"><span class="bg-surface" style="display:block; width: var(--space-2); height: var(--space-2);"></span></div>
+      <div class="p-3" style="background-color: var(--color-primary);"><span class="bg-surface" style="display:block; width: var(--space-2); height: var(--space-2);"></span></div>
+      <div class="p-4" style="background-color: var(--color-primary);"><span class="bg-surface" style="display:block; width: var(--space-2); height: var(--space-2);"></span></div>
+    </div>
+    <p class="text-sm text-muted">Left to right: .p-1, .p-2, .p-3, .p-4</p>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Gap (.gap-1–.gap-4)</h2>
+    <div class="sg-component-row gap-3">
+      <div class="chip gap-1"><span>a</span><span>b</span></div>
+      <div class="chip gap-2"><span>a</span><span>b</span></div>
+      <div class="chip gap-3"><span>a</span><span>b</span></div>
+      <div class="chip gap-4"><span>a</span><span>b</span></div>
+    </div>
+    <p class="text-sm text-muted">Left to right: .gap-1, .gap-2, .gap-3, .gap-4</p>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Radii (.rounded-sm/md/lg)</h2>
+    <div class="sg-swatch-row">
+      <div class="sg-swatch">
+        <div class="sg-swatch-color rounded-sm" style="background-color: var(--color-primary);"></div>
+        <div class="sg-swatch-label">.rounded-sm</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color rounded-md" style="background-color: var(--color-primary);"></div>
+        <div class="sg-swatch-label">.rounded-md</div>
+      </div>
+      <div class="sg-swatch">
+        <div class="sg-swatch-color rounded-lg" style="background-color: var(--color-primary);"></div>
+        <div class="sg-swatch-label">.rounded-lg</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Typography</h2>
+    <p class="text-sm">.text-sm — The quick brown fox jumps over the lazy dog</p>
+    <p class="text-md">.text-md — The quick brown fox jumps over the lazy dog</p>
+    <p class="text-lg">.text-lg — The quick brown fox jumps over the lazy dog</p>
+    <p class="text-xl heading">.text-xl — Ledger</p>
+    <p style="font-family: var(--font-family-base);">font-family-base — The quick brown fox jumps over the lazy dog</p>
+    <p class="font-heading">font-family-heading — The quick brown fox jumps over the lazy dog</p>
+    <p style="font-weight: var(--font-weight-regular);">font-weight-regular — The quick brown fox jumps over the lazy dog</p>
+    <p style="font-weight: var(--font-weight-medium);">font-weight-medium — The quick brown fox jumps over the lazy dog</p>
+    <p style="font-weight: var(--font-weight-bold);">font-weight-bold — The quick brown fox jumps over the lazy dog</p>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Text &amp; surface utilities</h2>
+    <div class="sg-component-row">
+      <span class="text-fg">.text-fg sample</span>
+      <span class="text-primary">.text-primary sample</span>
+      <span class="text-muted">.text-muted sample</span>
+      <span class="text-positive">.text-positive sample (+$120.00)</span>
+      <span class="text-negative">.text-negative sample (-$42.10)</span>
+      <span class="bg-surface p-2 rounded-sm" style="border: var(--border-width-thin) solid var(--color-border);">.bg-surface sample</span>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Borders &amp; focus ring</h2>
+    <div class="sg-component-row">
+      <div class="p-2 rounded-sm" style="border: var(--border-width-thin) solid var(--color-fg);">
+        <span class="text-sm">border-width-thin</span>
+      </div>
+      <div class="p-2 rounded-sm" style="outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset);">
+        <span class="text-sm">focus-ring-width / focus-ring-offset (static preview)</span>
+      </div>
+    </div>
+    <p class="text-sm text-muted">Tab into the field below to see the live focus ring on .input:focus</p>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Shadow</h2>
+    <div class="card" style="width: calc(var(--space-4) * 8);">
+      <p class="text-sm">shadow-card (applied via .card)</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Buttons</h2>
+    <div class="sg-component-row">
+      <button class="btn btn-primary">Add expense</button>
+      <button class="btn btn-secondary">Cancel</button>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Card</h2>
+    <div class="card" style="width: calc(var(--space-4) * 11);">
+      <h3 class="card-title">Expense summary</h3>
+      <p class="text-md">Groceries <span class="text-negative">-$42.10</span></p>
+      <p class="text-md">Refund <span class="text-positive">+$15.00</span></p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Chips</h2>
+    <div class="sg-component-row">
+      <span class="chip">Uncategorized</span>
+      <span class="chip-primary">Travel</span>
+      <span class="chip-positive">Income</span>
+      <span class="chip-negative">Overdue</span>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2 class="heading text-lg">Form controls</h2>
+    <div class="field" style="max-width: calc(var(--space-4) * 11);">
+      <label class="label" for="sg-amount">Amount</label>
+      <input class="input" id="sg-amount" type="text" placeholder="0.00" />
+    </div>
+  </section>
+
+  </main>
+</body>
+</html>
