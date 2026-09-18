@@ -57,4 +57,29 @@ describe("App", () => {
 
     expect(screen.getByLabelText(/amount/i)).toHaveFocus();
   });
+
+  it("updates the total expenses widget after adding an expense, without a reload (AC3)", async () => {
+    saveExpense({
+      id: "existing",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: Date.now(),
+    });
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(screen.getByTestId("total-expenses-amount")).toHaveTextContent("$5.00");
+
+    await user.type(screen.getByLabelText(/amount/i), "20");
+    await user.type(screen.getByLabelText(/date/i), "2026-02-01");
+    await user.selectOptions(screen.getByLabelText(/category/i), "Travel");
+    await user.click(screen.getByRole("button", { name: /add expense/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("total-expenses-amount")).toHaveTextContent("$25.00");
+    });
+  });
 });

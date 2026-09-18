@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { loadExpenses, saveExpense } from "./expenseRepository";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { loadExpenses, loadExpensesResult, saveExpense } from "./expenseRepository";
 import type { Expense } from "./expense";
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
@@ -71,5 +71,70 @@ describe("expenseRepository", () => {
     saveExpense(makeExpense({ id: "new", date: "2026-03-01", userId: "u" }));
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
+  });
+});
+
+describe("loadExpensesResult", () => {
+  it("reports corrupted JSON instead of swallowing it", () => {
+    localStorage.setItem("expenses", "{not valid json");
+
+    expect(loadExpensesResult()).toEqual({ ok: false, reason: "corrupted" });
+  });
+
+  it("reports a non-array JSON payload as corrupted", () => {
+    localStorage.setItem("expenses", '{"foo":1}');
+
+    expect(loadExpensesResult()).toEqual({ ok: false, reason: "corrupted" });
+  });
+
+  it("reports unavailable storage without throwing", () => {
+    const spy = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("denied", "SecurityError");
+    });
+
+    expect(loadExpensesResult()).toEqual({ ok: false, reason: "unavailable" });
+
+    spy.mockRestore();
+  });
+
+  it("returns the current user's expenses on success", () => {
+    saveExpense({
+      id: "1",
+      userId: "local-user",
+      amount: 10,
+      date: "2026-01-01",
+      category: "Food",
+      createdAt: Date.now(),
+    });
+
+    expect(loadExpensesResult()).toEqual({
+      ok: true,
+      expenses: [
+        {
+          id: "1",
+          userId: "local-user",
+          amount: 10,
+          date: "2026-01-01",
+          category: "Food",
+          createdAt: expect.any(Number),
+        },
+      ],
+    });
+  });
+
+  it("returns an empty successful result when nothing is stored", () => {
+    expect(loadExpensesResult()).toEqual({ ok: true, expenses: [] });
+  });
+
+  it("reports corrupted when an array element is malformed (e.g. missing date)", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        { userId: "local-user", date: null },
+        { userId: "local-user", date: "2026-01-01" },
+      ]),
+    );
+
+    expect(loadExpensesResult()).toEqual({ ok: false, reason: "corrupted" });
   });
 });
