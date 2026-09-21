@@ -5,6 +5,10 @@ import { EditExpenseForm } from "./EditExpenseForm";
 import type { Expense } from "../domain/expense";
 import { saveExpense, updateExpense } from "../domain/expenseRepository";
 
+const actualExpenseRepository = await vi.importActual<
+  typeof import("../domain/expenseRepository")
+>("../domain/expenseRepository");
+
 vi.mock("../domain/expenseRepository", async () => {
   const actual = await vi.importActual<typeof import("../domain/expenseRepository")>(
     "../domain/expenseRepository",
@@ -25,7 +29,8 @@ const expense: Expense = {
 
 beforeEach(() => {
   localStorage.clear();
-  vi.mocked(updateExpense).mockClear();
+  vi.mocked(updateExpense).mockReset();
+  vi.mocked(updateExpense).mockImplementation(actualExpenseRepository.updateExpense);
 });
 
 afterEach(() => {
