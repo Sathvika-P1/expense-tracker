@@ -73,7 +73,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
         <nav className="pagination" aria-label="Expense list pagination">
           <button
             type="button"
-            className="btn-secondary"
+            className="btn btn-secondary"
             aria-label="Previous page"
             onClick={() => setPage((p) => p - 1)}
             disabled={page === 0}
@@ -85,7 +85,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
           </span>
           <button
             type="button"
-            className="btn-secondary"
+            className="btn btn-secondary"
             aria-label="Next page"
             onClick={() => setPage((p) => p + 1)}
             disabled={page >= totalPages - 1}
