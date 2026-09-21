@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
@@ -14,6 +14,7 @@ function getAddExpenseForm() {
 
 beforeEach(() => {
   localStorage.clear();
+  vi.spyOn(window, "confirm").mockReturnValue(true);
 });
 
 describe("App", () => {

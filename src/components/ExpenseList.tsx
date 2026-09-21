@@ -60,7 +60,11 @@ export function ExpenseList({ expenses, onAddExpenseClick, onDelete, hasActiveFi
                   <button
                     type="button"
                     aria-label={`Delete expense from ${expense.date}, ${expense.notes ?? expense.category}`}
-                    onClick={() => onDelete(expense.id)}
+                    onClick={() => {
+                      if (window.confirm("Delete this expense? This cannot be undone.")) {
+                        onDelete(expense.id);
+                      }
+                    }}
                   >
                     Delete
                   </button>
