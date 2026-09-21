@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ET-STORY-020 — Responsive expense list</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+</style>
+<!-- App nav: none — Expense Tracker is a single-page app with no persistent nav chrome; the page header (title + "Add expense") is the only wayfinding element, matching the existing ExpenseList.tsx contract. -->
+<style>
+  /* Page-specific styles only. All colors/spacing/type come from tokens.css via var(--...). */
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .page-header h1 { margin: 0; font-size: var(--font-size-lg); }
+
+  /* --- Reviewer harness (viewport simulation) --- */
+  .harness {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: center;
+  }
+  .harness-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: center;
+  }
+  .harness-controls .btn-secondary[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: var(--color-primary-fg);
+    border-color: var(--color-primary);
+  }
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: calc(var(--space-4) * 2);
+  }
+  .slider-wrap input[type="range"] {
+    width: 220px;
+  }
+  .slider-readout {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    min-width: 4.5em;
+  }
+
+  /* The device frame: width is JS-controlled via inline style + container queries,
+     so reflow is driven by the FRAME's inline-size, not the real browser window.
+     This lets 320px / 1440px states render side-by-side regardless of how wide
+     the reviewer's actual browser is. */
+  .device-frame-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .device-frame {
+    container-type: inline-size;
+    container-name: expense-viewport;
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    background-color: var(--color-bg);
+    transition: width 200ms ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .device-frame { transition: none; }
+  }
+  .device-frame-inner {
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  /* --- App content --- */
+  .app-shell {
+    min-width: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-3) 0 var(--space-3);
+  }
+  .toolbar h2 {
+    margin: 0;
+    font-size: var(--font-size-md);
+  }
+
+  .list-region {
+    padding: var(--space-3);
+    min-width: 0;
+  }
+
+  /* Table layout (desktop / wide containers) */
+  .expense-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .expense-table caption {
+    text-align: left;
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    margin-bottom: var(--space-2);
+  }
+  .expense-table th,
+  .expense-table td {
+    text-align: left;
+    padding: var(--space-2) var(--space-2);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+    font-size: var(--font-size-md);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+  .expense-table th {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .expense-table col.col-date { width: 18%; }
+  .expense-table col.col-amount { width: 16%; }
+  .expense-table col.col-category { width: 20%; }
+  .expense-table col.col-notes { width: 46%; }
+
+  /* Card layout (narrow containers) — hidden by default, shown via container query */
+  .expense-cards { display: none; }
+  .expense-card {
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    margin-bottom: var(--space-2);
+    min-width: 0;
+  }
+  .expense-card-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+  .expense-card-amount { font-size: var(--font-size-md); font-weight: var(--font-weight-bold); }
+  .expense-card-date { font-size: var(--font-size-sm); color: var(--color-muted); }
+  .expense-card-notes {
+    font-size: var(--font-size-md);
+    margin-top: var(--space-1);
+    overflow-wrap: anywhere;
+    color: var(--color-fg);
+  }
+
+  /* Reflow breakpoint: below 560px container width, switch table -> cards */
+  @container expense-viewport (max-width: 559px) {
+    .expense-table { display: none; }
+    .expense-cards { display: block; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar .btn-primary { width: 100%; min-height: calc(var(--space-4) * 2); }
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .pagination .btn-secondary {
+    min-height: calc(var(--space-4) * 2);
+    min-width: calc(var(--space-4) * 2);
+  }
+  .pagination .btn-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .pagination-label { font-size: var(--font-size-sm); color: var(--color-muted); }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  /* Skeleton loading state */
+  .skeleton-row {
+    height: calc(var(--space-4) * 1.6);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    margin-bottom: var(--space-2);
+  }
+  @keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-row { animation: none; }
+  }
+
+  /* Error state */
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-width-thin) solid var(--color-negative);
+    border-radius: var(--radius-md);
+    margin: var(--space-3);
+  }
+
+  .state-caption {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);color:var(--color-muted)">ET-STORY-020</span>
+  <button id="prev-btn" class="btn btn-secondary" style="background:none;border:none;color:var(--color-primary);cursor:pointer;padding:4px 8px;">&larr; Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn" class="btn btn-secondary" style="background:none;border:none;color:var(--color-primary);cursor:pointer;padding:4px 8px;">Next &rarr;</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div id="screens">
+
+<!-- State: success-mobile-320 -->
+<!--
+  Screen: Expense List — Mobile (320px), Success
+  Notes:
+    - Demonstrates AC1 & AC4: table collapses to stacked cards below 560px container width.
+    - Hostile fixture row included: long multi-word note + 5-figure amount, wrapped via
+      overflow-wrap:anywhere, no horizontal scroll introduced.
+    - Primary row text set at font-size-md (16px) so nothing requires pinch-zoom (AC4).
+    - "Add expense" CTA is full-width and >=44px tall for reliable tap.
+-->
+<div class="screen" data-name="Success — Mobile 320px">
+  <div class="harness">
+    <p class="state-caption">Simulated viewport width: <strong>320px</strong> (true pixel width — the outer harness scrolls, the app content does not). The frame below reflows independently of your real browser window (container queries).</p>
+    <div class="device-frame-scroll">
+    <div class="device-frame" style="width:320px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+          <button type="button" class="btn btn-primary">Add expense</button>
+        </div>
+        <div class="list-region">
+          <div class="expense-cards" data-demo="cards-320" data-page="0"></div>
+        </div>
+        <nav class="pagination" aria-label="Expense list pagination">
+          <button type="button" class="btn btn-secondary" data-paginate="cards-320" data-dir="-1" disabled>Previous</button>
+          <span class="pagination-label" data-page-label="cards-320">Page 1 of 2</span>
+          <button type="button" class="btn btn-secondary" data-paginate="cards-320" data-dir="1">Next</button>
+        </nav>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: success-desktop-1440 -->
+<!--
+  Screen: Expense List — Desktop (1440px), Success
+  Notes:
+    - Demonstrates AC2: table uses full available width (fixed layout, % column widths),
+      no horizontal overflow even with the same hostile long-note fixture row.
+    - Category shown as a labeled chip (text + color, never color-only per guideline §3).
+-->
+<div class="screen" data-name="Success — Desktop 1440px">
+  <div class="harness">
+    <p class="state-caption">Simulated viewport width: <strong>1440px</strong> (true pixel width — scroll the harness horizontally to see the full frame if your browser window is narrower).</p>
+    <div class="device-frame-scroll">
+    <div class="device-frame" style="width:1440px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+          <button type="button" class="btn btn-primary">Add expense</button>
+        </div>
+        <div class="list-region">
+          <table class="expense-table" data-demo="table-1440" data-page="0">
+            <caption>Expenses</caption>
+            <colgroup>
+              <col class="col-date"><col class="col-amount"><col class="col-category"><col class="col-notes">
+            </colgroup>
+            <thead>
+              <tr><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Category</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <nav class="pagination" aria-label="Expense list pagination">
+          <button type="button" class="btn btn-secondary" data-paginate="table-1440" data-dir="-1" disabled>Previous</button>
+          <span class="pagination-label" data-page-label="table-1440">Page 1 of 2</span>
+          <button type="button" class="btn btn-secondary" data-paginate="table-1440" data-dir="1">Next</button>
+        </nav>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: reflow-live-resize -->
+<!--
+  Screen: Expense List — Live resize
+  Notes:
+    - Demonstrates AC3: drag the slider to change the simulated viewport width between
+      320px and 1440px. The list reflows immediately (table <-> cards) with no reload,
+      because the frame uses container queries keyed off its own inline-size.
+    - Try the preset buttons (320 / 768 / 1024 / 1440) for quick jumps, or drag freely.
+-->
+<div class="screen" data-name="Live resize (reflow demo)">
+  <div class="harness">
+    <div class="harness-controls">
+      <button type="button" class="btn btn-secondary" data-width="320" aria-pressed="true">320px</button>
+      <button type="button" class="btn btn-secondary" data-width="768" aria-pressed="false">768px</button>
+      <button type="button" class="btn btn-secondary" data-width="1024" aria-pressed="false">1024px</button>
+      <button type="button" class="btn btn-secondary" data-width="1440" aria-pressed="false">1440px</button>
+    </div>
+    <div class="slider-wrap">
+      <label class="label" for="resize-slider" style="text-transform:none;">Frame width</label>
+      <input type="range" id="resize-slider" min="320" max="1440" value="320" step="1" />
+      <span class="slider-readout" id="resize-readout">320px</span>
+    </div>
+    <div class="device-frame-scroll">
+    <div class="device-frame" id="resize-frame" style="width:320px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+          <button type="button" class="btn btn-primary">Add expense</button>
+        </div>
+        <div class="list-region">
+          <table class="expense-table" data-demo="table-resize" data-page="0">
+            <caption>Expenses</caption>
+            <colgroup>
+              <col class="col-date"><col class="col-amount"><col class="col-category"><col class="col-notes">
+            </colgroup>
+            <thead>
+              <tr><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Category</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div class="expense-cards" data-demo="cards-resize" data-page="0"></div>
+        </div>
+        <nav class="pagination" aria-label="Expense list pagination">
+          <button type="button" class="btn btn-secondary" data-paginate="resize" data-dir="-1" disabled>Previous</button>
+          <span class="pagination-label" data-page-label="resize">Page 1 of 2</span>
+          <button type="button" class="btn btn-secondary" data-paginate="resize" data-dir="1">Next</button>
+        </nav>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: loading -->
+<!--
+  Screen: Expense List — Loading
+  Notes:
+    - Skeleton rows reserve the row height so layout doesn't shift once data arrives (§9 CLS).
+    - Shown at mobile width, the riskiest breakpoint for layout shift.
+-->
+<div class="screen" data-name="Loading (mobile)">
+  <div class="harness">
+    <p class="state-caption">Skeleton rows shown while expenses are fetched (simulated network delay).</p>
+    <div class="device-frame" style="width:320px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+          <button type="button" class="btn btn-primary" disabled>Add expense</button>
+        </div>
+        <div class="list-region">
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: error -->
+<!--
+  Screen: Expense List — Error
+  Notes:
+    - Explains what happened and how to fix it (§5); a Retry button re-triggers the
+      simulated fetch via setTimeout and transitions back to the success state.
+-->
+<div class="screen" data-name="Error (mobile)">
+  <div class="harness">
+    <div class="device-frame" style="width:320px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+        </div>
+        <div class="error-state">
+          <p class="text-md" style="margin:0;"><strong>Couldn't load expenses.</strong></p>
+          <p class="text-sm text-muted" style="margin:0;">Check your connection and try again.</p>
+          <button type="button" class="btn btn-secondary" id="retry-btn">Retry</button>
+        </div>
+      </div>
+    </div>
+    <p class="state-caption" id="retry-status"></p>
+  </div>
+</div>
+
+<!-- State: empty -->
+<!--
+  Screen: Expense List — Empty
+  Notes:
+    - Matches the existing ExpenseList.tsx empty-state contract exactly:
+      "No expenses recorded yet." + "Add an expense" button, so the downstream
+      build can reuse the component unchanged.
+-->
+<div class="screen" data-name="Empty (mobile)">
+  <div class="harness">
+    <div class="device-frame" style="width:320px;">
+      <div class="device-frame-inner app-shell">
+        <div class="page-header">
+          <h1 class="font-heading">Ledger</h1>
+        </div>
+        <div class="toolbar">
+          <h2 class="font-heading">Expenses</h2>
+        </div>
+        <div class="empty-state">
+          <p class="text-md">No expenses recorded yet.</p>
+          <button type="button" class="btn btn-primary">Add an expense</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Inline fixture data — includes a hostile long-note / 5-figure-amount row to prove
+// no horizontal overflow at either extreme viewport width (AC1/AC2).
+// Borrows the ExpenseList.tsx contract: PAGE_SIZE = 10, "Page X of Y" pagination.
+const PAGE_SIZE = 10;
+const EXPENSES = [
+  { date: "2026-09-01", amount: 12450.00, category: "Bills", notes: "Annual home insurance renewal plus umbrella liability rider and flood endorsement add-on for the coastal property, paid in one lump sum this quarter" },
+  { date: "2026-09-03", amount: 42.10, category: "Food", notes: "Groceries" },
+  { date: "2026-09-05", amount: 15.00, category: "Travel", notes: "Bus pass top-up" },
+  { date: "2026-09-06", amount: 220.75, category: "Shopping", notes: "Winter jacket" },
+  { date: "2026-09-08", amount: 88.20, category: "Healthcare", notes: "Pharmacy" },
+  { date: "2026-09-10", amount: 9.99, category: "Others", notes: "Streaming subscription" },
+  { date: "2026-09-12", amount: 64.50, category: "Food", notes: "Dinner with team" },
+  { date: "2026-09-14", amount: 5.75, category: "Travel", notes: "Parking" },
+  { date: "2026-09-16", amount: 310.00, category: "Bills", notes: "Electricity" },
+  { date: "2026-09-18", amount: 27.30, category: "Shopping", notes: "Office supplies" },
+  { date: "2026-09-19", amount: 150.00, category: "Healthcare", notes: "Dental checkup" },
+  { date: "2026-09-20", amount: 18.40, category: "Others", notes: "Charity donation" },
+];
+const TOTAL_PAGES = Math.ceil(EXPENSES.length / PAGE_SIZE);
+
+function pageItems(page) {
+  return EXPENSES.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+}
+
+function renderTable(tbody, page) {
+  tbody.innerHTML = pageItems(page).map(function (e) {
+    return (
+      "<tr>" +
+      "<td>" + e.date + "</td>" +
+      "<td>$" + e.amount.toFixed(2) + "</td>" +
+      "<td><span class=\"chip\">" + e.category + "</span></td>" +
+      "<td>" + e.notes + "</td>" +
+      "</tr>"
+    );
+  }).join("");
+}
+
+function renderCards(container, page) {
+  container.innerHTML = pageItems(page).map(function (e) {
+    return (
+      "<div class=\"expense-card\">" +
+      "<div class=\"expense-card-row1\">" +
+      "<span class=\"expense-card-amount\">$" + e.amount.toFixed(2) + "</span>" +
+      "<span class=\"expense-card-date\">" + e.date + "</span>" +
+      "</div>" +
+      "<span class=\"chip\">" + e.category + "</span>" +
+      "<p class=\"expense-card-notes\">" + e.notes + "</p>" +
+      "</div>"
+    );
+  }).join("");
+}
+
+function renderAllAtPage(group, page) {
+  const table = document.querySelector("table[data-demo=\"table-" + group + "\"]");
+  const cards = document.querySelector(".expense-cards[data-demo=\"cards-" + group + "\"]");
+  if (table) renderTable(table.querySelector("tbody"), page);
+  if (cards) renderCards(cards, page);
+  const label = document.querySelector("[data-page-label=\"" + group + "\"]");
+  if (label) label.textContent = "Page " + (page + 1) + " of " + TOTAL_PAGES;
+  document.querySelectorAll("[data-paginate=\"" + group + "\"]").forEach(function (btn) {
+    const dir = parseInt(btn.getAttribute("data-dir"), 10);
+    btn.disabled = dir < 0 ? page === 0 : page >= TOTAL_PAGES - 1;
+  });
+}
+
+["320", "1440", "resize"].forEach(function (group) {
+  renderAllAtPage(group, 0);
+  document.querySelectorAll("[data-paginate=\"" + group + "\"]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const dir = parseInt(btn.getAttribute("data-dir"), 10);
+      const label = document.querySelector("[data-page-label=\"" + group + "\"]");
+      const current = parseInt(label.textContent.match(/Page (\d+)/)[1], 10) - 1;
+      renderAllAtPage(group, Math.max(0, Math.min(TOTAL_PAGES - 1, current + dir)));
+    });
+  });
+});
+
+// Live resize screen
+const resizeFrame = document.getElementById("resize-frame");
+const resizeSlider = document.getElementById("resize-slider");
+const resizeReadout = document.getElementById("resize-readout");
+if (resizeSlider) {
+  resizeSlider.addEventListener("input", function () {
+    resizeFrame.style.width = resizeSlider.value + "px";
+    resizeReadout.textContent = resizeSlider.value + "px";
+  });
+}
+document.querySelectorAll(".harness-controls [data-width]").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    const w = btn.getAttribute("data-width");
+    resizeFrame.style.width = w + "px";
+    resizeSlider.value = w;
+    resizeReadout.textContent = w + "px";
+    document.querySelectorAll(".harness-controls [data-width]").forEach(function (b) {
+      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+    });
+  });
+});
+
+// Simulated retry -> success transition (setTimeout, no real network call)
+const retryBtn = document.getElementById("retry-btn");
+if (retryBtn) {
+  retryBtn.addEventListener("click", function () {
+    const status = document.getElementById("retry-status");
+    retryBtn.disabled = true;
+    retryBtn.textContent = "Retrying…";
+    status.textContent = "Retrying…";
+    setTimeout(function () {
+      status.textContent = "Loaded successfully. See the Success screens via the reviewer bar.";
+      retryBtn.disabled = false;
+      retryBtn.textContent = "Retry";
+    }, 350);
+  });
+}
+
+// Reviewer bar navigation
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent =
+    `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
