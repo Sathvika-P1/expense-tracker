@@ -17,6 +17,7 @@ export default function App() {
       </div>
       <ExpenseList
         expenses={result.ok ? result.expenses : []}
+        hasError={!result.ok}
         onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
       />
     </main>

@@ -14,10 +14,14 @@ function loadAll(): Expense[] {
   }
 }
 
-export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
-  return loadAll()
+function filterAndSortForUser(expenses: Expense[], userId: string): Expense[] {
+  return expenses
     .filter((expense) => expense.userId === userId)
     .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
+  return filterAndSortForUser(loadAll(), userId);
 }
 
 export function saveExpense(expense: Expense): Expense[] {
@@ -49,9 +53,7 @@ export function loadExpensesResult(userId: string = getCurrentUserId()): LoadRes
   }
   let expenses: Expense[];
   try {
-    expenses = (parsed as Expense[])
-      .filter((expense) => expense.userId === userId)
-      .sort((a, b) => b.date.localeCompare(a.date));
+    expenses = filterAndSortForUser(parsed as Expense[], userId);
   } catch {
     return { ok: false, reason: "corrupted" };
   }

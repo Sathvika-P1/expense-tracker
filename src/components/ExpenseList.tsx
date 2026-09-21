@@ -4,12 +4,17 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  hasError?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, hasError = false }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+
+  if (hasError) {
+    return null;
+  }
 
   if (expenses.length === 0) {
     return (
