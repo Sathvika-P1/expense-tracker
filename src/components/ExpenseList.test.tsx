@@ -19,7 +19,7 @@ describe("ExpenseList", () => {
     render(
       <ExpenseList
         expenses={[makeExpense({ id: "2", category: "Travel" }), makeExpense({ id: "1" })]}
-        onAddExpenseClick={vi.fn()}
+        onAddExpenseClick={vi.fn()} onEditClick={vi.fn()}
       />,
     );
 
@@ -29,7 +29,7 @@ describe("ExpenseList", () => {
   });
 
   it("displays notes with the expense when present", () => {
-    render(<ExpenseList expenses={[makeExpense({ notes: "Lunch with team" })]} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={[makeExpense({ notes: "Lunch with team" })]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.getByText("Lunch with team")).toBeInTheDocument();
   });
@@ -40,7 +40,7 @@ describe("ExpenseList", () => {
         expenses={[
           makeExpense({ date: "2026-01-01", amount: 12.5, category: "Food", notes: "Lunch" }),
         ]}
-        onAddExpenseClick={vi.fn()}
+        onAddExpenseClick={vi.fn()} onEditClick={vi.fn()}
       />,
     );
 
@@ -52,7 +52,7 @@ describe("ExpenseList", () => {
   });
 
   it("shows an empty-state message and no table when there are no expenses", () => {
-    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
     expect(screen.getByText(/no expenses recorded yet/i)).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe("ExpenseList", () => {
 
   it("shows a call-to-action to add a new expense when the list is empty", () => {
     const onAddExpenseClick = vi.fn();
-    render(<ExpenseList expenses={[]} onAddExpenseClick={onAddExpenseClick} />);
+    render(<ExpenseList expenses={[]} onAddExpenseClick={onAddExpenseClick} onEditClick={vi.fn()} />);
 
     const cta = screen.getByRole("button", { name: /add.*expense/i });
     fireEvent.click(cta);
@@ -72,20 +72,20 @@ describe("ExpenseList", () => {
     const many = Array.from({ length: 12 }, (_, i) =>
       makeExpense({ id: String(i), date: `2026-01-${String(i + 1).padStart(2, "0")}` }),
     );
-    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.getAllByRole("row")).toHaveLength(11);
   });
 
   it("shows page navigation controls when there is more than one page", () => {
     const many = Array.from({ length: 12 }, (_, i) => makeExpense({ id: String(i) }));
-    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.getByRole("button", { name: /next page/i })).toBeInTheDocument();
   });
 
   it("does not show page navigation controls when everything fits on one page", () => {
-    render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.queryByRole("button", { name: /next page/i })).not.toBeInTheDocument();
   });
@@ -94,7 +94,7 @@ describe("ExpenseList", () => {
     const many = Array.from({ length: 12 }, (_, i) =>
       makeExpense({ id: String(i), notes: `note-${i}` }),
     );
-    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     await userEvent.click(screen.getByRole("button", { name: /next page/i }));
 
@@ -103,12 +103,22 @@ describe("ExpenseList", () => {
   });
 
   it("exposes the expense list as a table with labeled columns", () => {
-    render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
+    render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
     expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /date/i })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /amount/i })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /category/i })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: /description/i })).toBeInTheDocument();
+  });
+
+  it("calls onEditClick with the expense when its Edit button is clicked", () => {
+    const onEditClick = vi.fn();
+    const expense = makeExpense();
+    render(<ExpenseList expenses={[expense]} onAddExpenseClick={vi.fn()} onEditClick={onEditClick} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
+
+    expect(onEditClick).toHaveBeenCalledWith(expense);
   });
 });

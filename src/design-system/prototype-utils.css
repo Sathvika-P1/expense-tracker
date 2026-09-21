@@ -166,3 +166,54 @@ h1, h2, h3, .heading {
   outline: var(--focus-ring-width) solid var(--color-primary);
   outline-offset: var(--focus-ring-offset);
 }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.actions-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.field-row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.field-row > .field { flex: 1 1 calc(var(--space-4) * 8); min-width: calc(var(--space-4) * 7); }
+
+select.input, textarea.input { width: 100%; font-family: var(--font-family-base); }
+textarea.input { min-height: calc(var(--space-4) * 3); resize: vertical; }
+
+.error-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-negative);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+}
+.input.has-error { border-color: var(--color-negative); }
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width-thin) solid var(--color-negative);
+  color: var(--color-negative);
+  background-color: var(--color-bg);
+  margin-bottom: var(--space-3);
+}
+.banner .banner-title { font-weight: var(--font-weight-bold); color: var(--color-negative); }
+.banner .banner-body { font-size: var(--font-size-sm); color: var(--color-fg); margin-top: var(--space-1); }
+.banner .banner-actions { margin-top: var(--space-2); display: flex; gap: var(--space-2); }
+
+.centered-block {
+  max-width: calc(var(--space-4) * 14);
+  margin: calc(var(--space-4) * 3) auto;
+  text-align: center;
+}
+
+.btn { min-height: calc(var(--space-4) * 2); }
+.btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.btn:focus-visible, .input:focus-visible, a:focus-visible { outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset); }
+
+@media (max-width: 480px) {
+  .field-row { flex-direction: column; }
+  .row { flex-direction: column; align-items: stretch; }
+  .actions-row { flex-direction: column; }
+  .actions-row .btn { width: 100%; }
+}

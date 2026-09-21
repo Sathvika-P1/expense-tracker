@@ -8,6 +8,7 @@ export interface Expense {
   category: Category;
   notes?: string;
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface ExpenseInput {
