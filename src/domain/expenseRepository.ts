@@ -14,14 +14,48 @@ function loadAll(): Expense[] {
   }
 }
 
-export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
-  return loadAll()
+function filterAndSortForUser(expenses: Expense[], userId: string): Expense[] {
+  return expenses
     .filter((expense) => expense.userId === userId)
     .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
+  return filterAndSortForUser(loadAll(), userId);
 }
 
 export function saveExpense(expense: Expense): Expense[] {
   const expenses = [expense, ...loadAll()];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return expenses;
+}
+
+export type LoadResult =
+  | { ok: true; expenses: Expense[] }
+  | { ok: false; reason: "corrupted" | "unavailable" };
+
+export function loadExpensesResult(userId: string = getCurrentUserId()): LoadResult {
+  let raw: string | null;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return { ok: false, reason: "unavailable" };
+  }
+  if (!raw) return { ok: true, expenses: [] };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { ok: false, reason: "corrupted" };
+  }
+  if (!Array.isArray(parsed)) {
+    return { ok: false, reason: "corrupted" };
+  }
+  let expenses: Expense[];
+  try {
+    expenses = filterAndSortForUser(parsed as Expense[], userId);
+  } catch {
+    return { ok: false, reason: "corrupted" };
+  }
+  return { ok: true, expenses };
 }
