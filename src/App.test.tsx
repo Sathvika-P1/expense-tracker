@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 describe("App", () => {
-  it("renders expenses already present in localStorage at mount (AC7)", () => {
+  it("renders expenses already present in localStorage at mount (AC2)", () => {
     saveExpense({
       id: "existing",
       userId: "local-user",
@@ -27,7 +27,7 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
+    expect(screen.getAllByRole("listitem")[0]).toHaveTextContent("Bills");
   });
 
   it("shows a newly submitted expense at the top of the list without a reload (AC1)", async () => {
@@ -43,25 +43,28 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
+    await user.click(screen.getByRole("button", { name: /\+ add expense/i }));
+
     await user.type(screen.getByLabelText(/amount/i), "20");
     await user.type(screen.getByLabelText(/date/i), "2026-02-01");
-    await user.selectOptions(screen.getByLabelText(/category/i), "Travel");
-    await user.click(screen.getByRole("button", { name: /add expense/i }));
+    await user.click(screen.getByRole("combobox", { name: /category/i }));
+    await user.click(screen.getByRole("option", { name: "Travel" }));
+    await user.click(screen.getByRole("button", { name: /save expense/i }));
 
     await waitFor(() => {
-      const rows = screen.getAllByRole("row");
-      expect(rows).toHaveLength(3);
-      expect(rows[1]).toHaveTextContent("Travel");
+      const rows = screen.getAllByRole("listitem");
+      expect(rows).toHaveLength(2);
+      expect(rows[0]).toHaveTextContent("Travel");
     });
   });
 
-  it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
+  it("shows the add-expense form when the empty-state call-to-action is clicked (AC8)", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Add an expense" }));
+    await user.click(screen.getByRole("button", { name: /\+ add an expense/i }));
 
-    expect(screen.getByLabelText(/amount/i)).toHaveFocus();
+    expect(screen.getByRole("heading", { name: /add expense/i })).toBeInTheDocument();
   });
 
   it("pre-fills the edit form when the user opens edit for their own expense (AC1)", async () => {
@@ -134,8 +137,8 @@ describe("App", () => {
     await user.type(screen.getByLabelText("Amount"), "999");
     await user.click(screen.getByRole("button", { name: /cancel/i }));
 
-    expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
-    expect(screen.getByText("20.00")).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: /expenses/i })).toBeInTheDocument();
+    expect(screen.getByText("$20.00")).toBeInTheDocument();
   });
 
   it("redirects to the expense list after a save fails because the expense was deleted (AC11)", async () => {
@@ -162,7 +165,7 @@ describe("App", () => {
 
     await waitFor(
       () => {
-        expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
+        expect(screen.getByRole("list", { name: /expenses/i })).toBeInTheDocument();
       },
       { timeout: 3000 },
     );
@@ -187,7 +190,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText("Notes"), "Rescheduled");
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
-    expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
+    expect(screen.getByRole("list", { name: /expenses/i })).toBeInTheDocument();
     expect(screen.getByText("Rescheduled")).toBeInTheDocument();
   });
 });

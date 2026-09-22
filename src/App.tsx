@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
@@ -8,13 +8,14 @@ import { findExpenseById, loadExpenses } from "./domain/expenseRepository";
 
 type View =
   | { mode: "list" }
+  | { mode: "add" }
   | { mode: "edit"; expense: Expense }
   | { mode: "access-denied" };
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [view, setView] = useState<View>({ mode: "list" });
-  const formRef = useRef<HTMLDivElement>(null);
+  const [justSaved, setJustSaved] = useState(false);
 
   function backToList() {
     setExpenses(loadExpenses());
@@ -65,15 +66,41 @@ export default function App() {
     );
   }
 
+  if (view.mode === "add") {
+    return (
+      <main>
+        <AddExpenseForm
+          onSaved={() => {
+            setExpenses(loadExpenses());
+            setJustSaved(true);
+            setView({ mode: "list" });
+          }}
+          onCancel={() => setView({ mode: "list" })}
+        />
+      </main>
+    );
+  }
+
   return (
     <main>
-      <h1>Expense Tracker</h1>
-      <div ref={formRef}>
-        <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
-      </div>
+      {justSaved && (
+        <div className="app-shell">
+          <div className="toast-banner toast-positive" role="status">
+            <span className="toast-icon" aria-hidden="true">
+              ✓
+            </span>
+            <div>
+              <strong>Expense added</strong>
+            </div>
+          </div>
+        </div>
+      )}
       <ExpenseList
         expenses={expenses}
-        onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
+        onAddExpenseClick={() => {
+          setJustSaved(false);
+          setView({ mode: "add" });
+        }}
         onEditClick={handleEditClick}
       />
     </main>
