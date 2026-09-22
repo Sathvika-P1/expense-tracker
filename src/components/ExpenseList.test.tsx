@@ -102,17 +102,6 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
-  it("shows a count of the total number of expenses", () => {
-    render(
-      <ExpenseList
-        expenses={[makeExpense({ id: "1" }), makeExpense({ id: "2" })]}
-        onAddExpenseClick={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByText("2 expenses")).toBeInTheDocument();
-  });
-
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 

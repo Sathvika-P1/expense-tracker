@@ -13,9 +13,9 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
 
   if (expenses.length === 0) {
     return (
-      <div className="card empty-state">
+      <div>
         <p>No expenses recorded yet.</p>
-        <button className="btn btn-secondary" type="button" onClick={onAddExpenseClick}>
+        <button type="button" onClick={onAddExpenseClick}>
           Add an expense
         </button>
       </div>
@@ -27,12 +27,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
 
   return (
     <div>
-      <div className="list-meta">
-        <span className="count">
-          {expenses.length} expense{expenses.length === 1 ? "" : "s"}
-        </span>
-      </div>
-      <table className="expense-table">
+      <table>
         <caption>Expenses</caption>
         <thead>
           <tr>
@@ -54,9 +49,8 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
         </tbody>
       </table>
       {expenses.length > PAGE_SIZE && (
-        <nav className="pagination" aria-label="Expense list pagination">
+        <nav aria-label="Expense list pagination">
           <button
-            className="btn btn-secondary"
             type="button"
             aria-label="Previous page"
             onClick={() => setPage((p) => p - 1)}
@@ -68,7 +62,6 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
             Page {page + 1} of {totalPages}
           </span>
           <button
-            className="btn btn-secondary"
             type="button"
             aria-label="Next page"
             onClick={() => setPage((p) => p + 1)}

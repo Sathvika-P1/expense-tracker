@@ -9,7 +9,7 @@ beforeEach(() => {
 });
 
 describe("App", () => {
-  it("renders expenses already present in localStorage at mount (AC7)", () => {
+  it("renders expenses already present in localStorage at mount", () => {
     saveExpense({
       id: "existing",
       userId: "local-user",
@@ -49,7 +49,7 @@ describe("App", () => {
     });
   });
 
-  it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
+  it("focuses the add-expense form when the empty-state call-to-action is clicked (AC2)", async () => {
     const user = userEvent.setup();
     render(<App />);
 

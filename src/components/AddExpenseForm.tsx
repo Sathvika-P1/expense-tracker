@@ -62,19 +62,10 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
   }
 
   return (
-    <form className="expense-form" onSubmit={handleSubmit}>
-      {saveError && (
-        <div className="form-error-banner" role="alert" id={saveErrorId}>
-          {saveError}
-        </div>
-      )}
-
-      <div className="field">
-        <label className="label" htmlFor={amountId}>
-          Amount
-        </label>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor={amountId}>Amount</label>
         <input
-          className={`input${errors.amount ? " has-error" : ""}`}
           id={amountId}
           type="text"
           inputMode="decimal"
@@ -83,18 +74,15 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
           onChange={(event) => setForm({ ...form, amount: event.target.value })}
         />
         {errors.amount && (
-          <p className="field-error" id={amountErrorId} role="alert">
+          <p id={amountErrorId} role="alert">
             {errors.amount}
           </p>
         )}
       </div>
 
-      <div className="field">
-        <label className="label" htmlFor={dateId}>
-          Date
-        </label>
+      <div>
+        <label htmlFor={dateId}>Date</label>
         <input
-          className={`input${errors.date ? " has-error" : ""}`}
           id={dateId}
           type="date"
           value={form.date}
@@ -102,18 +90,15 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
           onChange={(event) => setForm({ ...form, date: event.target.value })}
         />
         {errors.date && (
-          <p className="field-error" id={dateErrorId} role="alert">
+          <p id={dateErrorId} role="alert">
             {errors.date}
           </p>
         )}
       </div>
 
-      <div className="field">
-        <label className="label" htmlFor={categoryId}>
-          Category
-        </label>
+      <div>
+        <label htmlFor={categoryId}>Category</label>
         <select
-          className={`input${errors.category ? " has-error" : ""}`}
           id={categoryId}
           value={form.category}
           aria-describedby={errors.category ? categoryErrorId : undefined}
@@ -127,35 +112,34 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
           ))}
         </select>
         {errors.category && (
-          <p className="field-error" id={categoryErrorId} role="alert">
+          <p id={categoryErrorId} role="alert">
             {errors.category}
           </p>
         )}
       </div>
 
-      <div className="field">
-        <label className="label" htmlFor={notesId}>
-          Notes
-        </label>
+      <div>
+        <label htmlFor={notesId}>Notes</label>
         <textarea
-          className={`input${errors.notes ? " has-error" : ""}`}
           id={notesId}
           value={form.notes}
           aria-describedby={errors.notes ? notesErrorId : undefined}
           onChange={(event) => setForm({ ...form, notes: event.target.value })}
         />
         {errors.notes && (
-          <p className="field-error" id={notesErrorId} role="alert">
+          <p id={notesErrorId} role="alert">
             {errors.notes}
           </p>
         )}
       </div>
 
-      <div>
-        <button className="btn btn-primary" type="submit">
-          Add Expense
-        </button>
-      </div>
+      {saveError && (
+        <p id={saveErrorId} role="alert">
+          {saveError}
+        </p>
+      )}
+
+      <button type="submit">Add Expense</button>
     </form>
   );
 }
