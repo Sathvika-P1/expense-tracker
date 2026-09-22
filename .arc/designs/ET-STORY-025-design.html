@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET-STORY-025 — Wire Add Expense form to the expense list view</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+</style>
+<style>
+  * { box-sizing: border-box; }
+
+  main.app-shell {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: var(--space-4) var(--space-3) calc(var(--space-4) * 3);
+  }
+
+  h1.page-title {
+    font-size: var(--font-size-xl);
+    margin: 0 0 var(--space-4) 0;
+  }
+
+  .section-label {
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-2) 0;
+  }
+
+  form.expense-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .form-error-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width-thin) solid var(--color-negative);
+    border-radius: var(--radius-sm);
+    color: var(--color-negative);
+    font-size: var(--font-size-sm);
+  }
+
+  .field-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-negative);
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
+
+  .field-error::before {
+    content: "\26A0";
+  }
+
+  .input.has-error {
+    border-color: var(--color-negative);
+  }
+
+  textarea.input {
+    resize: vertical;
+    min-height: 72px;
+  }
+
+  select.input {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+      linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+    background-position: calc(100% - 18px) center, calc(100% - 12px) center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    min-height: calc(var(--space-4) + var(--space-3) + var(--space-1));
+    /* No touch-target size token exists yet for button min-height (§1: ≥44px);
+       computed manually here. Flag for design-system-bootstrap to add one. */
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .btn-primary:not(:disabled):hover {
+    filter: brightness(1.05);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-primary,
+    tr.row-new {
+      transition: filter 180ms ease-out, background-color 200ms ease-out;
+    }
+  }
+
+  tr.row-new {
+    background-color: color-mix(in srgb, var(--color-positive) 12%, transparent);
+  }
+
+  table.expense-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-md);
+  }
+
+  table.expense-table caption {
+    text-align: left;
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  table.expense-table th,
+  table.expense-table td {
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+
+  table.expense-table th {
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .list-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-2);
+  }
+
+  .list-meta .count {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .empty-state p {
+    color: var(--color-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  nav.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  .annotation {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    border-left: 3px solid var(--color-border);
+    padding: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-3);
+    background: color-mix(in srgb, var(--color-border) 20%, transparent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .scenario-switch {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .scenario-switch button {
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+  }
+
+  #review-bar button {
+    color: var(--color-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: var(--font-weight-bold);
+    padding: var(--space-1) var(--space-2);
+  }
+</style>
+</head>
+<body>
+
+<!-- App nav: none — single-page expense tracker; one <main> with page title, Add Expense form, then the list -->
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);color:var(--color-muted)">ET-STORY-025</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div id="screens">
+
+  <!-- State: empty-list -->
+  <!--
+    Screen: Empty list — CTA focus handoff
+    Notes:
+      - Satisfies AC2: clicking "Add an expense" moves focus to the Amount
+        input (the form's first input), matching App.tsx's
+        formRef.current?.querySelector("input")?.focus() behaviour.
+      - No pagination controls shown (list has 0 rows, well under the
+        10-row page size threshold from ExpenseList.tsx).
+      - This form is shown inert (submit disabled) on this screen — it
+        exists only to demonstrate the AC2 focus handoff. The fully
+        interactive add flow (AC1, AC3, AC5, AC6, AC7) lives on screen 2.
+  -->
+  <div class="screen" data-name="Empty list — Add Expense CTA (AC2)">
+    <main class="app-shell">
+      <h1 class="page-title font-heading">Expense Tracker</h1>
+
+      <div id="empty-form-anchor">
+        <p class="section-label">Add expense</p>
+        <form class="expense-form" onsubmit="return false;">
+          <div class="field">
+            <label class="label" for="empty-amount">Amount</label>
+            <input class="input" id="empty-amount" type="text" inputmode="decimal" value="" placeholder="">
+          </div>
+          <div class="field">
+            <label class="label" for="empty-date">Date</label>
+            <input class="input" id="empty-date" type="date" value="">
+          </div>
+          <div class="field">
+            <label class="label" for="empty-category">Category</label>
+            <select class="input" id="empty-category">
+              <option value="">Select a category</option>
+              <option>Food</option>
+              <option>Travel</option>
+              <option>Shopping</option>
+              <option>Bills</option>
+              <option>Healthcare</option>
+              <option>Others</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="label" for="empty-notes">Notes</label>
+            <textarea class="input" id="empty-notes"></textarea>
+          </div>
+          <div>
+            <button class="btn btn-primary" type="submit" disabled title="Interactive on screen 2">Add Expense</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card empty-state" style="margin-top: var(--space-4);">
+        <p>No expenses recorded yet.</p>
+        <button class="btn btn-secondary" type="button" onclick="focusEmptyAmount()">Add an expense</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- State: interactive-list -->
+  <!--
+    Screen: Live expense list with Add form (AC1, AC3, AC5, AC6, AC7)
+    Notes:
+      - This screen is the real sign-off artifact: it is wired with inline
+        JS that mirrors validateExpense.ts, so a reviewer can add one or
+        two expenses and watch them appear in the table with no page
+        reload (AC1, AC3), submit invalid data and see the list stay put
+        plus an inline error (AC5, AC6), and watch the form clear itself
+        after a successful submit (AC7).
+      - Submitting shows the button as "Adding…" and disabled for ~300ms
+        (simulated latency via setTimeout) before the row is inserted,
+        matching the "every action produces visible feedback" rule.
+      - New rows are highlighted briefly (color, not color-alone — the
+        row is also the newest by date/position) then settle to the
+        normal row style.
+      - AC4 (automated integration test) has no corresponding UI: it is
+        satisfied by a test file, not a screen. The test should render
+        <App />, fill the AddExpenseForm fields, submit, and assert the
+        new row appears in the rendered ExpenseList without a reload —
+        then repeat once more to prove a second add also appears
+        alongside the first.
+      - Columns match ExpenseList.tsx exactly: Date | Amount | Category
+        | Description (header labelled "Description" although the
+        underlying field is `notes`). No Edit/Delete actions — out of
+        scope for this story. Pagination controls only appear above 10
+        rows, per PAGE_SIZE in ExpenseList.tsx.
+      - Row order: newly-added expenses are inserted at the top
+        ("most recently added first"), independent of their date value.
+        ExpenseList.tsx renders `expenses` in the order App.tsx passes
+        them, so this ordering is a decision for implementation to
+        confirm, not something this prototype can settle on its own.
+  -->
+  <div class="screen" data-name="Add expense → list updates live (AC1, AC3, AC5, AC6, AC7)">
+    <main class="app-shell">
+      <h1 class="page-title font-heading">Expense Tracker</h1>
+
+      <div class="annotation">
+        Try it: click "Fill sample data" then "Add Expense" to see a new row appear instantly
+        (do it twice to confirm both additions stay visible). Or leave a field blank
+        (or type a bad amount, e.g. "abc") and submit to see validation in action.
+      </div>
+
+      <p class="section-label">Add expense</p>
+      <form class="expense-form" id="live-form" novalidate>
+        <div id="live-save-error-slot"></div>
+        <div class="field">
+          <label class="label" for="live-amount">Amount</label>
+          <input class="input" id="live-amount" type="text" inputmode="decimal" aria-describedby="live-amount-error">
+          <p class="field-error" id="live-amount-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label class="label" for="live-date">Date</label>
+          <input class="input" id="live-date" type="date" aria-describedby="live-date-error">
+          <p class="field-error" id="live-date-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label class="label" for="live-category">Category</label>
+          <select class="input" id="live-category" aria-describedby="live-category-error">
+            <option value="">Select a category</option>
+            <option>Food</option>
+            <option>Travel</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Healthcare</option>
+            <option>Others</option>
+          </select>
+          <p class="field-error" id="live-category-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label class="label" for="live-notes">Notes</label>
+          <textarea class="input" id="live-notes" aria-describedby="live-notes-error"></textarea>
+          <p class="field-error" id="live-notes-error" role="alert" hidden></p>
+        </div>
+        <div style="display:flex; gap: var(--space-2);">
+          <button class="btn btn-primary" type="submit" id="live-submit-btn">Add Expense</button>
+          <button class="btn btn-secondary" type="button" id="live-fill-sample-btn">Fill sample data</button>
+        </div>
+      </form>
+
+      <div class="list-meta">
+        <span class="count" id="live-count">3 expenses</span>
+      </div>
+
+      <table class="expense-table">
+        <caption>Expenses</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Description</th>
+          </tr>
+        </thead>
+        <tbody id="live-tbody">
+          <tr><td>2026-09-18</td><td>42.50</td><td>Food</td><td>Team lunch</td></tr>
+          <tr><td>2026-09-15</td><td>120.00</td><td>Bills</td><td>Internet bill</td></tr>
+          <tr><td>2026-09-10</td><td>18.75</td><td>Travel</td><td>Bus fare</td></tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+</div>
+
+<script>
+  const CATEGORIES = ["Food", "Travel", "Shopping", "Bills", "Healthcare", "Others"];
+  const AMOUNT_PATTERN = /^\d+(\.\d{1,2})?$/;
+  const NOTES_MAX_LENGTH = 200;
+
+  function focusEmptyAmount() {
+    document.getElementById('empty-amount').focus();
+  }
+
+  function validateExpense(input) {
+    const errors = {};
+    const amount = input.amount.trim();
+    if (!amount) {
+      errors.amount = "Amount is required.";
+    } else if (!AMOUNT_PATTERN.test(amount)) {
+      errors.amount = /^\d+\.\d{3,}$/.test(amount)
+        ? "Amount must have at most two decimal places."
+        : "Amount must be a positive number.";
+    } else if (Number(amount) <= 0) {
+      errors.amount = "Amount must be a positive number.";
+    }
+
+    if (!input.date.trim()) {
+      errors.date = "Date is required.";
+    }
+
+    if (!input.category.trim()) {
+      errors.category = "Category is required.";
+    } else if (!CATEGORIES.includes(input.category)) {
+      errors.category = "Category must be one of the fixed options.";
+    }
+
+    if (input.notes.length > NOTES_MAX_LENGTH) {
+      errors.notes = `Notes must be at most ${NOTES_MAX_LENGTH} characters.`;
+    }
+
+    return errors;
+  }
+
+  const fields = ["amount", "date", "category", "notes"];
+
+  function clearErrors() {
+    fields.forEach((f) => {
+      const input = document.getElementById(`live-${f}`);
+      const err = document.getElementById(`live-${f}-error`);
+      input.classList.remove('has-error');
+      err.hidden = true;
+      err.textContent = '';
+    });
+  }
+
+  function showErrors(errors) {
+    fields.forEach((f) => {
+      const input = document.getElementById(`live-${f}`);
+      const err = document.getElementById(`live-${f}-error`);
+      if (errors[f]) {
+        input.classList.add('has-error');
+        err.hidden = false;
+        err.textContent = errors[f];
+      }
+    });
+  }
+
+  let expenseCount = 3;
+
+  document.getElementById('live-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    clearErrors();
+
+    const form = {
+      amount: document.getElementById('live-amount').value,
+      date: document.getElementById('live-date').value,
+      category: document.getElementById('live-category').value,
+      notes: document.getElementById('live-notes').value,
+    };
+
+    const errors = validateExpense(form);
+    if (Object.keys(errors).length > 0) {
+      showErrors(errors);
+      return; // AC5: list stays unchanged; AC6: inline error shown above
+    }
+
+    const btn = document.getElementById('live-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+
+    setTimeout(() => {
+      const tbody = document.getElementById('live-tbody');
+      const row = document.createElement('tr');
+      row.className = 'row-new';
+      const amountNumber = Number(form.amount).toFixed(2);
+      row.innerHTML = `<td>${form.date}</td><td>${amountNumber}</td><td>${form.category}</td><td>${form.notes || ''}</td>`;
+      tbody.prepend(row);
+
+      expenseCount += 1;
+      document.getElementById('live-count').textContent = `${expenseCount} expense${expenseCount === 1 ? '' : 's'}`;
+
+      // AC7: form fields reset to empty/default values
+      document.getElementById('live-form').reset();
+      clearErrors();
+
+      btn.disabled = false;
+      btn.textContent = 'Add Expense';
+
+      setTimeout(() => row.classList.remove('row-new'), 1200);
+    }, 300);
+  });
+
+  const SAMPLE_EXPENSES = [
+    { amount: "24.00", date: "2026-09-20", category: "Food", notes: "Coffee with client" },
+    { amount: "89.99", date: "2026-09-19", category: "Shopping", notes: "Office supplies" },
+  ];
+  let sampleIndex = 0;
+
+  document.getElementById('live-fill-sample-btn').addEventListener('click', function () {
+    const sample = SAMPLE_EXPENSES[sampleIndex % SAMPLE_EXPENSES.length];
+    sampleIndex += 1;
+    document.getElementById('live-amount').value = sample.amount;
+    document.getElementById('live-date').value = sample.date;
+    document.getElementById('live-category').value = sample.category;
+    document.getElementById('live-notes').value = sample.notes;
+  });
+
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+    document.getElementById('screen-label').textContent =
+      `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  }
+  document.getElementById('prev-btn').onclick = () => show(cur - 1);
+  document.getElementById('next-btn').onclick = () => show(cur + 1);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+  show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
