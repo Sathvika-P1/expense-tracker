@@ -9,8 +9,9 @@ export default function App() {
   const formRef = useRef<HTMLDivElement>(null);
 
   return (
-    <main>
-      <h1>Expense Tracker</h1>
+    <main className="app-shell">
+      <h1 className="page-title font-heading">Expense Tracker</h1>
+      <p className="section-label">Add expense</p>
       <div ref={formRef}>
         <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
       </div>
