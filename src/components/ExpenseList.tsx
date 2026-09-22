@@ -4,14 +4,25 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  onDelete?: (id: string) => void;
+  hasActiveFilters?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, onDelete, hasActiveFilters }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(expenses.length / PAGE_SIZE));
+  const clampedPage = Math.min(page, totalPages - 1);
 
   if (expenses.length === 0) {
+    if (hasActiveFilters) {
+      return (
+        <div role="status">
+          <p>No expenses match your filters.</p>
+        </div>
+      );
+    }
     return (
       <div>
         <p>No expenses recorded yet.</p>
@@ -22,8 +33,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
     );
   }
 
-  const totalPages = Math.ceil(expenses.length / PAGE_SIZE);
-  const pageItems = expenses.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const pageItems = expenses.slice(clampedPage * PAGE_SIZE, clampedPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <div>
@@ -35,6 +45,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
             <th scope="col">Amount</th>
             <th scope="col">Category</th>
             <th scope="col">Description</th>
+            {onDelete && <th scope="col">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -44,6 +55,21 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
               <td>{expense.amount.toFixed(2)}</td>
               <td>{expense.category}</td>
               <td>{expense.notes ?? ""}</td>
+              {onDelete && (
+                <td>
+                  <button
+                    type="button"
+                    aria-label={`Delete expense from ${expense.date}, ${expense.notes ?? expense.category}`}
+                    onClick={() => {
+                      if (window.confirm("Delete this expense? This cannot be undone.")) {
+                        onDelete(expense.id);
+                      }
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -53,19 +79,19 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
           <button
             type="button"
             aria-label="Previous page"
-            onClick={() => setPage((p) => p - 1)}
-            disabled={page === 0}
+            onClick={() => setPage(clampedPage - 1)}
+            disabled={clampedPage === 0}
           >
             Previous
           </button>
           <span>
-            Page {page + 1} of {totalPages}
+            Page {clampedPage + 1} of {totalPages}
           </span>
           <button
             type="button"
             aria-label="Next page"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page >= totalPages - 1}
+            onClick={() => setPage(clampedPage + 1)}
+            disabled={clampedPage >= totalPages - 1}
           >
             Next
           </button>

@@ -25,3 +25,15 @@ export function saveExpense(expense: Expense): Expense[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return expenses;
 }
+
+export function updateExpense(updated: Expense): Expense[] {
+  const expenses = loadAll().map((expense) => (expense.id === updated.id ? updated : expense));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+  return expenses;
+}
+
+export function deleteExpense(id: string): Expense[] {
+  const expenses = loadAll().filter((expense) => expense.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
+  return expenses;
+}

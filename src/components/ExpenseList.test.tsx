@@ -102,6 +102,32 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("shows a no-results message (not the empty-list CTA) when filters match nothing (AC4)", () => {
+    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} hasActiveFilters />);
+
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses match your filters/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /add.*expense/i })).not.toBeInTheDocument();
+  });
+
+  it("clamps to the last valid page when the expense list shrinks below the current page", () => {
+    const many = Array.from({ length: 25 }, (_, i) => makeExpense({ id: String(i) }));
+    const { rerender } = render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /next page/i }));
+    fireEvent.click(screen.getByRole("button", { name: /next page/i }));
+    expect(screen.getByText(/page 3 of 3/i)).toBeInTheDocument();
+
+    const fewer = Array.from({ length: 15 }, (_, i) => makeExpense({ id: String(i) }));
+    rerender(<ExpenseList expenses={fewer} onAddExpenseClick={vi.fn()} />);
+
+    expect(screen.getByText(/page 2 of 2/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("row")).toHaveLength(6);
+
+    fireEvent.click(screen.getByRole("button", { name: /previous page/i }));
+    expect(screen.getByText(/page 1 of 2/i)).toBeInTheDocument();
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 
