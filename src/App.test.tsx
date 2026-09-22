@@ -84,7 +84,22 @@ describe("App", () => {
   });
 
   it("denies access to the edit view for an expense owned by another user (AC5)", async () => {
-    const foreignExpense: Expense = {
+    saveExpense({
+      id: "e2",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: 1,
+      updatedAt: 1,
+    });
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    // The edit route is reached via a stale list row: the row was loaded while
+    // owned by the current user, then ownership changed before the click.
+    const reassigned: Expense = {
       id: "e2",
       userId: "other-user",
       amount: 5,
@@ -93,10 +108,8 @@ describe("App", () => {
       createdAt: 1,
       updatedAt: 1,
     };
-    vi.spyOn(expenseRepository, "loadExpenses").mockReturnValue([foreignExpense]);
+    localStorage.setItem("expenses", JSON.stringify([reassigned]));
 
-    const user = userEvent.setup();
-    render(<App />);
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
     expect(screen.getByText("You can't edit this expense")).toBeInTheDocument();

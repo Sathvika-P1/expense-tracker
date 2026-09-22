@@ -4,7 +4,7 @@ import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
 import { getCurrentUserId } from "./domain/currentUser";
 import type { Expense } from "./domain/expense";
-import { loadExpenses } from "./domain/expenseRepository";
+import { findExpenseById, loadExpenses } from "./domain/expenseRepository";
 
 type View =
   | { mode: "list" }
@@ -22,11 +22,16 @@ export default function App() {
   }
 
   function handleEditClick(expense: Expense) {
-    if (expense.userId !== getCurrentUserId()) {
+    const current = findExpenseById(expense.id);
+    if (!current) {
+      backToList();
+      return;
+    }
+    if (current.userId !== getCurrentUserId()) {
       setView({ mode: "access-denied" });
       return;
     }
-    setView({ mode: "edit", expense });
+    setView({ mode: "edit", expense: current });
   }
 
   if (view.mode === "access-denied") {

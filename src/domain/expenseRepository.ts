@@ -25,6 +25,10 @@ export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+export function findExpenseById(id: string): Expense | undefined {
+  return loadAll().find((expense) => expense.id === id);
+}
+
 export function saveExpense(expense: Expense): Expense[] {
   const expenses = [expense, ...loadAll()];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
@@ -48,11 +52,7 @@ export function updateExpense(
     return { ok: false, reason: "unauthorized" };
   }
 
-  if (
-    record.updatedAt !== undefined &&
-    loadedUpdatedAt !== undefined &&
-    record.updatedAt !== loadedUpdatedAt
-  ) {
+  if (record.updatedAt !== loadedUpdatedAt) {
     return { ok: false, reason: "conflict" };
   }
 

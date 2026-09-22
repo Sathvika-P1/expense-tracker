@@ -108,6 +108,24 @@ describe("expenseRepository", () => {
     expect(result).toEqual({ ok: false, reason: "conflict" });
   });
 
+  it("updates a legacy record with no updatedAt when it hasn't changed since loading (AC2)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: undefined }));
+
+    const result = updateExpense("e1", validInput, undefined, "local-user");
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects updating a legacy record that gained an updatedAt from another writer since it was loaded (AC9)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: undefined }));
+    const afterOtherWriter = updateExpense("e1", validInput, undefined, "local-user");
+    if (!afterOtherWriter.ok) throw new Error("setup failed");
+
+    const result = updateExpense("e1", validInput, undefined, "local-user");
+
+    expect(result).toEqual({ ok: false, reason: "conflict" });
+  });
+
   it("rejects updating an expense that no longer exists (AC10)", () => {
     const result = updateExpense("missing", validInput, 1, "local-user");
 
