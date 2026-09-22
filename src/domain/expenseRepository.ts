@@ -47,7 +47,7 @@ function loadAll(userId: string): Expense[] {
 
 export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
   return loadAll(userId)
-    .filter((expense) => expense?.userId === userId)
+    .filter((expense) => expense?.userId === userId && Number.isFinite(expense?.amount))
     .sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")));
 }
 

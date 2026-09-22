@@ -39,6 +39,7 @@ function formatMonthLabel(key: string): string {
 export function groupByMonth(expenses: Expense[]): MonthlyTotal[] {
   const totals = new Map<string, number>();
   for (const expense of expenses) {
+    if (!Number.isFinite(expense.amount)) continue;
     const key = expense.date.slice(0, 7);
     totals.set(key, (totals.get(key) ?? 0) + expense.amount);
   }

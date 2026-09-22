@@ -21,6 +21,14 @@ describe("groupByMonth", () => {
     expect(groupByMonth(expenses)).toEqual([{ key: "2026-01", label: "January 2026", total: 25 }]);
   });
 
+  it("skips expenses with a non-numeric amount instead of corrupting the month total", () => {
+    const expenses = [
+      makeExpense({ date: "2026-01-05", amount: 10 }),
+      { ...makeExpense({ date: "2026-01-06" }), amount: "not-a-number" as unknown as number },
+    ];
+    expect(groupByMonth(expenses)).toEqual([{ key: "2026-01", label: "January 2026", total: 10 }]);
+  });
+
   it("omits months with no recorded expenses", () => {
     const expenses = [makeExpense({ date: "2026-01-05" })];
     const keys = groupByMonth(expenses).map((m) => m.key);

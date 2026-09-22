@@ -113,6 +113,19 @@ describe("expenseRepository", () => {
     expect(() => loadExpenses()).not.toThrow();
     expect(loadExpenses().map((e) => e.id).sort()).toEqual(["1", "2", "3"]);
   });
+
+  it("drops records with a non-numeric amount instead of returning them for rendering", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        { id: "1", userId: "local-user", amount: "not-a-number", date: "2026-01-01", category: "Food", createdAt: 1 },
+        { id: "2", userId: "local-user", amount: 5, date: "2026-01-02", category: "Food", createdAt: 2 },
+      ]),
+    );
+
+    expect(() => loadExpenses()).not.toThrow();
+    expect(loadExpenses().map((e) => e.id)).toEqual(["2"]);
+  });
 });
 
 describe("loadExpensesStrict", () => {
