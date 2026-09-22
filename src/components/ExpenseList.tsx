@@ -4,20 +4,23 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  emptyMessage?: string;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, emptyMessage }: ExpenseListProps) {
   const [page, setPage] = useState(0);
 
   if (expenses.length === 0) {
     return (
       <div>
-        <p>No expenses recorded yet.</p>
-        <button type="button" onClick={onAddExpenseClick}>
-          Add an expense
-        </button>
+        <p>{emptyMessage ?? "No expenses recorded yet."}</p>
+        {!emptyMessage && (
+          <button type="button" onClick={onAddExpenseClick}>
+            Add an expense
+          </button>
+        )}
       </div>
     );
   }
