@@ -41,6 +41,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
     }
 
     try {
+      const now = Date.now();
       saveExpense({
         id: crypto.randomUUID(),
         userId: getCurrentUserId(),
@@ -48,7 +49,8 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
         date: form.date,
         category: form.category as (typeof CATEGORIES)[number],
         notes: form.notes || undefined,
-        createdAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
       });
     } catch {
       setSaveError("Could not save the expense. Please try again.");

@@ -4,11 +4,12 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  onEditClick: (expense: Expense) => void;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: ExpenseListProps) {
   const [page, setPage] = useState(0);
 
   if (expenses.length === 0) {
@@ -35,6 +36,7 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
             <th scope="col">Amount</th>
             <th scope="col">Category</th>
             <th scope="col">Description</th>
+            <th scope="col">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -44,6 +46,15 @@ export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
               <td>{expense.amount.toFixed(2)}</td>
               <td>{expense.category}</td>
               <td>{expense.notes ?? ""}</td>
+              <td>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => onEditClick(expense)}
+                >
+                  Edit
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
