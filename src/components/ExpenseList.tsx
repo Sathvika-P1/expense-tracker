@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Expense } from "../domain/expense";
+import { filterExpensesByKeyword } from "../domain/searchExpenses";
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -11,6 +12,7 @@ const PAGE_SIZE = 10;
 
 export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+  const [keyword, setKeyword] = useState("");
 
   if (expenses.length === 0) {
     return (
@@ -23,11 +25,37 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: Expens
     );
   }
 
-  const totalPages = Math.ceil(expenses.length / PAGE_SIZE);
-  const pageItems = expenses.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const filtered = filterExpensesByKeyword(expenses, keyword);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const pageItems = filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
+  const searchInput = (
+    <div>
+      <label htmlFor="expense-search">Search expenses by keyword</label>
+      <input
+        id="expense-search"
+        type="text"
+        value={keyword}
+        onChange={(e) => {
+          setKeyword(e.target.value);
+          setPage(0);
+        }}
+      />
+    </div>
+  );
+
+  if (filtered.length === 0) {
+    return (
+      <div>
+        {searchInput}
+        <p>No expenses match your search.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
+      {searchInput}
       <table>
         <caption>Expenses</caption>
         <thead>
@@ -59,7 +87,7 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: Expens
           ))}
         </tbody>
       </table>
-      {expenses.length > PAGE_SIZE && (
+      {filtered.length > PAGE_SIZE && (
         <nav aria-label="Expense list pagination">
           <button
             type="button"

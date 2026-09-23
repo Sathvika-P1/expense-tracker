@@ -102,6 +102,56 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("shows only expenses whose notes match the typed keyword", async () => {
+    render(
+      <ExpenseList
+        expenses={[
+          makeExpense({ id: "1", notes: "Lunch with team" }),
+          makeExpense({ id: "2", notes: "Taxi home" }),
+        ]}
+        onAddExpenseClick={vi.fn()}
+      />,
+    );
+    await userEvent.type(screen.getByRole("textbox", { name: /search/i }), "lunch");
+    expect(screen.getByText("Lunch with team")).toBeInTheDocument();
+    expect(screen.queryByText("Taxi home")).not.toBeInTheDocument();
+  });
+
+  it("restores the full list when the search field is cleared", async () => {
+    render(
+      <ExpenseList
+        expenses={[
+          makeExpense({ id: "1", notes: "Lunch with team" }),
+          makeExpense({ id: "2", notes: "Taxi home" }),
+        ]}
+        onAddExpenseClick={vi.fn()}
+      />,
+    );
+    const input = screen.getByRole("textbox", { name: /search/i });
+    await userEvent.type(input, "lunch");
+    await userEvent.clear(input);
+    expect(screen.getByText("Lunch with team")).toBeInTheDocument();
+    expect(screen.getByText("Taxi home")).toBeInTheDocument();
+  });
+
+  it("shows a no-matches empty state instead of the table when the keyword matches nothing", async () => {
+    render(
+      <ExpenseList
+        expenses={[makeExpense({ id: "1", notes: "Lunch with team" })]}
+        onAddExpenseClick={vi.fn()}
+      />,
+    );
+    await userEvent.type(screen.getByRole("textbox", { name: /search/i }), "zzz-no-match");
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses match your search/i)).toBeInTheDocument();
+  });
+
+  it("still shows the original empty-state CTA when there are no expenses at all", () => {
+    render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} />);
+    expect(screen.getByText(/no expenses recorded yet/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add.*expense/i })).toBeInTheDocument();
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
