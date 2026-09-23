@@ -458,7 +458,7 @@ h1, h2, h3, .heading {
   function matches(expense, term) {
     const t = term.toLowerCase();
     return (
-      expense.notes.toLowerCase().includes(t) ||
+      (expense.notes ?? "").toLowerCase().includes(t) ||
       expense.category.toLowerCase().includes(t)
     );
   }

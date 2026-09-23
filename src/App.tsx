@@ -42,7 +42,7 @@ export default function App() {
       </form>
       <p role="status">
         {!submittedTerm
-          ? `Showing all ${expenses.length} expenses`
+          ? `Showing all ${expenses.length} expense${expenses.length === 1 ? "" : "s"}`
           : visibleExpenses.length > 0
             ? `${visibleExpenses.length} result${visibleExpenses.length === 1 ? "" : "s"} for "${submittedTerm}"`
             : ""}
