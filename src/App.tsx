@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
@@ -16,6 +16,14 @@ export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [view, setView] = useState<View>({ mode: "list" });
   const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    if (!justSaved) {
+      return;
+    }
+    const timeoutId = setTimeout(() => setJustSaved(false), 4000);
+    return () => clearTimeout(timeoutId);
+  }, [justSaved]);
 
   function backToList() {
     setExpenses(loadExpenses());

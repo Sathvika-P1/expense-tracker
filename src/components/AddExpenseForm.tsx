@@ -112,6 +112,7 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
             type="text"
             inputMode="decimal"
             placeholder="0.00"
+            autoFocus
             value={form.amount}
             aria-invalid={Boolean(errors.amount)}
             aria-describedby={errors.amount ? amountErrorId : undefined}
