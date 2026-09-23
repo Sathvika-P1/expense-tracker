@@ -4,12 +4,30 @@ import type { Expense } from "../domain/expense";
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
+  searchTerm?: string;
+  onClearSearch?: () => void;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, searchTerm, onClearSearch }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+
+  if (expenses.length === 0 && searchTerm) {
+    return (
+      <div role="status">
+        <div aria-hidden="true">🔍</div>
+        <h3>No expenses found for &quot;{searchTerm}&quot;</h3>
+        <p>
+          We couldn&apos;t find any expenses matching that keyword. Check the spelling, or try a
+          broader term like a category name.
+        </p>
+        <button type="button" onClick={onClearSearch}>
+          Clear search
+        </button>
+      </div>
+    );
+  }
 
   if (expenses.length === 0) {
     return (
