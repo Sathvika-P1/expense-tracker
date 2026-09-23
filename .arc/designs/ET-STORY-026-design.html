@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET-STORY-026 — Keyword search</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+</style>
+<!-- App nav: simple top bar — Expenses · Add expense (matches existing Expense Tracker app, no sidebar) -->
+<style>
+  #review-bar button {
+    color: var(--color-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-family-base);
+  }
+  #review-bar button:disabled { color: var(--color-muted); cursor: default; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .hint-chip {
+    display: inline-flex;
+    align-items: center;
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .app-topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+    background: var(--color-bg);
+  }
+  .app-topbar .brand {
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-fg);
+  }
+  .app-topbar nav {
+    display: flex;
+    gap: var(--space-3);
+  }
+  .app-topbar nav a {
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    padding: var(--space-1) 0;
+  }
+  .app-topbar nav a.active {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+    border-bottom: 2px solid var(--color-primary);
+  }
+  .page-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: var(--space-4);
+  }
+  .page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .search-row {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .search-row .field {
+    flex: 1 1 260px;
+    margin-bottom: 0;
+  }
+  .search-row .input {
+    width: 100%;
+  }
+  .search-row .btn {
+    align-self: flex-end;
+    min-height: 44px;
+  }
+  table.expense-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table.expense-table caption {
+    text-align: left;
+    margin-bottom: var(--space-2);
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-md);
+    color: var(--color-fg);
+  }
+  table.expense-table th,
+  table.expense-table td {
+    text-align: left;
+    padding: var(--space-2) var(--space-2);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+    font-size: var(--font-size-sm);
+  }
+  table.expense-table th {
+    color: var(--color-muted);
+    font-weight: var(--font-weight-medium);
+  }
+  mark.hit {
+    background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+    color: var(--color-fg);
+    border-radius: var(--radius-sm);
+    padding: 0 var(--space-1);
+  }
+  .results-summary {
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-3);
+  }
+  .empty-state {
+    text-align: center;
+    padding: var(--space-4) var(--space-3);
+    border: var(--border-width-thin) dashed var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+  .empty-state .icon {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-2);
+  }
+  .empty-state h3 {
+    font-family: var(--font-family-heading);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-1);
+  }
+  .empty-state p {
+    color: var(--color-muted);
+    margin: 0 0 var(--space-3);
+    max-width: 46ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .field-error {
+    color: var(--color-negative);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-1);
+  }
+  .skeleton-row {
+    height: var(--font-size-md);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+    margin-bottom: var(--space-2);
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-row { animation: none; }
+  }
+  @media (max-width: 640px) {
+    table.expense-table thead { display: none; }
+    table.expense-table, table.expense-table tbody, table.expense-table tr, table.expense-table td {
+      display: block;
+      width: 100%;
+    }
+    table.expense-table tr {
+      border-bottom: var(--border-width-thin) solid var(--color-border);
+      padding: var(--space-2) 0;
+    }
+    table.expense-table td {
+      border-bottom: none;
+      padding: var(--space-1) 0;
+    }
+    table.expense-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: var(--font-size-sm);
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);color:var(--color-muted)">ET-STORY-026</span>
+  <button id="prev-btn">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn">Next →</button>
+</div>
+<div style="height:46px"></div>
+
+<div class="app-topbar">
+  <span class="brand">Expense Tracker</span>
+  <nav>
+    <a href="#" class="active">Expenses</a>
+    <a href="#">Add expense</a>
+  </nav>
+</div>
+
+<script>
+  // Fixture data — plausible expense records for the search demo
+  const EXPENSES = [
+    { id: 1, date: "2026-09-02", amount: 42.50, category: "Groceries", notes: "Whole Foods weekly shop" },
+    { id: 2, date: "2026-09-03", amount: 15.00, category: "Transport", notes: "Uber to airport" },
+    { id: 3, date: "2026-09-05", amount: 89.99, category: "Utilities", notes: "Electric bill September" },
+    { id: 4, date: "2026-09-07", amount: 6.75, category: "Coffee", notes: "Latte at Blue Bottle" },
+    { id: 5, date: "2026-09-10", amount: 120.00, category: "Groceries", notes: "Costco bulk run" },
+    { id: 6, date: "2026-09-12", amount: 32.20, category: "Entertainment", notes: "Movie tickets and popcorn" },
+    { id: 7, date: "2026-09-14", amount: 54.00, category: "Transport", notes: "Gas fill-up" },
+    { id: 8, date: "2026-09-18", amount: 18.30, category: "Coffee", notes: "Team coffee run" },
+  ];
+
+  function highlight(text, term) {
+    if (!term) return text;
+    const idx = text.toLowerCase().indexOf(term.toLowerCase());
+    if (idx === -1) return text;
+    return text.slice(0, idx) + '<mark class="hit">' + text.slice(idx, idx + term.length) + '</mark>' + text.slice(idx + term.length);
+  }
+
+  function matches(expense, term) {
+    const t = term.toLowerCase();
+    return (
+      expense.notes.toLowerCase().includes(t) ||
+      expense.category.toLowerCase().includes(t)
+    );
+  }
+
+  function renderRows(results, term) {
+    return results.map(e => `
+      <tr>
+        <td data-label="Date">${e.date}</td>
+        <td data-label="Amount" class="text-negative">$${e.amount.toFixed(2)}</td>
+        <td data-label="Category">${highlight(e.category, term)}</td>
+        <td data-label="Description">${highlight(e.notes, term)}</td>
+      </tr>`).join('');
+  }
+
+  function fillAndSearch(term) {
+    document.getElementById('search-input').value = term;
+    runSearch();
+  }
+
+  function runSearch() {
+    const input = document.getElementById('search-input');
+    const term = input.value.trim();
+
+    const resultsPane = document.getElementById('results-pane');
+    const skeletonPane = document.getElementById('skeleton-pane');
+    const summary = document.getElementById('results-summary');
+    const tbody = document.getElementById('results-tbody');
+    const emptyState = document.getElementById('empty-state');
+    const tableWrap = document.getElementById('table-wrap');
+    const submitBtn = document.getElementById('search-submit');
+
+    resultsPane.style.display = 'none';
+    skeletonPane.style.display = 'block';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Searching…';
+
+    setTimeout(() => {
+      skeletonPane.style.display = 'none';
+      resultsPane.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Search';
+
+      if (!term) {
+        // no keyword entered — treat as "show all" for this prototype's browse baseline
+        tableWrap.style.display = 'block';
+        emptyState.style.display = 'none';
+        summary.textContent = `Showing all ${EXPENSES.length} expenses`;
+        tbody.innerHTML = renderRows(EXPENSES, '');
+        return;
+      }
+
+      const results = EXPENSES.filter(e => matches(e, term));
+
+      if (results.length === 0) {
+        tableWrap.style.display = 'none';
+        emptyState.style.display = 'block';
+        summary.textContent = '';
+        document.getElementById('empty-term').textContent = term;
+      } else {
+        tableWrap.style.display = 'block';
+        emptyState.style.display = 'none';
+        summary.textContent = `${results.length} result${results.length === 1 ? '' : 's'} for "${term}"`;
+        tbody.innerHTML = renderRows(results, term);
+      }
+    }, 350);
+  }
+
+  function clearSearch() {
+    document.getElementById('search-input').value = '';
+    runSearch();
+  }
+</script>
+
+<div id="screens">
+
+  <!-- State: default / browse (no search submitted yet) -->
+  <!--
+    Screen: Expenses — Search
+    Notes:
+      - Keyword field searches expense description and category
+      - Submitting an empty query shows the full unfiltered list (browse baseline)
+      - "Search" button and Enter key both submit
+  -->
+  <div class="screen" data-name="Search — Default">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input-1">Search expenses</label>
+          <input class="input" id="search-input-1" type="text" placeholder="e.g. coffee, groceries, Uber">
+        </div>
+        <button class="btn btn-primary" type="button" onclick="show(5)">Search</button>
+      </div>
+
+      <p class="results-summary" role="status">Showing all 8 expenses</p>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <table class="expense-table">
+          <caption class="sr-only">Expenses</caption>
+          <thead>
+            <tr><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Category</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody id="static-rows"></tbody>
+        </table>
+      </div>
+      <script>
+        document.getElementById('static-rows').innerHTML = renderRows(EXPENSES, '');
+      </script>
+    </div>
+  </div>
+
+  <!-- State: results found for a submitted keyword -->
+  <!--
+    Screen: Expenses — Results
+    Notes: AC1 — "GIVEN a keyword is entered WHEN search is submitted THEN matching results are displayed."
+    Matched text is highlighted inline in the Category and Description columns.
+  -->
+  <div class="screen" data-name="Results — 'coffee' (AC1)">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input-2">Search expenses</label>
+          <input class="input" id="search-input-2" type="text" value="coffee">
+        </div>
+        <button class="btn btn-primary" type="button" onclick="show(5)">Search</button>
+      </div>
+      <p class="results-summary" role="status">2 results for "coffee"</p>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <table class="expense-table">
+          <thead>
+            <tr><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Category</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody id="ac1-rows"></tbody>
+        </table>
+      </div>
+      <script>
+        document.getElementById('ac1-rows').innerHTML = renderRows(EXPENSES.filter(e => matches(e, 'coffee')), 'coffee');
+      </script>
+    </div>
+  </div>
+
+  <!-- State: no records match the submitted keyword -->
+  <!--
+    Screen: Expenses — No results
+    Notes: AC2 — "GIVEN a keyword matches no records WHEN search is submitted THEN a no-results state is displayed."
+    The empty state explains why (no match) and offers a recovery action (Clear search) rather than a dead end.
+  -->
+  <div class="screen" data-name="No results — 'parking' (AC2)">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input-4">Search expenses</label>
+          <input class="input" id="search-input-4" type="text" value="parking">
+        </div>
+        <button class="btn btn-primary" type="button" onclick="show(5)">Search</button>
+      </div>
+      <div class="empty-state" role="status">
+        <div class="icon" aria-hidden="true">🔍</div>
+        <h3>No expenses found for "parking"</h3>
+        <p>We couldn't find any expenses matching that keyword. Check the spelling, or try a broader term like a category name.</p>
+        <button class="btn btn-secondary" type="button" onclick="show(0)">Clear search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- State: search request pending -->
+  <!--
+    Screen: Expenses — Loading
+    Notes: Skeleton rows preserve layout to avoid content shift while the search request is in flight (§4/§9).
+  -->
+  <div class="screen" data-name="Loading">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input-5">Search expenses</label>
+          <input class="input" id="search-input-5" type="text" value="coffee">
+        </div>
+        <button class="btn btn-primary" type="button" disabled>Searching…</button>
+      </div>
+      <div role="status" aria-live="polite" aria-label="Searching">
+        <div class="skeleton-row" style="width:60%"></div>
+        <div class="skeleton-row" style="width:90%"></div>
+        <div class="skeleton-row" style="width:80%"></div>
+        <div class="skeleton-row" style="width:70%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State: search request failed -->
+  <!--
+    Screen: Expenses — Error
+    Notes: Names the problem and offers a retry, per guideline §5 (never a raw stack trace or vague message).
+  -->
+  <div class="screen" data-name="Error">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input-6">Search expenses</label>
+          <input class="input" id="search-input-6" type="text" value="coffee">
+        </div>
+        <button class="btn btn-primary" type="button" onclick="show(5)">Search</button>
+      </div>
+      <div class="empty-state" role="alert">
+        <div class="icon" aria-hidden="true">⚠️</div>
+        <h3>Couldn't complete the search</h3>
+        <p>We couldn't reach your expenses. Check your connection and try again.</p>
+        <button class="btn btn-secondary" type="button" onclick="show(3); setTimeout(() => show(1), 600)">Try again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- State: interactive search demo (loading -> results/no-results) -->
+  <!--
+    Screen: Expenses — Search interactive
+    Notes:
+      - Try "coffee" or "groceries" for matches (AC1)
+      - Try "parking" for the no-results state (AC2)
+      - Matched term is highlighted inline in category/description
+      - 350ms simulated latency shows a skeleton loading state per guideline §4
+  -->
+  <div class="screen" data-name="Search — Try it (results & no-results)">
+    <div class="page-wrap">
+      <div class="page-header">
+        <h1 class="heading text-lg font-heading">Expenses</h1>
+      </div>
+
+      <div class="search-row">
+        <div class="field">
+          <label class="label" for="search-input">Search expenses</label>
+          <input class="input" id="search-input" type="text" placeholder="e.g. coffee, groceries, Uber"
+            onkeydown="if(event.key==='Enter'){event.preventDefault(); runSearch();}">
+        </div>
+        <button id="search-submit" class="btn btn-primary" type="button" onclick="runSearch()">Search</button>
+      </div>
+
+      <div style="display:flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-3);">
+        <span style="color:var(--color-muted); font-size: var(--font-size-sm); align-self:center;">Try:</span>
+        <button type="button" class="hint-chip" onclick="fillAndSearch('coffee')">coffee</button>
+        <button type="button" class="hint-chip" onclick="fillAndSearch('groceries')">groceries</button>
+        <button type="button" class="hint-chip" onclick="fillAndSearch('transport')">transport</button>
+        <button type="button" class="hint-chip" onclick="fillAndSearch('parking')">parking (no match)</button>
+      </div>
+
+      <div id="skeleton-pane" style="display:none;" role="status" aria-live="polite" aria-label="Searching">
+        <div class="skeleton-row" style="width:60%"></div>
+        <div class="skeleton-row" style="width:90%"></div>
+        <div class="skeleton-row" style="width:80%"></div>
+        <div class="skeleton-row" style="width:70%"></div>
+      </div>
+
+      <div id="results-pane">
+        <p id="results-summary" class="results-summary" role="status" aria-live="polite">Enter a keyword and press Search</p>
+
+        <div id="table-wrap" class="card" style="padding:0; overflow:hidden; display:none;">
+          <table class="expense-table">
+            <caption class="sr-only">Search results</caption>
+            <thead>
+              <tr><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Category</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+
+        <div id="empty-state" class="empty-state" style="display:none;" role="status" aria-live="polite">
+          <div class="icon" aria-hidden="true">🔍</div>
+          <h3>No expenses found for "<span id="empty-term"></span>"</h3>
+          <p>We couldn't find any expenses matching that keyword. Check the spelling, or try a broader term like a category name.</p>
+          <button class="btn btn-secondary" type="button" onclick="clearSearch()">Clear search</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const screens = Array.from(document.querySelectorAll('#screens .screen'));
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+    document.getElementById('screen-label').textContent =
+      `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  }
+  document.getElementById('prev-btn').onclick = () => show(cur - 1);
+  document.getElementById('next-btn').onclick = () => show(cur + 1);
+  document.addEventListener('keydown', e => {
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT')) return;
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+  show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
