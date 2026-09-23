@@ -102,6 +102,25 @@ describe("ExpenseList", () => {
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
   });
 
+  it("shows a no-results state with a clear-search action when a search term matches nothing", () => {
+    const onClearSearch = vi.fn();
+    render(
+      <ExpenseList
+        expenses={[]}
+        onAddExpenseClick={vi.fn()}
+        searchTerm="parking"
+        onClearSearch={onClearSearch}
+      />,
+    );
+
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses found for "parking"/i)).toBeInTheDocument();
+    expect(screen.queryByText(/no expenses recorded yet/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /clear search/i }));
+    expect(onClearSearch).toHaveBeenCalled();
+  });
+
   it("exposes the expense list as a table with labeled columns", () => {
     render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} />);
 
