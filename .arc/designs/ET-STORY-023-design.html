@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ledger">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ET-STORY-023 — Add and view expense list UI</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+</style>
+<!-- App nav: none — this is a single-purpose expense list/add screen, no app-level sidebar/topbar in scope for this story -->
+<style>
+  body { padding-bottom: var(--space-4); }
+  .app-shell { max-width: 720px; margin: 0 auto; padding: var(--space-4) var(--space-3); }
+  .page-title { font-family: var(--font-family-heading); font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-fg); margin: 0 0 var(--space-1); }
+  .page-subtitle { color: var(--color-muted); font-size: var(--font-size-md); margin: 0 0 var(--space-4); }
+
+  .expense-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .expense-row:last-child { border-bottom: none; }
+  .expense-main { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+  .expense-category { font-weight: var(--font-weight-medium); color: var(--color-fg); }
+  .expense-date { color: var(--color-muted); font-size: var(--font-size-sm); }
+  .expense-desc { color: var(--color-muted); font-size: var(--font-size-sm); }
+  .expense-amount {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    min-width: 6.5em;
+    color: var(--color-negative);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+  }
+
+  .skeleton-row { padding: var(--space-3) 0; border-bottom: var(--border-width-thin) solid var(--color-border); }
+  .skeleton-bar {
+    height: 14px; border-radius: var(--radius-sm);
+    background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 50%, var(--color-border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) { .skeleton-bar { animation: none; } }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .empty-state { text-align: center; padding: var(--space-4) var(--space-3); }
+  .empty-state p { color: var(--color-muted); margin: var(--space-2) 0 var(--space-3); }
+
+  .field-error { color: var(--color-negative); font-size: var(--font-size-sm); margin-top: var(--space-1); display: flex; align-items: center; gap: var(--space-1); }
+  .input-error { border-color: var(--color-negative) !important; }
+
+  .select-wrap { position: relative; }
+  .select-trigger {
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+  }
+  .listbox {
+    position: absolute; top: calc(100% + var(--space-1)); left: 0; right: 0;
+    background: var(--color-bg); border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+    z-index: 20; overflow: hidden;
+  }
+  .listbox-option { padding: var(--space-2) var(--space-3); cursor: pointer; color: var(--color-fg); }
+  .listbox-option:hover, .listbox-option:focus { background: var(--color-border); outline: none; }
+  .listbox-option[aria-selected="true"] { font-weight: var(--font-weight-bold); }
+
+  .toast-banner {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    background: var(--color-bg); border: var(--border-width-thin) solid var(--color-negative);
+    border-radius: var(--radius-md); padding: var(--space-3);
+    margin-bottom: var(--space-3); color: var(--color-fg);
+  }
+  .toast-icon { color: var(--color-negative); font-weight: var(--font-weight-bold); flex-shrink: 0; }
+
+  .form-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+  .form-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+  .back-link { color: var(--color-primary); font-size: var(--font-size-sm); background: none; border: none; cursor: pointer; padding: var(--space-1) 0; font-family: var(--font-family-base); }
+  .back-link:focus-visible, .btn:focus-visible, .listbox-option:focus-visible, .input:focus-visible, .select-trigger:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset);
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);font-weight:700;color:var(--color-muted)">ET-STORY-023</span>
+  <button id="prev-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;padding:4px 8px;">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;padding:4px 8px;">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div id="screens">
+
+<!-- State: loading
+     Screen: Expense List — Loading
+     Notes:
+       - Skeleton rows preserve layout while the list fetches (UI guideline §5, no spinner-only loading)
+       - Shown for >300ms fetches per guideline; here it is a static state a reviewer pages to
+-->
+<div class="screen" data-name="List — Loading">
+  <div class="app-shell">
+    <h1 class="page-title">Expenses</h1>
+    <p class="page-subtitle">Loading your expenses…</p>
+    <div class="card">
+      <div class="skeleton-row"><div class="skeleton-bar" style="width:60%;margin-bottom:8px;"></div><div class="skeleton-bar" style="width:30%;"></div></div>
+      <div class="skeleton-row"><div class="skeleton-bar" style="width:50%;margin-bottom:8px;"></div><div class="skeleton-bar" style="width:35%;"></div></div>
+      <div class="skeleton-row"><div class="skeleton-bar" style="width:55%;margin-bottom:8px;"></div><div class="skeleton-bar" style="width:25%;"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- State: empty
+     Screen: Expense List — Empty
+     Notes:
+       - AC7: empty-state message shown when no expenses exist
+       - AC8: primary CTA links to the add-expense form
+-->
+<div class="screen" data-name="List — Empty" style="display:none;">
+  <div class="app-shell">
+    <h1 class="page-title">Expenses</h1>
+    <p class="page-subtitle">Track what you spend, one entry at a time.</p>
+    <div class="card empty-state">
+      <div class="heading text-lg">No expenses yet</div>
+      <p>Once you add an expense, it will show up here sorted by date.</p>
+      <button class="btn btn-primary" onclick="go('add-pristine')">+ Add an expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- State: populated
+     Screen: Expense List — Populated
+     Notes:
+       - AC2: every existing expense is displayed
+       - AC9: fixture data is intentionally unsorted; rendered order is sorted by date descending in JS (see renderList())
+       - AC10: amounts formatted to a fixed currency (USD) with two decimal places, tabular-nums, right-aligned
+       - AC11: the "Team lunch" row shows its description; the "Metro card" row has no description and shows no gap
+-->
+<div class="screen" data-name="List — Populated" style="display:none;">
+  <div class="app-shell">
+    <h1 class="page-title">Expenses</h1>
+    <p class="page-subtitle" id="populated-subtitle">4 expenses</p>
+    <div class="card">
+      <div id="populated-list"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="go('add-pristine')">+ Add expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- State: add-pristine
+     Screen: Add Expense — Pristine
+     Notes:
+       - Base form: Amount, Date, Category (required), Description (optional) — grouped fields, one primary action (§6)
+       - Category is a custom listbox trigger, not a native <select> (design system provides no select styling; see "Category open" screen for AC5)
+-->
+<div class="screen" data-name="Add Form — Pristine" style="display:none;">
+  <div class="app-shell">
+    <div class="form-header-row">
+      <h1 class="page-title" style="margin:0;">Add expense</h1>
+      <button class="back-link" onclick="go('list-populated')">← Back to list</button>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="label" for="amt-1">Amount</label>
+        <input class="input" id="amt-1" type="text" placeholder="0.00" value="" />
+      </div>
+      <div class="field">
+        <label class="label" for="date-1">Date</label>
+        <input class="input" id="date-1" type="text" placeholder="YYYY-MM-DD" value="" />
+      </div>
+      <div class="field">
+        <label class="label" for="cat-1">Category</label>
+        <div class="select-wrap">
+          <button class="input select-trigger" id="cat-1" type="button" onclick="go('add-category-open')">
+            <span style="color:var(--color-muted)">Select a category</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="desc-1">Description <span style="color:var(--color-muted);font-weight:400;">(optional)</span></label>
+        <input class="input" id="desc-1" type="text" placeholder="e.g. Team lunch" value="" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="go('add-validation')">Save expense</button>
+        <button class="btn btn-secondary" onclick="go('list-populated')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: add-category-open
+     Screen: Add Expense — Category Open
+     Notes:
+       - AC5: opening the category field shows a fixed list of category options
+       - Options: Food, Transport, Housing, Utilities, Health, Entertainment, Other
+-->
+<div class="screen" data-name="Add Form — Category Open" style="display:none;">
+  <div class="app-shell">
+    <div class="form-header-row">
+      <h1 class="page-title" style="margin:0;">Add expense</h1>
+      <button class="back-link" onclick="go('list-populated')">← Back to list</button>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="label" for="amt-2">Amount</label>
+        <input class="input" id="amt-2" type="text" placeholder="0.00" value="18.50" />
+      </div>
+      <div class="field">
+        <label class="label" for="date-2">Date</label>
+        <input class="input" id="date-2" type="text" placeholder="YYYY-MM-DD" value="2026-09-22" />
+      </div>
+      <div class="field">
+        <label class="label" for="cat-2">Category</label>
+        <div class="select-wrap">
+          <button class="input select-trigger" id="cat-2" type="button" aria-expanded="true">
+            <span style="color:var(--color-muted)">Select a category</span>
+            <span aria-hidden="true">▴</span>
+          </button>
+          <ul class="listbox" role="listbox" aria-label="Category options" style="list-style:none;margin:0;padding:4px 0;">
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Food</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Transport</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Housing</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Utilities</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Health</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Entertainment</li>
+            <li class="listbox-option" role="option" tabindex="0" onclick="go('add-pristine')">Other</li>
+          </ul>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label" for="desc-2">Description <span style="color:var(--color-muted);font-weight:400;">(optional)</span></label>
+        <input class="input" id="desc-2" type="text" placeholder="e.g. Team lunch" value="" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" disabled>Save expense</button>
+        <button class="btn btn-secondary" onclick="go('list-populated')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: add-validation
+     Screen: Add Expense — Validation Errors
+     Notes:
+       - AC3: submitting with amount, date, and category missing shows an inline field-level error for each
+       - User's input is preserved (description was typed but is not itself required)
+       - Errors are text + icon, not color alone (§3)
+-->
+<div class="screen" data-name="Add Form — Validation Errors" style="display:none;">
+  <div class="app-shell">
+    <div class="form-header-row">
+      <h1 class="page-title" style="margin:0;">Add expense</h1>
+      <button class="back-link" onclick="go('list-populated')">← Back to list</button>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="label" for="amt-3">Amount</label>
+        <input class="input input-error" id="amt-3" type="text" placeholder="0.00" value="" aria-invalid="true" aria-describedby="amt-3-err" />
+        <div class="field-error" id="amt-3-err"><span aria-hidden="true">⚠</span> Amount is required</div>
+      </div>
+      <div class="field">
+        <label class="label" for="date-3">Date</label>
+        <input class="input input-error" id="date-3" type="text" placeholder="YYYY-MM-DD" value="" aria-invalid="true" aria-describedby="date-3-err" />
+        <div class="field-error" id="date-3-err"><span aria-hidden="true">⚠</span> Date is required</div>
+      </div>
+      <div class="field">
+        <label class="label" for="cat-3">Category</label>
+        <div class="select-wrap">
+          <button class="input select-trigger input-error" id="cat-3" type="button" aria-invalid="true" aria-describedby="cat-3-err" onclick="go('add-category-open')">
+            <span style="color:var(--color-muted)">Select a category</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+        </div>
+        <div class="field-error" id="cat-3-err"><span aria-hidden="true">⚠</span> Category is required</div>
+      </div>
+      <div class="field">
+        <label class="label" for="desc-3">Description <span style="color:var(--color-muted);font-weight:400;">(optional)</span></label>
+        <input class="input" id="desc-3" type="text" placeholder="e.g. Team lunch" value="Coffee with client" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="go('add-submitting')">Save expense</button>
+        <button class="btn btn-secondary" onclick="go('list-populated')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: submitting
+     Screen: Add Expense — Submitting
+     Notes:
+       - Submit button is disabled and its label changes to a pending state while the (simulated) request is in flight (§4)
+       - Prevents double-submit
+-->
+<div class="screen" data-name="Add Form — Submitting" style="display:none;">
+  <div class="app-shell">
+    <div class="form-header-row">
+      <h1 class="page-title" style="margin:0;">Add expense</h1>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="label" for="amt-4">Amount</label>
+        <input class="input" id="amt-4" type="text" value="42.00" disabled />
+      </div>
+      <div class="field">
+        <label class="label" for="date-4">Date</label>
+        <input class="input" id="date-4" type="text" value="2026-09-22" disabled />
+      </div>
+      <div class="field">
+        <label class="label" for="cat-4">Category</label>
+        <button class="input select-trigger" id="cat-4" type="button" disabled>
+          <span>Food</span>
+        </button>
+      </div>
+      <div class="field">
+        <label class="label" for="desc-4">Description <span style="color:var(--color-muted);font-weight:400;">(optional)</span></label>
+        <input class="input" id="desc-4" type="text" value="" disabled />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" disabled>Saving…</button>
+        <button class="btn btn-secondary" disabled>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: server-error
+     Screen: Add Expense — Server Error
+     Notes:
+       - AC6: valid submission that the server rejects shows a banner error, states what happened and how to fix it
+       - Form values remain populated so the user doesn't retype
+-->
+<div class="screen" data-name="Add Form — Server Error" style="display:none;">
+  <div class="app-shell">
+    <div class="form-header-row">
+      <h1 class="page-title" style="margin:0;">Add expense</h1>
+      <button class="back-link" onclick="go('list-populated')">← Back to list</button>
+    </div>
+    <div class="toast-banner" role="alert">
+      <span class="toast-icon" aria-hidden="true">⚠</span>
+      <div>
+        <strong>Couldn't save the expense</strong>
+        <div class="text-sm text-muted">The server rejected the request. Check your connection and try again.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label class="label" for="amt-5">Amount</label>
+        <input class="input" id="amt-5" type="text" value="42.00" />
+      </div>
+      <div class="field">
+        <label class="label" for="date-5">Date</label>
+        <input class="input" id="date-5" type="text" value="2026-09-22" />
+      </div>
+      <div class="field">
+        <label class="label" for="cat-5">Category</label>
+        <button class="input select-trigger" id="cat-5" type="button">
+          <span>Food</span><span aria-hidden="true">▾</span>
+        </button>
+      </div>
+      <div class="field">
+        <label class="label" for="desc-5">Description <span style="color:var(--color-muted);font-weight:400;">(optional)</span></label>
+        <input class="input" id="desc-5" type="text" value="" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="go('add-submitting')">Try again</button>
+        <button class="btn btn-secondary" onclick="go('list-populated')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: after-add
+     Screen: Expense List — After Add
+     Notes:
+       - AC1: the newly submitted expense ("Food", $42.00, 2026-09-22) now appears in the list
+       - AC4: it was submitted with amount, date, category only (no description) and was created successfully — its row shows no description line
+       - AC9: because its date (2026-09-22) is the newest, it is inserted at the top, not just appended — proving sort-by-date rather than sort-by-insertion
+-->
+<div class="screen" data-name="List — After Add" style="display:none;">
+  <div class="app-shell">
+    <div class="toast-banner" style="border-color:var(--color-positive);" role="status">
+      <span class="toast-icon" style="color:var(--color-positive);" aria-hidden="true">✓</span>
+      <div><strong>Expense added</strong></div>
+    </div>
+    <h1 class="page-title">Expenses</h1>
+    <p class="page-subtitle" id="after-add-subtitle">5 expenses</p>
+    <div class="card">
+      <div id="after-add-list"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="go('add-pristine')">+ Add expense</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Fixture data intentionally unsorted to prove client-side sort (AC9)
+const EXPENSES = [
+  { amount: 24.00, date: '2026-09-05', category: 'Transport', description: 'Metro card top-up' },
+  { amount: 128.90, date: '2026-09-18', category: 'Housing', description: 'Electricity bill' },
+  { amount: 15.75, date: '2026-09-12', category: 'Food', description: 'Team lunch' },
+  { amount: 60.00, date: '2026-09-01', category: 'Entertainment', description: '' }
+];
+
+const NEW_EXPENSE = { amount: 42.00, date: '2026-09-22', category: 'Food', description: '' };
+
+function formatCurrency(n) {
+  return '$' + n.toFixed(2);
+}
+
+function formatDate(d) {
+  const parts = d.split('-');
+  const dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderRows(list) {
+  const sorted = [...list].sort((a, b) => b.date.localeCompare(a.date));
+  return sorted.map(e => `
+    <div class="expense-row">
+      <div class="expense-main">
+        <span class="expense-category">${e.category}</span>
+        <span class="expense-date">${formatDate(e.date)}</span>
+        ${e.description ? `<span class="expense-desc">${e.description}</span>` : ''}
+      </div>
+      <div class="expense-amount">${formatCurrency(e.amount)}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('populated-list').innerHTML = renderRows(EXPENSES);
+document.getElementById('populated-subtitle').textContent = EXPENSES.length + ' expenses';
+
+const afterAdd = [...EXPENSES, NEW_EXPENSE];
+document.getElementById('after-add-list').innerHTML = renderRows(afterAdd);
+document.getElementById('after-add-subtitle').textContent = afterAdd.length + ' expenses';
+
+const screens = Array.from(document.querySelectorAll('.screen'));
+let cur = 0;
+function show(i) {
+  cur = Math.max(0, Math.min(screens.length - 1, i));
+  screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+  document.getElementById('screen-label').textContent =
+    `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+  window.scrollTo(0, 0);
+}
+function go(name) {
+  const map = {
+    'list-populated': 'List — Populated',
+    'add-pristine': 'Add Form — Pristine',
+    'add-category-open': 'Add Form — Category Open',
+    'add-validation': 'Add Form — Validation Errors',
+    'add-submitting': 'Add Form — Submitting',
+    'add-server-error': 'Add Form — Server Error',
+    'after-add': 'List — After Add'
+  };
+  const target = map[name];
+  const idx = screens.findIndex(s => s.dataset.name === target);
+  if (idx >= 0) {
+    if (name === 'add-submitting') {
+      show(idx);
+      setTimeout(() => {
+        const nextIdx = screens.findIndex(s => s.dataset.name === 'List — After Add');
+        show(nextIdx);
+      }, 900);
+    } else {
+      show(idx);
+    }
+  }
+}
+document.getElementById('prev-btn').onclick = () => show(cur - 1);
+document.getElementById('next-btn').onclick = () => show(cur + 1);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') show(cur + 1);
+  if (e.key === 'ArrowLeft') show(cur - 1);
+});
+show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->

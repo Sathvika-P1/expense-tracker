@@ -15,7 +15,7 @@ const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
 });
 
 describe("ExpenseList", () => {
-  it("renders expenses in the given order", () => {
+  it("renders expenses in the given order (AC9)", () => {
     render(
       <ExpenseList
         expenses={[makeExpense({ id: "2", category: "Travel" }), makeExpense({ id: "1" })]}
@@ -23,18 +23,24 @@ describe("ExpenseList", () => {
       />,
     );
 
-    const rows = screen.getAllByRole("row");
-    expect(rows[1]).toHaveTextContent("Travel");
-    expect(rows[2]).toHaveTextContent("Food");
+    const rows = screen.getAllByRole("listitem");
+    expect(rows[0]).toHaveTextContent("Travel");
+    expect(rows[1]).toHaveTextContent("Food");
   });
 
-  it("displays notes with the expense when present", () => {
-    render(<ExpenseList expenses={[makeExpense({ notes: "Lunch with team" })]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
+  it("displays notes with the expense when present (AC11)", () => {
+    render(
+      <ExpenseList
+        expenses={[makeExpense({ notes: "Lunch with team" })]}
+        onAddExpenseClick={vi.fn()}
+        onEditClick={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("Lunch with team")).toBeInTheDocument();
   });
 
-  it("displays date, amount, category, and description for each expense", () => {
+  it("displays date, amount, category, and description for each expense (AC2, AC10)", () => {
     render(
       <ExpenseList
         expenses={[
@@ -44,21 +50,21 @@ describe("ExpenseList", () => {
       />,
     );
 
-    const row = screen.getAllByRole("row")[1];
-    expect(row).toHaveTextContent("2026-01-01");
-    expect(row).toHaveTextContent("12.50");
+    const row = screen.getAllByRole("listitem")[0];
+    expect(row).toHaveTextContent("Jan 1, 2026");
+    expect(row).toHaveTextContent("$12.50");
     expect(row).toHaveTextContent("Food");
     expect(row).toHaveTextContent("Lunch");
   });
 
-  it("shows an empty-state message and no table when there are no expenses", () => {
+  it("shows an empty-state message and no list when there are no expenses (AC7)", () => {
     render(<ExpenseList expenses={[]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
-    expect(screen.queryByRole("table")).not.toBeInTheDocument();
-    expect(screen.getByText(/no expenses recorded yet/i)).toBeInTheDocument();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
+    expect(screen.getByText(/no expenses yet/i)).toBeInTheDocument();
   });
 
-  it("shows a call-to-action to add a new expense when the list is empty", () => {
+  it("shows a call-to-action to add a new expense when the list is empty (AC8)", () => {
     const onAddExpenseClick = vi.fn();
     render(<ExpenseList expenses={[]} onAddExpenseClick={onAddExpenseClick} onEditClick={vi.fn()} />);
 
@@ -74,7 +80,7 @@ describe("ExpenseList", () => {
     );
     render(<ExpenseList expenses={many} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
 
-    expect(screen.getAllByRole("row")).toHaveLength(11);
+    expect(screen.getAllByRole("listitem")).toHaveLength(10);
   });
 
   it("shows page navigation controls when there is more than one page", () => {
@@ -100,16 +106,6 @@ describe("ExpenseList", () => {
 
     expect(screen.getByText("note-11")).toBeInTheDocument();
     expect(screen.queryByText("note-0")).not.toBeInTheDocument();
-  });
-
-  it("exposes the expense list as a table with labeled columns", () => {
-    render(<ExpenseList expenses={[makeExpense()]} onAddExpenseClick={vi.fn()} onEditClick={vi.fn()} />);
-
-    expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /date/i })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /amount/i })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /category/i })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: /description/i })).toBeInTheDocument();
   });
 
   it("calls onEditClick with the expense when its Edit button is clicked", () => {
