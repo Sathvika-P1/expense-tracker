@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { CATEGORIES } from "../domain/categories";
 import { getCurrentUserId } from "../domain/currentUser";
 import type { ExpenseInput } from "../domain/expense";
@@ -22,6 +22,8 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLLIElement | null>>([]);
 
   const amountId = useId();
   const dateId = useId();
@@ -69,12 +71,60 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
   function selectCategory(category: string) {
     setForm({ ...form, category });
     setCategoryOpen(false);
+    triggerRef.current?.focus();
   }
 
-  function handleOptionKeyDown(event: React.KeyboardEvent, category: string) {
-    if (event.key === "Enter" || event.key === " ") {
+  function openListbox() {
+    setCategoryOpen(true);
+    const selectedIndex = CATEGORIES.indexOf(form.category as (typeof CATEGORIES)[number]);
+    const focusIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    requestAnimationFrame(() => optionRefs.current[focusIndex]?.focus());
+  }
+
+  function handleTriggerKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      selectCategory(category);
+      openListbox();
+    }
+  }
+
+  function handleOptionKeyDown(event: React.KeyboardEvent, index: number) {
+    switch (event.key) {
+      case "Enter":
+      case " ":
+        event.preventDefault();
+        selectCategory(CATEGORIES[index]);
+        break;
+      case "ArrowDown": {
+        event.preventDefault();
+        const nextIndex = (index + 1) % CATEGORIES.length;
+        optionRefs.current[nextIndex]?.focus();
+        break;
+      }
+      case "ArrowUp": {
+        event.preventDefault();
+        const prevIndex = (index - 1 + CATEGORIES.length) % CATEGORIES.length;
+        optionRefs.current[prevIndex]?.focus();
+        break;
+      }
+      case "Home":
+        event.preventDefault();
+        optionRefs.current[0]?.focus();
+        break;
+      case "End":
+        event.preventDefault();
+        optionRefs.current[CATEGORIES.length - 1]?.focus();
+        break;
+      case "Escape":
+        event.preventDefault();
+        setCategoryOpen(false);
+        triggerRef.current?.focus();
+        break;
+      case "Tab":
+        setCategoryOpen(false);
+        break;
+      default:
+        break;
     }
   }
 
@@ -151,6 +201,7 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
           </span>
           <div className="select-wrap">
             <button
+              ref={triggerRef}
               type="button"
               className={`input select-trigger${errors.category ? " input-error" : ""}`}
               role="combobox"
@@ -160,7 +211,8 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
               aria-labelledby={categoryLabelId}
               aria-invalid={Boolean(errors.category)}
               aria-describedby={errors.category ? categoryErrorId : undefined}
-              onClick={() => setCategoryOpen((open) => !open)}
+              onClick={() => (categoryOpen ? setCategoryOpen(false) : openListbox())}
+              onKeyDown={handleTriggerKeyDown}
             >
               <span style={{ color: form.category ? undefined : "var(--color-muted)" }}>
                 {form.category || "Select a category"}
@@ -169,15 +221,18 @@ export function AddExpenseForm({ onSaved, onCancel }: AddExpenseFormProps) {
             </button>
             {categoryOpen && (
               <ul id={categoryListId} className="listbox" role="listbox" aria-label="Category options">
-                {CATEGORIES.map((category) => (
+                {CATEGORIES.map((category, index) => (
                   <li
                     key={category}
+                    ref={(el) => {
+                      optionRefs.current[index] = el;
+                    }}
                     className="listbox-option"
                     role="option"
                     aria-selected={form.category === category}
                     tabIndex={0}
                     onClick={() => selectCategory(category)}
-                    onKeyDown={(event) => handleOptionKeyDown(event, category)}
+                    onKeyDown={(event) => handleOptionKeyDown(event, index)}
                   >
                     {category}
                   </li>
