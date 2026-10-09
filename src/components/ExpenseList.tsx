@@ -1,20 +1,64 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Expense } from "../domain/expense";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface ExpenseListProps {
   expenses: Expense[];
   onAddExpenseClick: () => void;
   onEditClick: (expense: Expense) => void;
+  onDelete: (id: string) => void;
 }
 
 const PAGE_SIZE = 10;
 
-export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: ExpenseListProps) {
+export function ExpenseList({ expenses, onAddExpenseClick, onEditClick, onDelete }: ExpenseListProps) {
   const [page, setPage] = useState(0);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [restoreFocusToken, setRestoreFocusToken] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const pendingIndexRef = useRef<number>(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (restoreFocusToken === 0) return;
+    const trigger = triggerRef.current;
+    if (trigger && document.body.contains(trigger)) {
+      trigger.focus();
+      return;
+    }
+
+    const deleteButtons = containerRef.current?.querySelectorAll<HTMLButtonElement>(
+      'button[data-role="delete"]',
+    );
+    const nextTrigger = deleteButtons?.[Math.min(pendingIndexRef.current, deleteButtons.length - 1)];
+    if (nextTrigger) {
+      nextTrigger.focus();
+    } else {
+      containerRef.current?.focus();
+    }
+  }, [restoreFocusToken]);
+
+  function openConfirm(id: string, trigger: HTMLButtonElement, index: number) {
+    triggerRef.current = trigger;
+    pendingIndexRef.current = index;
+    setPendingDeleteId(id);
+  }
+
+  function closeConfirm() {
+    setPendingDeleteId(null);
+    setRestoreFocusToken((token) => token + 1);
+  }
+
+  function handleConfirm() {
+    if (pendingDeleteId) {
+      onDelete(pendingDeleteId);
+    }
+    closeConfirm();
+  }
 
   if (expenses.length === 0) {
     return (
-      <div>
+      <div ref={containerRef} tabIndex={-1} role="region" aria-label="Expense list">
         <p>No expenses recorded yet.</p>
         <button type="button" onClick={onAddExpenseClick}>
           Add an expense
@@ -27,7 +71,7 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: Expens
   const pageItems = expenses.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
 
   return (
-    <div>
+    <div ref={containerRef} tabIndex={-1} role="region" aria-label="Expense list">
       <table>
         <caption>Expenses</caption>
         <thead>
@@ -40,7 +84,7 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: Expens
           </tr>
         </thead>
         <tbody>
-          {pageItems.map((expense) => (
+          {pageItems.map((expense, index) => (
             <tr key={expense.id}>
               <td>{expense.date}</td>
               <td>{expense.amount.toFixed(2)}</td>
@@ -54,6 +98,20 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick }: Expens
                 >
                   Edit
                 </button>
+                <button
+                  type="button"
+                  data-role="delete"
+                  onClick={(event) => openConfirm(expense.id, event.currentTarget, index)}
+                >
+                  Delete
+                </button>
+                {pendingDeleteId === expense.id && (
+                  <ConfirmDialog
+                    message={`Delete this ${expense.category} expense?`}
+                    onConfirm={handleConfirm}
+                    onCancel={closeConfirm}
+                  />
+                )}
               </td>
             </tr>
           ))}
