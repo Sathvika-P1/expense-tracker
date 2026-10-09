@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { CATEGORIES } from "../domain/categories";
+import { getCurrentUserId } from "../domain/currentUser";
 import type { ExpenseInput } from "../domain/expense";
 import { saveExpense } from "../domain/expenseRepository";
 import { validateExpense, type ValidationErrors } from "../domain/validateExpense";
@@ -41,14 +42,17 @@ export function AddExpenseForm({ onSaved, currentUserId }: AddExpenseFormProps) 
     }
 
     try {
+      const now = Date.now();
       saveExpense({
         id: crypto.randomUUID(),
+        userId: getCurrentUserId(),
         amount: Number(form.amount),
         date: form.date,
         category: form.category as (typeof CATEGORIES)[number],
         notes: form.notes || undefined,
-        createdAt: Date.now(),
+        createdAt: now,
         createdBy: currentUserId,
+        updatedAt: now,
       });
     } catch {
       setSaveError("Could not save the expense. Please try again.");

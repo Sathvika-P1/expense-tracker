@@ -4,10 +4,15 @@ import { ConfirmDialog } from "./ConfirmDialog";
 
 interface ExpenseListProps {
   expenses: Expense[];
+  onAddExpenseClick: () => void;
+  onEditClick: (expense: Expense) => void;
   onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
+const PAGE_SIZE = 10;
+
+export function ExpenseList({ expenses, onAddExpenseClick, onEditClick, onDelete }: ExpenseListProps) {
+  const [page, setPage] = useState(0);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [restoreFocusToken, setRestoreFocusToken] = useState(0);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -51,35 +56,89 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
     closeConfirm();
   }
 
+  if (expenses.length === 0) {
+    return (
+      <div ref={containerRef} tabIndex={-1} role="region" aria-label="Expense list">
+        <p>No expenses recorded yet.</p>
+        <button type="button" onClick={onAddExpenseClick}>
+          Add an expense
+        </button>
+      </div>
+    );
+  }
+
+  const totalPages = Math.ceil(expenses.length / PAGE_SIZE);
+  const pageItems = expenses.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
   return (
     <div ref={containerRef} tabIndex={-1} role="region" aria-label="Expense list">
-      {expenses.length === 0 ? (
-        <p>No expenses recorded yet.</p>
-      ) : (
-        <ul>
-          {expenses.map((expense, index) => (
-            <li key={expense.id}>
-              <span>{expense.category}</span>
-              <span>{expense.amount.toFixed(2)}</span>
-              <span>{expense.date}</span>
-              {expense.notes && <p>{expense.notes}</p>}
-              <button
-                type="button"
-                data-role="delete"
-                onClick={(event) => openConfirm(expense.id, event.currentTarget, index)}
-              >
-                Delete
-              </button>
-              {pendingDeleteId === expense.id && (
-                <ConfirmDialog
-                  message={`Delete this ${expense.category} expense?`}
-                  onConfirm={handleConfirm}
-                  onCancel={closeConfirm}
-                />
-              )}
-            </li>
+      <table>
+        <caption>Expenses</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Description</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pageItems.map((expense, index) => (
+            <tr key={expense.id}>
+              <td>{expense.date}</td>
+              <td>{expense.amount.toFixed(2)}</td>
+              <td>{expense.category}</td>
+              <td>{expense.notes ?? ""}</td>
+              <td>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => onEditClick(expense)}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  data-role="delete"
+                  onClick={(event) => openConfirm(expense.id, event.currentTarget, index)}
+                >
+                  Delete
+                </button>
+                {pendingDeleteId === expense.id && (
+                  <ConfirmDialog
+                    message={`Delete this ${expense.category} expense?`}
+                    onConfirm={handleConfirm}
+                    onCancel={closeConfirm}
+                  />
+                )}
+              </td>
+            </tr>
           ))}
-        </ul>
+        </tbody>
+      </table>
+      {expenses.length > PAGE_SIZE && (
+        <nav aria-label="Expense list pagination">
+          <button
+            type="button"
+            aria-label="Previous page"
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 0}
+          >
+            Previous
+          </button>
+          <span>
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            type="button"
+            aria-label="Next page"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page >= totalPages - 1}
+          >
+            Next
+          </button>
+        </nav>
       )}
     </div>
   );
