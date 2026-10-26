@@ -44,8 +44,8 @@ export function UndoToast({ onUndo, onExpire }: UndoToastProps) {
   return (
     <div
       className="toast"
-      role="status"
-      aria-live="polite"
+      role="group"
+      aria-label="Undo delete"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -56,7 +56,7 @@ export function UndoToast({ onUndo, onExpire }: UndoToastProps) {
       ) : (
         <>
           <span>Expense deleted</span>
-          <span className="toast-count">{secondsLeft}s</span>
+          <span className="toast-count" aria-hidden="true">{secondsLeft}s</span>
           <button type="button" className="toast-undo" onClick={handleUndo}>
             Undo
           </button>

@@ -11,6 +11,7 @@ import {
   loadExpenses,
   purgeExpiredDeletions,
   restoreExpense,
+  UNDO_WINDOW_MS,
 } from "./domain/expenseRepository";
 
 const CURRENT_USER_ID = "local-user";
@@ -45,7 +46,9 @@ export default function App() {
   const [view, setView] = useState<View>({ mode: "list" });
   const [pendingUndo, setPendingUndo] = useState<{ id: string; token: number } | null>(null);
   const [deleteError, setDeleteError] = useState<{ title: string; body: string } | null>(null);
+  const [liveMessage, setLiveMessage] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     purgeExpiredDeletions();
@@ -75,9 +78,18 @@ export default function App() {
       setExpenses(result.expenses);
       setDeleteError(null);
       setPendingUndo({ id, token: Date.now() });
+      setLiveMessage(`Expense deleted. Undo available for ${UNDO_WINDOW_MS / 1000} seconds.`);
     } else {
       setPendingUndo(null);
-      setDeleteError(DELETE_ERROR_MESSAGES[result.error]);
+      setLiveMessage("");
+      setDeleteError(
+        result.error === "report-locked"
+          ? {
+              title: "This expense is on a report that can't be changed",
+              body: `Its report is ${result.reportStatus}, so the expense can't be deleted.`,
+            }
+          : DELETE_ERROR_MESSAGES[result.error],
+      );
       if (result.error === "not-found") setExpenses(loadExpenses());
     }
   }
@@ -87,6 +99,10 @@ export default function App() {
     if (!result.ok) {
       setPendingUndo(null);
       setDeleteError(RESTORE_ERROR);
+      setLiveMessage("");
+    } else {
+      setLiveMessage("Expense restored.");
+      listRef.current?.focus();
     }
     setExpenses(loadExpenses());
   }
@@ -94,6 +110,7 @@ export default function App() {
   function handleExpire() {
     purgeExpiredDeletions();
     setPendingUndo(null);
+    setLiveMessage("");
   }
 
   if (view.mode === "access-denied") {
@@ -141,19 +158,26 @@ export default function App() {
           </div>
         </div>
       )}
-      {pendingUndo && (
-        <UndoToast
-          key={pendingUndo.token}
-          onUndo={() => handleUndo(pendingUndo.id)}
-          onExpire={handleExpire}
+      <div role="status" aria-live="polite" className="sr-only">
+        {liveMessage}
+      </div>
+      <div>
+        {pendingUndo && (
+          <UndoToast
+            key={pendingUndo.token}
+            onUndo={() => handleUndo(pendingUndo.id)}
+            onExpire={handleExpire}
+          />
+        )}
+      </div>
+      <div ref={listRef} tabIndex={-1}>
+        <ExpenseList
+          expenses={expenses}
+          onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
+          onEditClick={handleEditClick}
+          onDelete={handleDelete}
         />
-      )}
-      <ExpenseList
-        expenses={expenses}
-        onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
-        onEditClick={handleEditClick}
-        onDelete={handleDelete}
-      />
+      </div>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import { recordAuditEntry } from "./auditLog";
 import { getCurrentUserId } from "./currentUser";
 import type { Category } from "./categories";
-import type { Expense, ExpenseInput } from "./expense";
+import type { Expense, ExpenseInput, ReportStatus } from "./expense";
 
 export type UpdateResult =
   | { ok: true; expense: Expense }
@@ -44,7 +44,8 @@ export const UNDO_WINDOW_MS = 10_000;
 
 export type DeleteResult =
   | { ok: true; expenses: Expense[]; expense: Expense }
-  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" };
+  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" }
+  | { ok: false; error: "report-locked"; reportStatus: ReportStatus };
 
 function auditDetails(expense: Expense) {
   return {
@@ -73,6 +74,11 @@ export function deleteExpense(
 
   if (all[index].userId !== requesterId) {
     return { ok: false, error: "forbidden" };
+  }
+
+  const { reportStatus } = all[index];
+  if (reportStatus === "submitted" || reportStatus === "locked") {
+    return { ok: false, error: "report-locked", reportStatus };
   }
 
   const expense: Expense = { ...all[index], deletedAt: now };

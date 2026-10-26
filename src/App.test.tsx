@@ -111,6 +111,30 @@ describe("App", () => {
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
   });
 
+  it("blocks deleting an expense on a submitted report and names the status (AC8)", async () => {
+    saveExpense({ ...seedExpense(), reportStatus: "submitted" });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/report is submitted/i);
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
+  });
+
+  it("announces the delete in a persistent live region", async () => {
+    saveExpense(seedExpense());
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(/expense deleted\. undo available/i);
+    expect(await screen.findByRole("button", { name: "Undo" })).toBeInTheDocument();
+  });
+
   it("restores the row when Undo is selected (AC5)", async () => {
     saveExpense(seedExpense());
     const user = userEvent.setup();

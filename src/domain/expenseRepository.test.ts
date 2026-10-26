@@ -187,6 +187,26 @@ describe("deleteExpense", () => {
     expect(findExpenseById("1")).toBeDefined();
   });
 
+  it.each(["submitted", "locked"] as const)(
+    "blocks deletion when the report is %s and keeps the expense (AC8)",
+    (reportStatus) => {
+      saveExpense(makeExpense({ id: "1", reportStatus }));
+
+      expect(deleteExpense("1", "local-user")).toEqual({
+        ok: false,
+        error: "report-locked",
+        reportStatus,
+      });
+      expect(findExpenseById("1")).toBeDefined();
+    },
+  );
+
+  it("allows deleting an expense on a draft report", () => {
+    saveExpense(makeExpense({ id: "1", reportStatus: "draft" }));
+
+    expect(deleteExpense("1", "local-user").ok).toBe(true);
+  });
+
   it("returns not-found for an already soft-deleted id", () => {
     saveExpense(makeExpense({ id: "1" }));
     deleteExpense("1", "local-user");
@@ -227,6 +247,17 @@ describe("restoreExpense", () => {
 
     expect(restoreExpense("1", "local-user", 2000).ok).toBe(true);
     expect(loadExpenses("local-user").map((e) => e.id)).toEqual(["1"]);
+  });
+
+  it("refuses to restore once the undo window has elapsed (AC6)", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    deleteExpense("1", "local-user", 1000);
+
+    expect(restoreExpense("1", "local-user", 1000 + UNDO_WINDOW_MS)).toEqual({
+      ok: false,
+      error: "not-found",
+    });
+    expect(loadExpenses("local-user")).toEqual([]);
   });
 
   it("returns not-found for a live expense", () => {

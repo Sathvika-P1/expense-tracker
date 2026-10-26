@@ -16,29 +16,29 @@ describe("UndoToast", () => {
     const onExpire = vi.fn();
     render(<UndoToast onUndo={onUndo} onExpire={onExpire} />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Expense deleted");
+    expect(screen.getByRole("group", { name: "Undo delete" })).toHaveTextContent("Expense deleted");
     act(() => vi.advanceTimersByTime(3000));
     expect(screen.getByText("7s")).toBeInTheDocument();
 
-    fireEvent.mouseEnter(screen.getByRole("status"));
+    fireEvent.mouseEnter(screen.getByRole("group", { name: "Undo delete" }));
     act(() => vi.advanceTimersByTime(5000));
     expect(screen.getByText("7s")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     expect(onUndo).toHaveBeenCalledTimes(1);
     expect(onExpire).not.toHaveBeenCalled();
-    expect(screen.getByRole("status")).toHaveTextContent("Expense restored");
+    expect(screen.getByRole("group", { name: "Undo delete" })).toHaveTextContent("Expense restored");
 
     act(() => vi.advanceTimersByTime(3000));
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Undo delete" })).not.toBeInTheDocument();
   });
 
   it("resumes after mouse leave", () => {
     render(<UndoToast onUndo={vi.fn()} onExpire={vi.fn()} />);
 
-    fireEvent.mouseEnter(screen.getByRole("status"));
+    fireEvent.mouseEnter(screen.getByRole("group", { name: "Undo delete" }));
     act(() => vi.advanceTimersByTime(5000));
-    fireEvent.mouseLeave(screen.getByRole("status"));
+    fireEvent.mouseLeave(screen.getByRole("group", { name: "Undo delete" }));
     act(() => vi.advanceTimersByTime(2000));
 
     expect(screen.getByText("8s")).toBeInTheDocument();
