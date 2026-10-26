@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { deleteExpense, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
+import {
+  UNDO_WINDOW_MS,
+  deleteExpense,
+  findExpenseById,
+  loadExpenses,
+  purgeExpiredDeletions,
+  restoreExpense,
+  saveExpense,
+  updateExpense,
+} from "./expenseRepository";
 import type { Expense, ExpenseInput } from "./expense";
 
 const validInput: ExpenseInput = {
@@ -137,52 +146,111 @@ describe("deleteExpense", () => {
   it("returns not-found when no expense matches the id", () => {
     saveExpense(makeExpense({ id: "1" }));
 
-    expect(deleteExpense("does-not-exist", "u1")).toEqual({ ok: false, error: "not-found" });
+    expect(deleteExpense("does-not-exist", "local-user")).toEqual({ ok: false, error: "not-found" });
   });
 
   it("returns invalid-id for an empty id and deletes nothing", () => {
     saveExpense(makeExpense({ id: "1" }));
 
-    expect(deleteExpense("", "u1")).toEqual({ ok: false, error: "invalid-id" });
+    expect(deleteExpense("", "local-user")).toEqual({ ok: false, error: "invalid-id" });
     expect(loadExpenses()).toHaveLength(1);
   });
 
   it("returns invalid-id for a whitespace-only id and deletes nothing", () => {
     saveExpense(makeExpense({ id: "1" }));
 
-    expect(deleteExpense("   ", "u1")).toEqual({ ok: false, error: "invalid-id" });
+    expect(deleteExpense("   ", "local-user")).toEqual({ ok: false, error: "invalid-id" });
     expect(loadExpenses()).toHaveLength(1);
   });
 
-  it("removes the matching expense and persists the remaining list", () => {
+  it("soft deletes: hides the expense from list and find but keeps the record", () => {
     saveExpense(makeExpense({ id: "1" }));
     saveExpense(makeExpense({ id: "2" }));
 
-    const result = deleteExpense("1", "u1");
+    const result = deleteExpense("1", "local-user", 1000);
 
-    expect(result).toEqual({ ok: true, expenses: expect.any(Array) });
-    expect(loadExpenses()).toHaveLength(1);
-    expect(loadExpenses()[0].id).toBe("2");
+    expect(result).toEqual({
+      ok: true,
+      expenses: expect.any(Array),
+      expense: expect.objectContaining({ id: "1" }),
+    });
+    expect(loadExpenses("local-user").map((e) => e.id)).toEqual(["2"]);
+    expect(findExpenseById("1")).toBeUndefined();
+    const stored = JSON.parse(localStorage.getItem("expenses")!);
+    expect(stored.find((e: Expense) => e.id === "1").deletedAt).toBe(1000);
   });
 
-  it("permanently removes an expense with no restore path", () => {
+  it("returns forbidden for another user's expense and keeps it", () => {
+    saveExpense(makeExpense({ id: "1", userId: "other-user" }));
+
+    expect(deleteExpense("1", "local-user")).toEqual({ ok: false, error: "forbidden" });
+    expect(findExpenseById("1")).toBeDefined();
+  });
+
+  it("returns not-found for an already soft-deleted id", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    deleteExpense("1", "local-user");
+
+    expect(deleteExpense("1", "local-user")).toEqual({ ok: false, error: "not-found" });
+  });
+
+  it("does not let a soft-deleted expense be edited", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    deleteExpense("1", "local-user");
+
+    expect(updateExpense("1", validInput, undefined, "local-user")).toEqual({
+      ok: false,
+      reason: "not_found",
+    });
+  });
+
+  it("still loads, edits and deletes rows stored without deletedAt", () => {
+    localStorage.setItem(
+      "expenses",
+      JSON.stringify([
+        { id: "1", userId: "local-user", amount: 1, date: "2026-01-01", category: "Food", createdAt: 1 },
+      ]),
+    );
+
+    expect(loadExpenses("local-user")).toHaveLength(1);
+    expect(updateExpense("1", validInput, undefined, "local-user")).toEqual(
+      expect.objectContaining({ ok: true }),
+    );
+    expect(deleteExpense("1", "local-user").ok).toBe(true);
+  });
+});
+
+describe("restoreExpense", () => {
+  it("restores a soft-deleted expense into the list", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    deleteExpense("1", "local-user", 1000);
+
+    expect(restoreExpense("1", "local-user", 2000).ok).toBe(true);
+    expect(loadExpenses("local-user").map((e) => e.id)).toEqual(["1"]);
+  });
+
+  it("returns not-found for a live expense", () => {
     saveExpense(makeExpense({ id: "1" }));
 
-    deleteExpense("1", "u1");
+    expect(restoreExpense("1", "local-user")).toEqual({ ok: false, error: "not-found" });
+  });
+});
 
-    expect(loadExpenses()).toEqual([]);
+describe("purgeExpiredDeletions", () => {
+  it("permanently removes deletions once the undo window has passed", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    deleteExpense("1", "local-user", 0);
+
+    expect(purgeExpiredDeletions(UNDO_WINDOW_MS - 1)).toBe(0);
+    expect(purgeExpiredDeletions(UNDO_WINDOW_MS)).toBe(1);
+    expect(JSON.parse(localStorage.getItem("expenses")!)).toEqual([]);
+    expect(restoreExpense("1", "local-user")).toEqual({ ok: false, error: "not-found" });
   });
 
-  it("returns forbidden when the requester does not own the expense", () => {
-    saveExpense(makeExpense({ id: "1", createdBy: "owner" }));
-
-    expect(deleteExpense("1", "someone-else")).toEqual({ ok: false, error: "forbidden" });
-    expect(loadExpenses()).toHaveLength(1);
-  });
-
-  it("allows deleting a legacy expense with no createdBy by anyone", () => {
+  it("keeps live expenses", () => {
     saveExpense(makeExpense({ id: "1" }));
 
-    expect(deleteExpense("1", "anyone")).toEqual({ ok: true, expenses: [] });
+    expect(purgeExpiredDeletions(UNDO_WINDOW_MS * 5)).toBe(0);
+    expect(loadExpenses("local-user")).toHaveLength(1);
   });
 });

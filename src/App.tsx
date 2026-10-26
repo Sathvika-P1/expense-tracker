@@ -1,17 +1,33 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { UndoToast } from "./components/UndoToast";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
 import { getCurrentUserId } from "./domain/currentUser";
 import type { Expense } from "./domain/expense";
-import { deleteExpense, findExpenseById, loadExpenses } from "./domain/expenseRepository";
+import {
+  deleteExpense,
+  findExpenseById,
+  loadExpenses,
+  purgeExpiredDeletions,
+  restoreExpense,
+} from "./domain/expenseRepository";
 
 const CURRENT_USER_ID = "local-user";
 
 const DELETE_ERROR_MESSAGES = {
-  "invalid-id": "That expense identifier is not valid.",
-  "not-found": "Expense not found.",
-  forbidden: "You are not allowed to delete this expense.",
+  "invalid-id": {
+    title: "That expense identifier is not valid.",
+    body: "Refresh the list and try again.",
+  },
+  "not-found": {
+    title: "This expense no longer exists",
+    body: "Expense not found. Your list has been refreshed.",
+  },
+  forbidden: {
+    title: "You can't delete this expense",
+    body: "Only the expense owner can delete it.",
+  },
 } as const;
 
 type View =
@@ -22,9 +38,13 @@ type View =
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [view, setView] = useState<View>({ mode: "list" });
-  const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [pendingUndo, setPendingUndo] = useState<{ id: string } | null>(null);
+  const [deleteError, setDeleteError] = useState<{ title: string; body: string } | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    purgeExpiredDeletions();
+  }, []);
 
   function backToList() {
     setExpenses(loadExpenses());
@@ -49,11 +69,22 @@ export default function App() {
     if (result.ok) {
       setExpenses(result.expenses);
       setDeleteError(null);
-      setDeleteMessage("Expense deleted.");
+      setPendingUndo({ id });
     } else {
-      setDeleteMessage(null);
+      setPendingUndo(null);
       setDeleteError(DELETE_ERROR_MESSAGES[result.error]);
+      if (result.error === "not-found") setExpenses(loadExpenses());
     }
+  }
+
+  function handleUndo(id: string) {
+    restoreExpense(id, CURRENT_USER_ID);
+    setExpenses(loadExpenses());
+  }
+
+  function handleExpire() {
+    purgeExpiredDeletions();
+    setPendingUndo(null);
   }
 
   if (view.mode === "access-denied") {
@@ -93,8 +124,21 @@ export default function App() {
       <div ref={formRef}>
         <AddExpenseForm currentUserId={CURRENT_USER_ID} onSaved={() => setExpenses(loadExpenses())} />
       </div>
-      <p role="status">{deleteMessage ?? ""}</p>
-      <p role="alert">{deleteError ?? ""}</p>
+      {deleteError && (
+        <div className="banner" role="alert">
+          <div>
+            <div className="banner-title">{deleteError.title}</div>
+            <div className="banner-body">{deleteError.body}</div>
+          </div>
+        </div>
+      )}
+      {pendingUndo && (
+        <UndoToast
+          key={pendingUndo.id}
+          onUndo={() => handleUndo(pendingUndo.id)}
+          onExpire={handleExpire}
+        />
+      )}
       <ExpenseList
         expenses={expenses}
         onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}

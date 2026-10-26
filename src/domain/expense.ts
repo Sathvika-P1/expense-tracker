@@ -10,6 +10,7 @@ export interface Expense {
   createdAt: number;
   createdBy?: string;
   updatedAt?: number;
+  deletedAt?: number; // epoch ms; present = soft-deleted, pending purge
 }
 
 export interface ExpenseInput {
