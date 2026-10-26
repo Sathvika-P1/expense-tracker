@@ -1,6 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { loadExpenses, saveExpense } from "./expenseRepository";
-import type { Expense } from "./expense";
+import { deleteExpense, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
+import type { Expense, ExpenseInput } from "./expense";
+
+const validInput: ExpenseInput = {
+  amount: "52.75",
+  date: "2026-09-15",
+  category: "Travel",
+  notes: "Rescheduled",
+};
 
 const makeExpense = (overrides: Partial<Expense> = {}): Expense => ({
   id: "1",
@@ -71,5 +78,111 @@ describe("expenseRepository", () => {
     saveExpense(makeExpense({ id: "new", date: "2026-03-01", userId: "u" }));
 
     expect(loadExpenses("u").map((e) => e.id)).toEqual(["new", "old"]);
+  });
+
+  it("updates an owned expense and reflects the new values (AC2)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: 1 }));
+
+    const result = updateExpense("e1", validInput, 1, "local-user");
+
+    expect(result).toEqual({
+      ok: true,
+      expense: expect.objectContaining({ amount: 52.75, notes: "Rescheduled" }),
+    });
+    expect(loadExpenses("local-user")[0].notes).toBe("Rescheduled");
+  });
+
+  it("rejects updating an expense owned by another user (AC6)", () => {
+    saveExpense(makeExpense({ id: "e2", userId: "other-user", updatedAt: 1 }));
+
+    const result = updateExpense("e2", validInput, 1, "local-user");
+
+    expect(result).toEqual({ ok: false, reason: "unauthorized" });
+  });
+
+  it("rejects updating when the record changed since it was loaded (AC9)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: 5 }));
+
+    const result = updateExpense("e1", validInput, 1, "local-user");
+
+    expect(result).toEqual({ ok: false, reason: "conflict" });
+  });
+
+  it("updates a legacy record with no updatedAt when it hasn't changed since loading (AC2)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: undefined }));
+
+    const result = updateExpense("e1", validInput, undefined, "local-user");
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects updating a legacy record that gained an updatedAt from another writer since it was loaded (AC9)", () => {
+    saveExpense(makeExpense({ id: "e1", userId: "local-user", updatedAt: undefined }));
+    const afterOtherWriter = updateExpense("e1", validInput, undefined, "local-user");
+    if (!afterOtherWriter.ok) throw new Error("setup failed");
+
+    const result = updateExpense("e1", validInput, undefined, "local-user");
+
+    expect(result).toEqual({ ok: false, reason: "conflict" });
+  });
+
+  it("rejects updating an expense that no longer exists (AC10)", () => {
+    const result = updateExpense("missing", validInput, 1, "local-user");
+
+    expect(result).toEqual({ ok: false, reason: "not_found" });
+  });
+});
+
+describe("deleteExpense", () => {
+  it("returns not-found when no expense matches the id", () => {
+    saveExpense(makeExpense({ id: "1" }));
+
+    expect(deleteExpense("does-not-exist", "u1")).toEqual({ ok: false, error: "not-found" });
+  });
+
+  it("returns invalid-id for an empty id and deletes nothing", () => {
+    saveExpense(makeExpense({ id: "1" }));
+
+    expect(deleteExpense("", "u1")).toEqual({ ok: false, error: "invalid-id" });
+    expect(loadExpenses()).toHaveLength(1);
+  });
+
+  it("returns invalid-id for a whitespace-only id and deletes nothing", () => {
+    saveExpense(makeExpense({ id: "1" }));
+
+    expect(deleteExpense("   ", "u1")).toEqual({ ok: false, error: "invalid-id" });
+    expect(loadExpenses()).toHaveLength(1);
+  });
+
+  it("removes the matching expense and persists the remaining list", () => {
+    saveExpense(makeExpense({ id: "1" }));
+    saveExpense(makeExpense({ id: "2" }));
+
+    const result = deleteExpense("1", "u1");
+
+    expect(result).toEqual({ ok: true, expenses: expect.any(Array) });
+    expect(loadExpenses()).toHaveLength(1);
+    expect(loadExpenses()[0].id).toBe("2");
+  });
+
+  it("permanently removes an expense with no restore path", () => {
+    saveExpense(makeExpense({ id: "1" }));
+
+    deleteExpense("1", "u1");
+
+    expect(loadExpenses()).toEqual([]);
+  });
+
+  it("returns forbidden when the requester does not own the expense", () => {
+    saveExpense(makeExpense({ id: "1", createdBy: "owner" }));
+
+    expect(deleteExpense("1", "someone-else")).toEqual({ ok: false, error: "forbidden" });
+    expect(loadExpenses()).toHaveLength(1);
+  });
+
+  it("allows deleting a legacy expense with no createdBy by anyone", () => {
+    saveExpense(makeExpense({ id: "1" }));
+
+    expect(deleteExpense("1", "anyone")).toEqual({ ok: true, expenses: [] });
   });
 });
