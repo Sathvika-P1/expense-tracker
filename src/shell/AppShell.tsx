@@ -27,6 +27,16 @@ export function AppShell({ destinations }: AppShellProps) {
                   className={isActive ? "nav-link nav-link--active" : "nav-link"}
                   aria-current={isActive ? "page" : undefined}
                   onClick={(event) => {
+                    // Let the browser handle modified/non-primary clicks (open in new tab, etc.)
+                    if (
+                      event.button !== 0 ||
+                      event.ctrlKey ||
+                      event.metaKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    ) {
+                      return;
+                    }
                     event.preventDefault();
                     setActiveId(destination.id);
                   }}
