@@ -1,6 +1,7 @@
+import { recordAuditEntry } from "./auditLog";
 import { getCurrentUserId } from "./currentUser";
 import type { Category } from "./categories";
-import type { Expense, ExpenseInput } from "./expense";
+import type { Expense, ExpenseInput, ReportStatus } from "./expense";
 
 export type UpdateResult =
   | { ok: true; expense: Expense }
@@ -19,14 +20,18 @@ function loadAll(): Expense[] {
   }
 }
 
+function isLive(expense: Expense): boolean {
+  return expense.deletedAt === undefined;
+}
+
 export function loadExpenses(userId: string = getCurrentUserId()): Expense[] {
   return loadAll()
-    .filter((expense) => expense.userId === userId)
+    .filter((expense) => isLive(expense) && expense.userId === userId)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function findExpenseById(id: string): Expense | undefined {
-  return loadAll().find((expense) => expense.id === id);
+  return loadAll().find((expense) => isLive(expense) && expense.id === id);
 }
 
 export function saveExpense(expense: Expense): Expense[] {
@@ -35,28 +40,99 @@ export function saveExpense(expense: Expense): Expense[] {
   return expenses;
 }
 
-export type DeleteResult =
-  | { ok: true; expenses: Expense[] }
-  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" };
+export const UNDO_WINDOW_MS = 10_000;
 
-export function deleteExpense(id: string, requesterId: string): DeleteResult {
+export type DeleteResult =
+  | { ok: true; expenses: Expense[]; expense: Expense }
+  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" }
+  | { ok: false; error: "report-locked"; reportStatus: ReportStatus };
+
+function auditDetails(expense: Expense) {
+  return {
+    id: expense.id,
+    amount: expense.amount,
+    date: expense.date,
+    category: expense.category,
+    notes: expense.notes,
+  };
+}
+
+export function deleteExpense(
+  id: string,
+  requesterId: string,
+  now: number = Date.now(),
+): DeleteResult {
   if (id.trim().length === 0) {
     return { ok: false, error: "invalid-id" };
   }
 
-  const expenses = loadAll();
-  const expense = expenses.find((item) => item.id === id);
-  if (!expense) {
+  const all = loadAll();
+  const index = all.findIndex((item) => isLive(item) && item.id === id);
+  if (index === -1) {
     return { ok: false, error: "not-found" };
   }
 
-  if (expense.createdBy !== undefined && expense.createdBy !== requesterId) {
+  if (all[index].userId !== requesterId) {
     return { ok: false, error: "forbidden" };
   }
 
-  const remaining = expenses.filter((item) => item.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
-  return { ok: true, expenses: remaining };
+  const { reportStatus } = all[index];
+  if (reportStatus === "submitted" || reportStatus === "locked") {
+    return { ok: false, error: "report-locked", reportStatus };
+  }
+
+  const expense: Expense = { ...all[index], deletedAt: now };
+  all[index] = expense;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  recordAuditEntry({
+    action: "deleted",
+    userId: requesterId,
+    timestamp: now,
+    expense: auditDetails(expense),
+  });
+  return { ok: true, expenses: loadExpenses(requesterId), expense };
+}
+
+export type RestoreResult = { ok: true; expense: Expense } | { ok: false; error: "not-found" };
+
+export function restoreExpense(
+  id: string,
+  requesterId: string,
+  now: number = Date.now(),
+): RestoreResult {
+  const all = loadAll();
+  const index = all.findIndex(
+    (item) =>
+      item.id === id &&
+      item.userId === requesterId &&
+      !isLive(item) &&
+      (item.deletedAt as number) > now - UNDO_WINDOW_MS,
+  );
+  if (index === -1) {
+    return { ok: false, error: "not-found" };
+  }
+
+  const { deletedAt: _deletedAt, ...restored } = all[index];
+  all[index] = restored;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  recordAuditEntry({
+    action: "restored",
+    userId: requesterId,
+    timestamp: now,
+    expense: auditDetails(restored),
+  });
+  return { ok: true, expense: restored };
+}
+
+export function purgeExpiredDeletions(now: number = Date.now()): number {
+  const all = loadAll();
+  const kept = all.filter(
+    (item) => item.deletedAt === undefined || item.deletedAt > now - UNDO_WINDOW_MS,
+  );
+  if (kept.length !== all.length) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(kept));
+  }
+  return all.length - kept.length;
 }
 
 export function updateExpense(
@@ -66,7 +142,7 @@ export function updateExpense(
   userId: string = getCurrentUserId(),
 ): UpdateResult {
   const expenses = loadAll();
-  const index = expenses.findIndex((expense) => expense.id === id);
+  const index = expenses.findIndex((expense) => isLive(expense) && expense.id === id);
   if (index === -1) {
     return { ok: false, reason: "not_found" };
   }

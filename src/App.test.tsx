@@ -1,10 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import * as expenseRepository from "./domain/expenseRepository";
 import { saveExpense } from "./domain/expenseRepository";
 import type { Expense } from "./domain/expense";
+
+const seedExpense = (): Expense => ({
+  id: "existing",
+  userId: "local-user",
+  amount: 5,
+  date: "2026-01-01",
+  category: "Bills",
+  createdAt: Date.now(),
+});
 
 beforeEach(() => {
   localStorage.clear();
@@ -69,10 +78,99 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     expect(screen.queryByRole("cell", { name: "Bills" })).not.toBeInTheDocument();
-    expect(await screen.findByRole("status")).toHaveTextContent(/deleted/i);
+    expect(await screen.findByRole("status")).toHaveTextContent(/expense deleted/i);
+  });
+
+  it("shows a confirmation dialog before deleting and deletes nothing yet (AC2)", async () => {
+    saveExpense(seedExpense());
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+
+    expect(screen.getByRole("alertdialog", { name: /delete this expense/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
+    expect(expenseRepository.findExpenseById("existing")).toBeDefined();
+  });
+
+  it("shows an authorization error and keeps the row when the expense belongs to another user (AC1)", async () => {
+    saveExpense(seedExpense());
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    const stored = JSON.parse(localStorage.getItem("expenses")!);
+    stored[0].userId = "other-user";
+    localStorage.setItem("expenses", JSON.stringify(stored));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/can't delete this expense/i);
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
+  });
+
+  it("blocks deleting an expense on a submitted report and names the status (AC8)", async () => {
+    saveExpense({ ...seedExpense(), reportStatus: "submitted" });
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/report is submitted/i);
+    expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
+  });
+
+  it("announces the delete in a persistent live region", async () => {
+    saveExpense(seedExpense());
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(screen.getByRole("status")).toHaveTextContent(/expense deleted\. undo available/i);
+    expect(await screen.findByRole("button", { name: "Undo" })).toBeInTheDocument();
+  });
+
+  it("restores the row when Undo is selected (AC5)", async () => {
+    saveExpense(seedExpense());
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+    await user.click(await screen.findByRole("button", { name: "Undo" }));
+
+    expect(await screen.findByRole("cell", { name: "Bills" })).toBeInTheDocument();
+  });
+
+  it("permanently purges the record once the undo toast expires (AC6)", async () => {
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "Date"] });
+    try {
+      saveExpense(seedExpense());
+      render(<App />);
+
+      fireEvent.click(screen.getByRole("button", { name: /delete/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Delete expense" }));
+      expect(JSON.parse(localStorage.getItem("expenses")!)).toHaveLength(1);
+
+      act(() => vi.advanceTimersByTime(10_000));
+
+      expect(JSON.parse(localStorage.getItem("expenses")!)).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("purges records soft-deleted before mount (AC6)", () => {
+    saveExpense({ ...seedExpense(), deletedAt: Date.now() - 20_000 });
+
+    render(<App />);
+
+    expect(localStorage.getItem("expenses")).not.toContain("existing");
   });
 
   it("moves focus to the labelled expense list region when the last expense is deleted (AC12)", async () => {
@@ -89,7 +187,7 @@ describe("App", () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     await waitFor(() => {
       expect(screen.getByRole("region", { name: /expense list/i })).toHaveFocus();
@@ -119,7 +217,7 @@ describe("App", () => {
 
     const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
     await user.click(deleteButtons[0]);
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /delete/i })).toHaveFocus();
@@ -160,9 +258,9 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
     localStorage.setItem("expenses", "[]");
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/not found/i);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/no longer exists/i);
   });
 
   it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
