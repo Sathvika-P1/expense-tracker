@@ -4,3 +4,9 @@ components:
     name: ET Story 004 Add Expense
     kind: web_ui
     directory: .
+    stack:
+      choices:
+        language: JavaScript/TypeScript
+        framework: React
+        package_manager: npm
+        testing_tool_unit: vitest
