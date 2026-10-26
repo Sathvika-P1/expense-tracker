@@ -4,7 +4,15 @@ import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
 import { getCurrentUserId } from "./domain/currentUser";
 import type { Expense } from "./domain/expense";
-import { findExpenseById, loadExpenses } from "./domain/expenseRepository";
+import { deleteExpense, findExpenseById, loadExpenses } from "./domain/expenseRepository";
+
+const CURRENT_USER_ID = "local-user";
+
+const DELETE_ERROR_MESSAGES = {
+  "invalid-id": "That expense identifier is not valid.",
+  "not-found": "Expense not found.",
+  forbidden: "You are not allowed to delete this expense.",
+} as const;
 
 type View =
   | { mode: "list" }
@@ -14,6 +22,8 @@ type View =
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [view, setView] = useState<View>({ mode: "list" });
+  const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   function backToList() {
@@ -32,6 +42,18 @@ export default function App() {
       return;
     }
     setView({ mode: "edit", expense: current });
+  }
+
+  function handleDelete(id: string) {
+    const result = deleteExpense(id, CURRENT_USER_ID);
+    if (result.ok) {
+      setExpenses(result.expenses);
+      setDeleteError(null);
+      setDeleteMessage("Expense deleted.");
+    } else {
+      setDeleteMessage(null);
+      setDeleteError(DELETE_ERROR_MESSAGES[result.error]);
+    }
   }
 
   if (view.mode === "access-denied") {
@@ -69,12 +91,15 @@ export default function App() {
     <main>
       <h1>Expense Tracker</h1>
       <div ref={formRef}>
-        <AddExpenseForm onSaved={() => setExpenses(loadExpenses())} />
+        <AddExpenseForm currentUserId={CURRENT_USER_ID} onSaved={() => setExpenses(loadExpenses())} />
       </div>
+      <p role="status">{deleteMessage ?? ""}</p>
+      <p role="alert">{deleteError ?? ""}</p>
       <ExpenseList
         expenses={expenses}
         onAddExpenseClick={() => formRef.current?.querySelector("input")?.focus()}
         onEditClick={handleEditClick}
+        onDelete={handleDelete}
       />
     </main>
   );

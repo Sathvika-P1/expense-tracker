@@ -14,9 +14,10 @@ const EMPTY_FORM: ExpenseInput = {
 
 interface AddExpenseFormProps {
   onSaved: () => void;
+  currentUserId: string;
 }
 
-export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
+export function AddExpenseForm({ onSaved, currentUserId }: AddExpenseFormProps) {
   const [form, setForm] = useState<ExpenseInput>(EMPTY_FORM);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -50,6 +51,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
         category: form.category as (typeof CATEGORIES)[number],
         notes: form.notes || undefined,
         createdAt: now,
+        createdBy: currentUserId,
         updatedAt: now,
       });
     } catch {
