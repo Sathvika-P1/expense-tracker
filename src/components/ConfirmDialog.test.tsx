@@ -40,9 +40,18 @@ describe("ConfirmDialog", () => {
     expect(onConfirm).toHaveBeenCalled();
   });
 
+  it("defaults the submitting label to a neutral value", async () => {
+    const user = userEvent.setup();
+    renderDialog();
+
+    await user.click(screen.getByRole("button", { name: "Confirm" }));
+
+    expect(screen.getByRole("button", { name: "Working…" })).toBeDisabled();
+  });
+
   it("disables both buttons and shows Deleting… after confirm", async () => {
     const user = userEvent.setup();
-    renderDialog({ confirmLabel: "Delete expense", destructive: true });
+    renderDialog({ confirmLabel: "Delete expense", submittingLabel: "Deleting…", destructive: true });
 
     await user.click(screen.getByRole("button", { name: "Delete expense" }));
 

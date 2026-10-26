@@ -6,6 +6,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
   title?: string;
   confirmLabel?: string;
+  submittingLabel?: string;
   destructive?: boolean;
 }
 
@@ -15,6 +16,7 @@ export function ConfirmDialog({
   onCancel,
   title = "Confirm",
   confirmLabel = "Confirm",
+  submittingLabel = "Working…",
   destructive = false,
 }: ConfirmDialogProps) {
   const [submitting, setSubmitting] = useState(false);
@@ -90,7 +92,7 @@ export function ConfirmDialog({
             disabled={submitting}
             onClick={handleConfirm}
           >
-            {submitting ? "Deleting…" : confirmLabel}
+            {submitting ? submittingLabel : confirmLabel}
           </button>
         </div>
       </div>

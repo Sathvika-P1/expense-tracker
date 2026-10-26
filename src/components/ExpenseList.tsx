@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Expense } from "../domain/expense";
+import { UNDO_WINDOW_MS } from "../domain/expenseRepository";
 import { ConfirmDialog } from "./ConfirmDialog";
 
 interface ExpenseListProps {
@@ -112,8 +113,9 @@ export function ExpenseList({ expenses, onAddExpenseClick, onEditClick, onDelete
                   <ConfirmDialog
                     title="Delete this expense?"
                     confirmLabel="Delete expense"
+                    submittingLabel="Deleting…"
                     destructive
-                    message={`Delete "${expense.category} — ${expense.notes || expense.date}" ($${expense.amount.toFixed(2)})? You can undo for 10 seconds after deleting.`}
+                    message={`Delete "${expense.category} — ${expense.notes || expense.date}" ($${expense.amount.toFixed(2)})? You can undo for ${UNDO_WINDOW_MS / 1000} seconds after deleting.`}
                     onConfirm={handleConfirm}
                     onCancel={closeConfirm}
                   />

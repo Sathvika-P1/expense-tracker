@@ -96,7 +96,11 @@ export function restoreExpense(
 ): RestoreResult {
   const all = loadAll();
   const index = all.findIndex(
-    (item) => item.id === id && item.userId === requesterId && !isLive(item),
+    (item) =>
+      item.id === id &&
+      item.userId === requesterId &&
+      !isLive(item) &&
+      (item.deletedAt as number) > now - UNDO_WINDOW_MS,
   );
   if (index === -1) {
     return { ok: false, error: "not-found" };

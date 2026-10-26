@@ -30,6 +30,11 @@ const DELETE_ERROR_MESSAGES = {
   },
 } as const;
 
+const RESTORE_ERROR = {
+  title: "This expense can't be restored",
+  body: "The undo window has passed.",
+};
+
 type View =
   | { mode: "list" }
   | { mode: "edit"; expense: Expense }
@@ -38,7 +43,7 @@ type View =
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [view, setView] = useState<View>({ mode: "list" });
-  const [pendingUndo, setPendingUndo] = useState<{ id: string } | null>(null);
+  const [pendingUndo, setPendingUndo] = useState<{ id: string; token: number } | null>(null);
   const [deleteError, setDeleteError] = useState<{ title: string; body: string } | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -69,7 +74,7 @@ export default function App() {
     if (result.ok) {
       setExpenses(result.expenses);
       setDeleteError(null);
-      setPendingUndo({ id });
+      setPendingUndo({ id, token: Date.now() });
     } else {
       setPendingUndo(null);
       setDeleteError(DELETE_ERROR_MESSAGES[result.error]);
@@ -78,7 +83,11 @@ export default function App() {
   }
 
   function handleUndo(id: string) {
-    restoreExpense(id, CURRENT_USER_ID);
+    const result = restoreExpense(id, CURRENT_USER_ID);
+    if (!result.ok) {
+      setPendingUndo(null);
+      setDeleteError(RESTORE_ERROR);
+    }
     setExpenses(loadExpenses());
   }
 
@@ -134,7 +143,7 @@ export default function App() {
       )}
       {pendingUndo && (
         <UndoToast
-          key={pendingUndo.id}
+          key={pendingUndo.token}
           onUndo={() => handleUndo(pendingUndo.id)}
           onExpire={handleExpire}
         />
