@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ET-STORY-022 — Edit expense</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+</style>
+<!-- App nav: top bar — Dashboard · Expenses · Reports · Settings (project has no arc affiliation; this is a plain top-bar nav appropriate to a small ledger app) -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .app-topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-bg);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .app-topbar .brand { font-family: var(--font-family-heading); font-weight: var(--font-weight-bold); font-size: var(--font-size-md); }
+  .app-topbar nav { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .app-topbar nav a { color: var(--color-muted); text-decoration: none; font-size: var(--font-size-sm); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
+  .app-topbar nav a.active { color: var(--color-primary-fg); background-color: var(--color-primary); }
+
+  main.page { max-width: calc(var(--space-4) * 20); margin: 0 auto; padding: var(--space-4); }
+
+  .breadcrumb { font-size: var(--font-size-sm); color: var(--color-muted); margin-bottom: var(--space-3); }
+  .breadcrumb a { color: var(--color-muted); }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+  .actions-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+  .field-row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .field-row > .field { flex: 1 1 calc(var(--space-4) * 8); min-width: calc(var(--space-4) * 7); }
+
+  select.input, textarea.input { width: 100%; font-family: var(--font-family-base); }
+  textarea.input { min-height: calc(var(--space-4) * 3); resize: vertical; }
+
+  .error-text {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-negative);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-1);
+  }
+  .input.has-error { border-color: var(--color-negative); }
+
+  .banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: var(--border-width-thin) solid var(--color-negative);
+    color: var(--color-negative);
+    background-color: var(--color-bg);
+    margin-bottom: var(--space-3);
+  }
+  .banner .banner-title { font-weight: var(--font-weight-bold); color: var(--color-negative); }
+  .banner .banner-body { font-size: var(--font-size-sm); color: var(--color-fg); margin-top: var(--space-1); }
+  .banner .banner-actions { margin-top: var(--space-2); display: flex; gap: var(--space-2); }
+
+  .toast {
+    position: fixed;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-primary);
+    color: var(--color-primary-fg);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    font-size: var(--font-size-sm);
+    display: none;
+    z-index: 500;
+  }
+  .toast.show { display: block; }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-border) 25%, var(--color-bg) 37%, var(--color-border) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: var(--radius-sm);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+  }
+  @keyframes shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+  }
+
+  .centered-block {
+    max-width: calc(var(--space-4) * 14);
+    margin: calc(var(--space-4) * 3) auto;
+    text-align: center;
+  }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-top: var(--space-3); }
+  .detail-item .label { display: block; margin-bottom: var(--space-1); }
+
+  .btn { min-height: calc(var(--space-4) * 2); }
+  .btn:disabled { cursor: not-allowed; opacity: 0.6; }
+  .btn:focus-visible, .input:focus-visible, a:focus-visible { outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset); }
+
+  .list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .list-row:last-child { border-bottom: none; }
+
+  @media (max-width: 480px) {
+    .detail-grid { grid-template-columns: 1fr; }
+    .field-row { flex-direction: column; }
+    .row { flex-direction: column; align-items: stretch; }
+    .actions-row { flex-direction: column; }
+    .actions-row .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);color:var(--color-muted)">ET-STORY-022</span>
+  <button id="prev-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div class="app-topbar">
+  <span class="brand font-heading">Ledger</span>
+  <nav>
+    <a href="#" class="active">Expenses</a>
+    <a href="#">Reports</a>
+    <a href="#">Settings</a>
+  </nav>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="screens">
+
+<!-- State: detail-original -->
+<!--
+  Screen: Expense Detail (entry point)
+  Notes:
+    - Shows the currently saved values for expense EXP-1042, owned by the current user (Priya Patel).
+    - "Edit" is the primary action leading into the edit form (AC1).
+    - This screen doubles as the "after cancel" and "after save" destination so reviewers can
+      compare values before/after using the reviewer bar.
+-->
+<div class="screen" data-name="1. Expense detail (own expense)">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">Expenses</a> / EXP-1042</div>
+    <div class="card">
+      <div class="row">
+        <h1 class="card-title">Team lunch — Blue Bottle Coffee</h1>
+        <span class="chip-negative">Expense</span>
+      </div>
+      <p class="text-sm text-muted">Expense ID: EXP-1042 · Owned by you</p>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="label">Amount</span><span class="text-lg text-negative" id="exp-amount">$48.50</span></div>
+        <div class="detail-item"><span class="label">Date</span><span class="text-md" id="exp-date">2026-09-14</span></div>
+        <div class="detail-item"><span class="label">Category</span><span class="text-md" id="exp-category">Meals &amp; entertainment</span></div>
+        <div class="detail-item"><span class="label">Description</span><span class="text-md" id="exp-description">Client lunch with the Northwind team</span></div>
+      </div>
+      <div class="actions-row" style="margin-top: var(--space-4);">
+        <button class="btn btn-primary" onclick="goToEdit()">Edit</button>
+        <button class="btn btn-secondary" onclick="show(idxByName('11. Expense list'))">Back to list</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-loading -->
+<!--
+  Screen: Edit form — loading
+  Notes:
+    - Skeleton fields shown while the expense record is fetched for editing (satisfies the
+      "loading" state required by guideline §5). Auto-advances to the pre-filled form after ~350ms.
+-->
+<div class="screen" data-name="2. Edit form — loading">
+  <main class="page">
+    <div class="breadcrumb"><a href="#" onclick="show(idxByName('1. Expense detail (own expense)')); return false;">EXP-1042</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="field-row" style="margin-top: var(--space-3);">
+        <div class="field"><span class="label">Amount</span><div class="skeleton" style="height: 40px;"></div></div>
+        <div class="field"><span class="label">Date</span><div class="skeleton" style="height: 40px;"></div></div>
+      </div>
+      <div class="field-row" style="margin-top: var(--space-3);">
+        <div class="field" style="flex:1 1 100%;"><span class="label">Category</span><div class="skeleton" style="height: 40px;"></div></div>
+      </div>
+      <div class="field-row" style="margin-top: var(--space-3);">
+        <div class="field" style="flex:1 1 100%;"><span class="label">Description</span><div class="skeleton" style="height: 72px;"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-prefilled -->
+<!--
+  Screen: Edit form — pre-filled (AC1)
+  Notes:
+    - Fields load pre-filled from CURRENT_EXPENSE, the fixture holding EXP-1042's saved values
+      (AC1). Typing into the fields and pressing "Save changes" writes those exact values back
+      to CURRENT_EXPENSE and to the detail screen (AC2, AC3) — a live round-trip, not a
+      hardcoded transition.
+    - The "Simulate save outcome" row lets a reviewer force each response Save can receive
+      (success, validation errors, authorization error, conflict, deleted) without a real
+      backend, showing AC4/AC6/AC9 as consequences of submitting Save.
+    - "Cancel" opens the discard-confirmation state when fields have been changed.
+-->
+<div class="screen" data-name="3. Edit form — pre-filled">
+  <main class="page">
+    <div class="breadcrumb"><a href="#" onclick="show(idxByName('1. Expense detail (own expense)')); return false;">EXP-1042</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <p class="text-sm text-muted">Update the details below and save your changes.</p>
+
+      <form id="edit-form" onsubmit="return false;" style="margin-top: var(--space-3);">
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="f-amount">Amount (USD)</label>
+            <input class="input" id="f-amount" type="text" />
+          </div>
+          <div class="field">
+            <label class="label" for="f-date">Date</label>
+            <input class="input" id="f-date" type="text" placeholder="YYYY-MM-DD" />
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top: var(--space-3);">
+          <div class="field" style="flex:1 1 100%;">
+            <label class="label" for="f-category">Category</label>
+            <select class="input" id="f-category">
+              <option value="">Select a category</option>
+              <option>Meals &amp; entertainment</option>
+              <option>Travel</option>
+              <option>Office supplies</option>
+              <option>Software</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top: var(--space-3);">
+          <div class="field" style="flex:1 1 100%;">
+            <label class="label" for="f-description">Description</label>
+            <textarea class="input" id="f-description" maxlength="500"></textarea>
+          </div>
+        </div>
+
+        <div class="actions-row" style="margin-top: var(--space-4);">
+          <button class="btn btn-primary" id="save-btn" onclick="submitEdit('success')">Save changes</button>
+          <button class="btn btn-secondary" onclick="onCancel()">Cancel</button>
+        </div>
+
+        <div style="margin-top: var(--space-4); padding-top: var(--space-3); border-top: var(--border-width-thin) solid var(--color-border);">
+          <p class="text-sm text-muted" style="margin: 0 0 var(--space-2) 0;">Simulate save outcome (for review purposes):</p>
+          <div class="actions-row">
+            <button class="btn btn-secondary" onclick="submitEdit('validation')">Validation errors</button>
+            <button class="btn btn-secondary" onclick="submitEdit('unauthorized')">Not authorized</button>
+            <button class="btn btn-secondary" onclick="submitEdit('conflict')">Conflict</button>
+            <button class="btn btn-secondary" onclick="submitEdit('deleted')">Expense deleted</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-validation-errors -->
+<!--
+  Screen: Edit form — validation errors (AC4)
+  Notes:
+    - Simulates a submit that violates four creation-time rules at once: a non-positive amount
+      (-10), an invalid date format (14/09/2026 instead of YYYY-MM-DD), a missing category, and
+      a description exceeding the 500-character limit.
+    - Every previously entered value is preserved next to its error (guideline §6).
+-->
+<div class="screen" data-name="4. Edit form — validation errors">
+  <main class="page">
+    <div class="breadcrumb"><a href="#" onclick="show(idxByName('1. Expense detail (own expense)')); return false;">EXP-1042</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="banner" role="alert">
+        <span aria-hidden="true">⚠</span>
+        <div>
+          <div class="banner-title">Fix the highlighted fields</div>
+          <div class="banner-body">4 fields need attention before this expense can be saved.</div>
+        </div>
+      </div>
+
+      <form onsubmit="return false;">
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="v-amount">Amount (USD)</label>
+            <input class="input has-error" id="v-amount" type="text" value="-10" />
+            <div class="error-text">⚠ <span>Amount must be greater than 0</span></div>
+          </div>
+          <div class="field">
+            <label class="label" for="v-date">Date</label>
+            <input class="input has-error" id="v-date" type="text" value="14/09/2026" />
+            <div class="error-text">⚠ <span>Use the format YYYY-MM-DD</span></div>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top: var(--space-3);">
+          <div class="field" style="flex:1 1 100%;">
+            <label class="label" for="v-category">Category</label>
+            <select class="input has-error" id="v-category">
+              <option value="" selected>Select a category</option>
+              <option>Meals &amp; entertainment</option>
+              <option>Travel</option>
+            </select>
+            <div class="error-text">⚠ <span>Category is required</span></div>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top: var(--space-3);">
+          <div class="field" style="flex:1 1 100%;">
+            <label class="label" for="v-description">Description</label>
+            <textarea class="input has-error" id="v-description">Client lunch with the Northwind team — extended write-up covering every course ordered, the seating arrangement, who paid for parking, and a lengthy justification for why this exceeds the normal per-diem that goes well past the five-hundred character limit allowed for this field, forcing a validation failure to be shown to the user right here.</textarea>
+            <div class="error-text">⚠ <span>Description must be 500 characters or fewer (currently 512)</span></div>
+          </div>
+        </div>
+
+        <div class="actions-row" style="margin-top: var(--space-4);">
+          <button class="btn btn-primary" onclick="show(idxByName('3. Edit form — pre-filled'))">Fix and resubmit</button>
+          <button class="btn btn-secondary" onclick="onCancel()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- State: access-denied -->
+<!--
+  Screen: Access denied (AC5)
+  Notes:
+    - Reached by attempting to open the edit view for EXP-2091, owned by another user (Marcus Lee).
+    - No form is rendered at all — the edit view itself is withheld, distinct from screen 8
+      where the form loads but the *save* is rejected.
+-->
+<div class="screen" data-name="5. Access denied (open edit, other owner)">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">Expenses</a> / EXP-2091</div>
+    <div class="card centered-block">
+      <div class="text-lg" style="margin-bottom: var(--space-2);" aria-hidden="true">🔒</div>
+      <h1 class="card-title">You can't edit this expense</h1>
+      <p class="text-md text-muted">EXP-2091 is owned by Marcus Lee. Only the expense owner can open the edit view.</p>
+      <div class="actions-row" style="justify-content:center; margin-top: var(--space-4);">
+        <button class="btn btn-primary" onclick="show(idxByName('11. Expense list'))">Back to expense list</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-authorization-error -->
+<!--
+  Screen: Authorization error on save (AC6)
+  Notes:
+    - Represents a race where the edit view was somehow loaded (e.g. stale tab, shared link)
+      but ownership no longer permits the write. The form remains visible with the attempted
+      edits so the user understands what was rejected, distinct from the access-denied screen.
+-->
+<div class="screen" data-name="6. Edit form — authorization error on save">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">EXP-2091</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="banner" role="alert">
+        <span aria-hidden="true">🔒</span>
+        <div>
+          <div class="banner-title">Save rejected</div>
+          <div class="banner-body">You don't have permission to edit this expense. It belongs to another user.</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="label" for="au-amount">Amount (USD)</label>
+          <input class="input" id="au-amount" type="text" value="120.00" disabled />
+        </div>
+        <div class="field">
+          <label class="label" for="au-date">Date</label>
+          <input class="input" id="au-date" type="text" value="2026-09-10" disabled />
+        </div>
+      </div>
+      <div class="actions-row" style="margin-top: var(--space-4);">
+        <button class="btn btn-secondary" onclick="show(idxByName('11. Expense list'))">Back to expense list</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-saving -->
+<!--
+  Screen: Saving
+  Notes:
+    - Transient state shown for ~300ms after "Save changes" is pressed on a valid, dirty form.
+    - Button disabled and relabelled to prevent double-submit (guideline §4).
+-->
+<div class="screen" data-name="7. Edit form — saving">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">EXP-1042</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="field-row">
+        <div class="field">
+          <label class="label" for="saving-amount">Amount (USD)</label>
+          <input class="input" id="saving-amount" value="" disabled />
+        </div>
+        <div class="field">
+          <label class="label" for="saving-date">Date</label>
+          <input class="input" id="saving-date" value="" disabled />
+        </div>
+      </div>
+      <div class="actions-row" style="margin-top: var(--space-4);">
+        <button class="btn btn-primary" disabled>Saving…</button>
+        <button class="btn btn-secondary" disabled>Cancel</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: detail-updated -->
+<!--
+  Screen: Expense detail — after save (AC2, AC3)
+  Notes:
+    - Values render live from the CURRENT_EXPENSE fixture. Before any save this screen mirrors
+      screen 1 exactly; after a save it shows whatever was typed into the edit form (AC2), and
+      re-entering the expense afterward still shows those same values (AC3).
+-->
+<div class="screen" data-name="8. Expense detail — after save">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">Expenses</a> / EXP-1042</div>
+    <div class="card">
+      <div class="row">
+        <h1 class="card-title">Team lunch — Blue Bottle Coffee</h1>
+        <span class="chip-negative">Expense</span>
+      </div>
+      <p class="text-sm text-muted">Expense ID: EXP-1042 · Owned by you · Saved just now</p>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="label">Amount</span><span class="text-lg text-negative" id="exp8-amount">$52.75</span></div>
+        <div class="detail-item"><span class="label">Date</span><span class="text-md" id="exp8-date">2026-09-15</span></div>
+        <div class="detail-item"><span class="label">Category</span><span class="text-md" id="exp8-category">Meals &amp; entertainment</span></div>
+        <div class="detail-item"><span class="label">Description</span><span class="text-md" id="exp8-description">Client lunch with the Northwind team, rescheduled to the next day</span></div>
+      </div>
+      <div class="actions-row" style="margin-top: var(--space-4);">
+        <button class="btn btn-primary" onclick="goToEdit()">Edit</button>
+        <button class="btn btn-secondary" onclick="show(idxByName('11. Expense list'))">Back to list</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-cancel-confirm -->
+<!--
+  Screen: Discard unsaved changes (AC7, AC8)
+  Notes:
+    - Shown when Cancel is pressed on a dirty form. Names the consequence explicitly
+      (guideline §4: destructive actions confirm and name the consequence).
+    - Confirming returns to the expense detail screen showing the original saved values,
+      demonstrating both that changes were discarded (AC7) and that the user landed back
+      on the previous view (AC8).
+-->
+<div class="screen" data-name="9. Cancel — discard unsaved changes">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">EXP-1042</a> / Edit</div>
+    <div class="card centered-block">
+      <h1 class="card-title">Discard your changes?</h1>
+      <p class="text-md text-muted">You've edited this expense but haven't saved. Leaving now discards those changes — the amount stays <span id="cancel-amount">$48.50</span> and the date stays <span id="cancel-date">2026-09-14</span>.</p>
+      <div class="actions-row" style="justify-content:center; margin-top: var(--space-4);">
+        <button class="btn btn-primary" onclick="show(idxByName('1. Expense detail (own expense)'))">Discard and go back</button>
+        <button class="btn btn-secondary" onclick="show(idxByName('3. Edit form — pre-filled'))">Keep editing</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-conflict-error -->
+<!--
+  Screen: Conflict error (AC9)
+  Notes:
+    - Someone else modified EXP-1042 after this edit form was loaded. The save is rejected
+      and the user is prompted to reload rather than overwrite the newer version.
+-->
+<div class="screen" data-name="10. Edit form — conflict error">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">EXP-1042</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="banner" role="alert">
+        <span aria-hidden="true">⚠</span>
+        <div>
+          <div class="banner-title">This expense changed since you opened it</div>
+          <div class="banner-body">Someone else saved a newer version of EXP-1042. Reload it to see the latest values before saving your changes again.</div>
+          <div class="banner-actions">
+            <button class="btn btn-primary" onclick="goToEdit()">Reload expense</button>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="label" for="conflict-amount">Amount (USD)</label>
+          <input class="input" id="conflict-amount" value="" disabled />
+        </div>
+        <div class="field">
+          <label class="label" for="conflict-date">Date</label>
+          <input class="input" id="conflict-date" value="" disabled />
+        </div>
+      </div>
+      <div class="actions-row" style="margin-top: var(--space-4);">
+        <button class="btn btn-secondary" onclick="onCancel()">Cancel</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: expense-list -->
+<!--
+  Screen: Expense list
+  Notes:
+    - Ordinary destination for "Back to list" links throughout the flow, and the redirect
+      target after the deleted-expense flow (AC11).
+-->
+<div class="screen" data-name="11. Expense list">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1">
+      <div class="list-row">
+        <div>
+          <div class="text-md" style="font-weight:var(--font-weight-medium);">Team lunch — Blue Bottle Coffee</div>
+          <div class="text-sm text-muted">EXP-1042 · 2026-09-15</div>
+        </div>
+        <div class="row" style="gap: var(--space-3);">
+          <span class="text-negative text-md">$52.75</span>
+          <button class="btn btn-secondary" onclick="goToEdit()">Edit</button>
+        </div>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="text-md" style="font-weight:var(--font-weight-medium);">Client dinner</div>
+          <div class="text-sm text-muted">EXP-2091 · 2026-09-10 · owned by Marcus Lee</div>
+        </div>
+        <div class="row" style="gap: var(--space-3);">
+          <span class="text-negative text-md">$120.00</span>
+          <button class="btn btn-secondary" onclick="show(idxByName('5. Access denied (open edit, other owner)'))">Edit</button>
+        </div>
+      </div>
+      <div class="list-row">
+        <div>
+          <div class="text-md" style="font-weight:var(--font-weight-medium);">Ride share to airport</div>
+          <div class="text-sm text-muted">EXP-0877 · 2026-09-02</div>
+        </div>
+        <div class="row" style="gap: var(--space-3);">
+          <span class="text-negative text-md">$34.20</span>
+          <button class="btn btn-secondary" onclick="goToDeleted()">Edit</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: edit-deleted-error -->
+<!--
+  Screen: Expense deleted (AC10, AC11)
+  Notes:
+    - The expense was deleted by another process after this edit form loaded. Saving fails
+      with a clear "no longer exists" message, then auto-redirects to the expense list after
+      a short delay so the user isn't left on a dead form.
+-->
+<div class="screen" data-name="12. Edit form — expense deleted">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">EXP-0877</a> / Edit</div>
+    <div class="card">
+      <h1 class="card-title">Edit expense</h1>
+      <div class="banner" role="alert" id="deleted-banner">
+        <span aria-hidden="true">✕</span>
+        <div>
+          <div class="banner-title">This expense no longer exists</div>
+          <div class="banner-body">EXP-0877 was deleted after you opened it, so your changes can't be saved. Taking you to the expense list…</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="label" for="deleted-amount">Amount (USD)</label>
+          <input class="input" id="deleted-amount" value="34.20" disabled />
+        </div>
+        <div class="field">
+          <label class="label" for="deleted-date">Date</label>
+          <input class="input" id="deleted-date" value="2026-09-02" disabled />
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div>
+
+<script>
+  // Fixture data for the prototype — no real network calls, all interactions are simulated.
+  const CURRENT_EXPENSE = {
+    id: 'EXP-1042',
+    amount: '48.50',
+    date: '2026-09-14',
+    category: 'Meals & entertainment',
+    description: 'Client lunch with the Northwind team',
+  };
+
+  const screens = Array.from(document.querySelectorAll('.screen'));
+
+  function idxByName(name) {
+    return screens.findIndex(s => s.dataset.name === name);
+  }
+
+  let cur = 0;
+  function show(i) {
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+    document.getElementById('screen-label').textContent =
+      `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name}`;
+    window.scrollTo({ top: 0 });
+  }
+  document.getElementById('prev-btn').onclick = () => show(cur - 1);
+  document.getElementById('next-btn').onclick = () => show(cur + 1);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') show(cur + 1);
+    if (e.key === 'ArrowLeft') show(cur - 1);
+  });
+
+  function formatAmount(amount) {
+    const n = parseFloat(amount);
+    return isNaN(n) ? amount : `$${n.toFixed(2)}`;
+  }
+
+  function renderExpense() {
+    document.getElementById('exp-amount').textContent = formatAmount(CURRENT_EXPENSE.amount);
+    document.getElementById('exp-date').textContent = CURRENT_EXPENSE.date;
+    document.getElementById('exp-category').textContent = CURRENT_EXPENSE.category;
+    document.getElementById('exp-description').textContent = CURRENT_EXPENSE.description;
+    document.getElementById('exp8-amount').textContent = formatAmount(CURRENT_EXPENSE.amount);
+    document.getElementById('exp8-date').textContent = CURRENT_EXPENSE.date;
+    document.getElementById('exp8-category').textContent = CURRENT_EXPENSE.category;
+    document.getElementById('exp8-description').textContent = CURRENT_EXPENSE.description;
+    document.getElementById('cancel-amount').textContent = formatAmount(CURRENT_EXPENSE.amount);
+    document.getElementById('cancel-date').textContent = CURRENT_EXPENSE.date;
+  }
+
+  function fillForm() {
+    document.getElementById('f-amount').value = CURRENT_EXPENSE.amount;
+    document.getElementById('f-date').value = CURRENT_EXPENSE.date;
+    document.getElementById('f-category').value = CURRENT_EXPENSE.category;
+    document.getElementById('f-description').value = CURRENT_EXPENSE.description;
+  }
+
+  function goToEdit() {
+    show(idxByName('2. Edit form — loading'));
+    setTimeout(() => {
+      if (cur === idxByName('2. Edit form — loading')) {
+        fillForm();
+        show(idxByName('3. Edit form — pre-filled'));
+      }
+    }, 350);
+  }
+
+  function submitEdit(outcome) {
+    const btn = document.getElementById('save-btn');
+    const typedAmount = document.getElementById('f-amount').value;
+    const typedDate = document.getElementById('f-date').value;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    document.getElementById('saving-amount').value = typedAmount;
+    document.getElementById('saving-date').value = typedDate;
+    show(idxByName('7. Edit form — saving'));
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = 'Save changes';
+      if (outcome === 'validation') {
+        show(idxByName('4. Edit form — validation errors'));
+        return;
+      }
+      if (outcome === 'unauthorized') {
+        show(idxByName('6. Edit form — authorization error on save'));
+        return;
+      }
+      if (outcome === 'conflict') {
+        document.getElementById('conflict-amount').value = typedAmount;
+        document.getElementById('conflict-date').value = typedDate;
+        show(idxByName('10. Edit form — conflict error'));
+        return;
+      }
+      if (outcome === 'deleted') {
+        goToDeleted();
+        return;
+      }
+      // success: persist edited field values and reflect them everywhere the expense is shown
+      CURRENT_EXPENSE.amount = typedAmount;
+      CURRENT_EXPENSE.date = typedDate;
+      CURRENT_EXPENSE.category = document.getElementById('f-category').value;
+      CURRENT_EXPENSE.description = document.getElementById('f-description').value;
+      renderExpense();
+      show(idxByName('8. Expense detail — after save'));
+      showToast('Expense saved');
+    }, 350);
+  }
+
+  function onCancel() {
+    show(idxByName('9. Cancel — discard unsaved changes'));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // Deleted-expense flow: show the "no longer exists" error, then redirect to the list (AC10 -> AC11).
+  function goToDeleted() {
+    const deletedIdx = idxByName('12. Edit form — expense deleted');
+    show(deletedIdx);
+    setTimeout(() => {
+      if (cur === deletedIdx) {
+        show(idxByName('11. Expense list'));
+        showToast('Expense no longer exists — returned to expense list');
+      }
+    }, 1800);
+  }
+
+  renderExpense();
+  fillForm();
+  show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
