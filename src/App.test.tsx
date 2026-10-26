@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 import * as expenseRepository from "./domain/expenseRepository";
@@ -14,6 +14,12 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+function renderApp() {
+  const result = render(<App />);
+  fireEvent.click(screen.getByText("Expense list"));
+  return result;
+}
+
 describe("App", () => {
   it("renders expenses already present in localStorage at mount (AC7)", () => {
     saveExpense({
@@ -25,7 +31,7 @@ describe("App", () => {
       createdAt: Date.now(),
     });
 
-    render(<App />);
+    renderApp();
 
     expect(screen.getAllByRole("row")[1]).toHaveTextContent("Bills");
   });
@@ -41,7 +47,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.type(screen.getByLabelText(/amount/i), "20");
     await user.type(screen.getByLabelText(/date/i), "2026-02-01");
@@ -66,7 +72,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
     await user.click(screen.getByRole("button", { name: /confirm/i }));
@@ -86,7 +92,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
     await user.click(screen.getByRole("button", { name: /confirm/i }));
@@ -115,7 +121,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
     await user.click(deleteButtons[0]);
@@ -137,7 +143,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
     await user.click(screen.getByRole("button", { name: /cancel/i }));
@@ -156,7 +162,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
     localStorage.setItem("expenses", "[]");
@@ -167,7 +173,7 @@ describe("App", () => {
 
   it("focuses the add-expense form when the empty-state call-to-action is clicked (AC5)", async () => {
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: "Add an expense" }));
 
@@ -187,7 +193,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     await user.click(screen.getByRole("button", { name: /edit/i }));
 
@@ -206,7 +212,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
 
     // The edit route is reached via a stale list row: the row was loaded while
     // owned by the current user, then ownership changed before the click.
@@ -239,7 +245,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await user.click(screen.getByRole("button", { name: /edit/i }));
     await user.clear(screen.getByLabelText("Amount"));
     await user.type(screen.getByLabelText("Amount"), "999");
@@ -265,7 +271,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await user.click(screen.getByRole("button", { name: /edit/i }));
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
@@ -292,7 +298,7 @@ describe("App", () => {
     });
 
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await user.click(screen.getByRole("button", { name: /edit/i }));
     await user.clear(screen.getByLabelText("Notes"));
     await user.type(screen.getByLabelText("Notes"), "Rescheduled");
@@ -300,5 +306,39 @@ describe("App", () => {
 
     expect(screen.getByRole("table", { name: /expenses/i })).toBeInTheDocument();
     expect(screen.getByText("Rescheduled")).toBeInTheDocument();
+  });
+
+  it("throws at composition time, before any render, when two modules contribute conflicting entries (AC8)", async () => {
+    vi.resetModules();
+    vi.doMock("./features/dashboard/navigation", () => ({
+      dashboardNavigation: [
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          route: "/dashboard",
+          render: () => null,
+        },
+      ],
+    }));
+    vi.doMock("./features/expenses/navigation", () => ({
+      expensesNavigation: [
+        {
+          id: "dashboard",
+          label: "Duplicate Dashboard",
+          route: "/duplicate-dashboard",
+          render: () => null,
+        },
+      ],
+    }));
+
+    await expect(import("./App")).rejects.toThrow(
+      /Duplicate navigation entry key "dashboard"/,
+    );
+    expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+    expect(screen.queryByText("Duplicate Dashboard")).not.toBeInTheDocument();
+
+    vi.doUnmock("./features/dashboard/navigation");
+    vi.doUnmock("./features/expenses/navigation");
+    vi.resetModules();
   });
 });
