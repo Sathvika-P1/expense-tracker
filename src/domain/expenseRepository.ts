@@ -1,6 +1,6 @@
 import { getCurrentUserId } from "./currentUser";
 import type { Category } from "./categories";
-import { appendAuditEntry, removeLastAuditEntry } from "./auditLog";
+import { appendAuditEntry, removeAuditEntry, type AuditEntry } from "./auditLog";
 import type { Expense, ExpenseInput } from "./expense";
 
 export type UpdateResult =
@@ -56,14 +56,15 @@ export function deleteExpense(id: string, requesterId: string): DeleteResult {
   }
 
   // Finalized expenses are audited before removal; no audit means no deletion.
+  let auditEntry: AuditEntry | undefined;
   if (expense.finalized === true) {
-    const audited = appendAuditEntry({
+    auditEntry = {
       action: "delete",
       deletedBy: requesterId,
       deletedAt: Date.now(),
       expense: { ...expense },
-    });
-    if (!audited) {
+    };
+    if (!appendAuditEntry(auditEntry)) {
       return { ok: false, error: "audit-failed" };
     }
   }
@@ -72,7 +73,9 @@ export function deleteExpense(id: string, requesterId: string): DeleteResult {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
   } catch (error) {
-    if (expense.finalized === true) removeLastAuditEntry();
+    if (auditEntry && !removeAuditEntry(auditEntry)) {
+      console.error("Failed to roll back audit entry for a deletion that did not happen.");
+    }
     throw error;
   }
   return { ok: true, expenses: remaining };

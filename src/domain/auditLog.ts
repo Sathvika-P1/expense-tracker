@@ -9,15 +9,20 @@ export interface AuditEntry {
 
 export const AUDIT_STORAGE_KEY = "expenseAuditLog";
 
-export function loadAuditLog(): AuditEntry[] {
+// null means a value is stored but unreadable; callers must not overwrite it.
+function readAuditLog(): AuditEntry[] | null {
   const raw = localStorage.getItem(AUDIT_STORAGE_KEY);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as AuditEntry[]) : [];
+    return Array.isArray(parsed) ? (parsed as AuditEntry[]) : null;
   } catch {
-    return [];
+    return null;
   }
+}
+
+export function loadAuditLog(): AuditEntry[] {
+  return readAuditLog() ?? [];
 }
 
 function writeAuditLog(entries: AuditEntry[]): boolean {
@@ -30,16 +35,27 @@ function writeAuditLog(entries: AuditEntry[]): boolean {
 }
 
 export function appendAuditEntry(entry: AuditEntry): boolean {
-  return writeAuditLog([...loadAuditLog(), entry]);
+  const entries = readAuditLog();
+  if (entries === null) {
+    console.error("Audit log is unreadable; refusing to overwrite it.");
+    return false;
+  }
+  return writeAuditLog([...entries, entry]);
 }
 
-export function removeLastAuditEntry(): boolean {
-  return writeAuditLog(loadAuditLog().slice(0, -1));
+export function removeAuditEntry(entry: AuditEntry): boolean {
+  const entries = readAuditLog();
+  if (entries === null) return false;
+  const index = entries.map((item) => item.deletedAt === entry.deletedAt &&
+      item.deletedBy === entry.deletedBy &&
+      item.expense?.id === entry.expense.id).lastIndexOf(true);
+  if (index === -1) return true;
+  return writeAuditLog(entries.filter((_, i) => i !== index));
 }
 
 // Returns [] when a complete entry exists for the expense, else the reasons it is incomplete.
 export function findAuditGaps(expense: Expense, entries: AuditEntry[]): string[] {
-  const entry = entries.find((item) => item.expense?.id === expense.id);
+  const entry = [...entries].reverse().find((item) => item.expense?.id === expense.id);
   if (!entry) return ["no-entry"];
 
   const gaps: string[] = [];

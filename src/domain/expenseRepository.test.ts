@@ -249,3 +249,36 @@ describe("deleteExpense audit log", () => {
     expect(loadAuditLog()).toEqual([]);
   });
 });
+
+describe("audit log integrity", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("refuses deletion and preserves a corrupt audit log instead of overwriting it", () => {
+    saveExpense(makeExpense({ id: "1", createdBy: "u1", finalized: true }));
+    localStorage.setItem("expenseAuditLog", "{not json");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    expect(deleteExpense("1", "u1")).toEqual({ ok: false, error: "audit-failed" });
+    expect(localStorage.getItem("expenseAuditLog")).toBe("{not json");
+    expect(loadExpenses("local-user").map((e) => e.id)).toContain("1");
+  });
+
+  it("rollback removes only the new entry and keeps earlier ones", () => {
+    saveExpense(makeExpense({ id: "1", createdBy: "u1", finalized: true }));
+    const earlier = {
+      action: "delete",
+      deletedBy: "u9",
+      deletedAt: 1,
+      expense: makeExpense({ id: "old" }),
+    };
+    localStorage.setItem("expenseAuditLog", JSON.stringify([earlier]));
+    const realSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key, value) {
+      if (key === "expenses") throw new Error("quota");
+      realSetItem.call(this, key, value);
+    });
+
+    expect(() => deleteExpense("1", "u1")).toThrow();
+    expect(loadAuditLog()).toEqual([earlier]);
+  });
+});
