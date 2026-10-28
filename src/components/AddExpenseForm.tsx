@@ -14,9 +14,10 @@ const EMPTY_FORM: ExpenseInput = {
 
 interface AddExpenseFormProps {
   onSaved: () => void;
+  currentUserId: string;
 }
 
-export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
+export function AddExpenseForm({ onSaved, currentUserId }: AddExpenseFormProps) {
   const [form, setForm] = useState<ExpenseInput>(EMPTY_FORM);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
     }
 
     try {
+      const now = Date.now();
       saveExpense({
         id: crypto.randomUUID(),
         userId: getCurrentUserId(),
@@ -48,7 +50,9 @@ export function AddExpenseForm({ onSaved }: AddExpenseFormProps) {
         date: form.date,
         category: form.category as (typeof CATEGORIES)[number],
         notes: form.notes || undefined,
-        createdAt: Date.now(),
+        createdAt: now,
+        createdBy: currentUserId,
+        updatedAt: now,
       });
     } catch {
       setSaveError("Could not save the expense. Please try again.");
