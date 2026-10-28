@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { loadAuditLog } from "./auditLog";
 import { deleteExpense, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
 import type { Expense, ExpenseInput } from "./expense";
 
@@ -184,5 +185,67 @@ describe("deleteExpense", () => {
     saveExpense(makeExpense({ id: "1" }));
 
     expect(deleteExpense("1", "anyone")).toEqual({ ok: true, expenses: [] });
+  });
+});
+
+describe("deleteExpense audit log", () => {
+  const finalized = () =>
+    makeExpense({ id: "1", createdBy: "u1", finalized: true, notes: "n", updatedAt: 5 });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("records the deleting user, timestamp and full expense for a finalized expense", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(1_700_000_000_000);
+    const seeded = finalized();
+    saveExpense(seeded);
+
+    deleteExpense("1", "u1");
+
+    const [entry] = loadAuditLog();
+    expect(entry.deletedBy).toBe("u1");
+    expect(entry.deletedAt).toBe(1_700_000_000_000);
+    expect(entry.expense).toEqual(seeded);
+  });
+
+  it("refuses deletion and keeps the expense when the audit write fails", () => {
+    saveExpense(finalized());
+    const realSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key, value) {
+      if (key === "expenseAuditLog") throw new Error("quota");
+      realSetItem.call(this, key, value);
+    });
+
+    expect(deleteExpense("1", "u1")).toEqual({ ok: false, error: "audit-failed" });
+    expect(loadExpenses("local-user").map((e) => e.id)).toContain("1");
+  });
+
+  it("removes the audit entry when the expense write fails", () => {
+    saveExpense(finalized());
+    const realSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key, value) {
+      if (key === "expenses") throw new Error("quota");
+      realSetItem.call(this, key, value);
+    });
+
+    expect(() => deleteExpense("1", "u1")).toThrow();
+    expect(loadAuditLog()).toEqual([]);
+  });
+
+  it.each([undefined, false])("writes no audit record when finalized is %s", (flag) => {
+    saveExpense(makeExpense({ id: "2", createdBy: "u1", finalized: flag }));
+
+    expect(deleteExpense("2", "u1").ok).toBe(true);
+    expect(loadAuditLog()).toEqual([]);
+  });
+
+  it("writes no audit record for refused deletions", () => {
+    saveExpense(finalized());
+    deleteExpense("1", "someone-else");
+    deleteExpense("nope", "u1");
+    expect(loadAuditLog()).toEqual([]);
   });
 });

@@ -1,5 +1,6 @@
 import { getCurrentUserId } from "./currentUser";
 import type { Category } from "./categories";
+import { appendAuditEntry, removeLastAuditEntry } from "./auditLog";
 import type { Expense, ExpenseInput } from "./expense";
 
 export type UpdateResult =
@@ -37,7 +38,7 @@ export function saveExpense(expense: Expense): Expense[] {
 
 export type DeleteResult =
   | { ok: true; expenses: Expense[] }
-  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" };
+  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" | "audit-failed" };
 
 export function deleteExpense(id: string, requesterId: string): DeleteResult {
   if (id.trim().length === 0) {
@@ -54,10 +55,34 @@ export function deleteExpense(id: string, requesterId: string): DeleteResult {
     return { ok: false, error: "forbidden" };
   }
 
+  // Finalized expenses are audited before removal; no audit means no deletion.
+  if (expense.finalized === true) {
+    const audited = appendAuditEntry({
+      action: "delete",
+      deletedBy: requesterId,
+      deletedAt: Date.now(),
+      expense: { ...expense },
+    });
+    if (!audited) {
+      return { ok: false, error: "audit-failed" };
+    }
+  }
+
   const remaining = expenses.filter((item) => item.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  } catch (error) {
+    if (expense.finalized === true) removeLastAuditEntry();
+    throw error;
+  }
   return { ok: true, expenses: remaining };
 }
+
+// Every deletion path must be registered here so the audit coverage gate checks it.
+export const DELETION_PATHS: ReadonlyArray<{
+  name: string;
+  run: (id: string, userId: string) => DeleteResult;
+}> = [{ name: "deleteExpense", run: deleteExpense }];
 
 export function updateExpense(
   id: string,

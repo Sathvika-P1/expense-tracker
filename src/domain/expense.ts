@@ -10,6 +10,7 @@ export interface Expense {
   createdAt: number;
   createdBy?: string;
   updatedAt?: number;
+  finalized?: boolean;
 }
 
 export interface ExpenseInput {
