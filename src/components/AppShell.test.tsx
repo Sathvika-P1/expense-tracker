@@ -50,10 +50,18 @@ describe("AppShell", () => {
     load.mockReturnValueOnce(new Promise((_, r) => (reject = r)));
     await userEvent.click(screen.getByRole("button", { name: "Retry" }));
     const retrying = screen.getByRole("button", { name: "Retrying…" });
-    expect(retrying).toBeDisabled();
+    expect(retrying).toHaveAttribute("aria-disabled", "true");
+    expect(retrying).toHaveFocus();
+    await userEvent.click(retrying);
     expect(load).toHaveBeenCalledTimes(2);
     reject(new Error("again"));
-    expect(await screen.findByRole("button", { name: "Retry" })).toBeEnabled();
+    const retry = await screen.findByRole("button", { name: "Retry" });
+    expect(retry).toHaveAttribute("aria-disabled", "false");
+    expect(retry).toHaveFocus();
+    expect(console.error).toHaveBeenCalledWith(
+      "Retry failed to load the Reports route",
+      expect.any(Error),
+    );
   });
 
   it("replaces the error with route content when retry succeeds (AC7)", async () => {
@@ -63,6 +71,7 @@ describe("AppShell", () => {
     await userEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(await screen.findByText("Monthly summary")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveFocus();
   });
 
   it("escalates when the retry fails again and keeps Retry available (AC8, AC9)", async () => {

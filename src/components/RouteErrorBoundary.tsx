@@ -58,9 +58,11 @@ export class RouteErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               className="btn btn-primary"
-              disabled={retrying}
+              aria-disabled={retrying}
               data-loading={retrying ? "true" : undefined}
-              onClick={this.handleRetry}
+              onClick={() => {
+                if (!retrying) void this.handleRetry();
+              }}
             >
               {retrying ? "Retrying…" : "Retry"}
             </button>

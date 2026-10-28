@@ -319,6 +319,8 @@ textarea.input { min-height: calc(var(--space-4) * 3); resize: vertical; }
   flex-wrap: wrap;
 }
 
+.btn[aria-disabled="true"] { cursor: not-allowed; opacity: 0.6; }
+
 .btn[data-loading="true"]::after {
   content: "";
   width: calc(var(--space-1) * 3.5);

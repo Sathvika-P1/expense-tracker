@@ -1,8 +1,8 @@
-import { Suspense, lazy, useMemo, useState } from "react";
+import { Suspense, lazy, useMemo, useRef, useState } from "react";
 import { DEFAULT_ROUTE, ROUTES, type RouteKey } from "../routes";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
 
-function RouteOutlet({ routeKey }: { routeKey: RouteKey }) {
+function RouteOutlet({ routeKey, onLoaded }: { routeKey: RouteKey; onLoaded: () => void }) {
   const [attempt, setAttempt] = useState(0);
   const route = ROUTES.find((r) => r.key === routeKey)!;
 
@@ -13,10 +13,12 @@ function RouteOutlet({ routeKey }: { routeKey: RouteKey }) {
   async function retry() {
     try {
       await route.load();
-    } catch {
+    } catch (error) {
+      console.error(`Retry failed to load the ${route.label} route`, error);
       return false;
     }
     setAttempt((n) => n + 1);
+    onLoaded();
     return true;
   }
 
@@ -31,6 +33,7 @@ function RouteOutlet({ routeKey }: { routeKey: RouteKey }) {
 
 export function AppShell() {
   const [current, setCurrent] = useState<RouteKey>(DEFAULT_ROUTE);
+  const mainRef = useRef<HTMLElement>(null);
 
   return (
     <div className="app-shell">
@@ -48,8 +51,8 @@ export function AppShell() {
           </button>
         ))}
       </nav>
-      <main className="main-content">
-        <RouteOutlet key={current} routeKey={current} />
+      <main className="main-content" ref={mainRef} tabIndex={-1}>
+        <RouteOutlet key={current} routeKey={current} onLoaded={() => mainRef.current?.focus()} />
       </main>
     </div>
   );
