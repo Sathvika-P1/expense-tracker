@@ -1,3 +1,4 @@
+import { appendAuditEntry, removeAuditEntry, type AuditEntry } from "./auditLog";
 import { getCurrentUserId } from "./currentUser";
 import type { Category } from "./categories";
 import type { Expense, ExpenseInput } from "./expense";
@@ -37,7 +38,7 @@ export function saveExpense(expense: Expense): Expense[] {
 
 export type DeleteResult =
   | { ok: true; expenses: Expense[] }
-  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" };
+  | { ok: false; error: "invalid-id" | "not-found" | "forbidden" | "audit-failed" };
 
 export function deleteExpense(id: string, requesterId: string): DeleteResult {
   if (id.trim().length === 0) {
@@ -54,10 +55,37 @@ export function deleteExpense(id: string, requesterId: string): DeleteResult {
     return { ok: false, error: "forbidden" };
   }
 
+  // Finalized expenses are audited before removal; no audit means no deletion.
+  let auditEntry: AuditEntry | undefined;
+  if (expense.finalized === true) {
+    auditEntry = {
+      action: "delete",
+      deletedBy: requesterId,
+      deletedAt: Date.now(),
+      expense: { ...expense },
+    };
+    if (!appendAuditEntry(auditEntry)) {
+      return { ok: false, error: "audit-failed" };
+    }
+  }
+
   const remaining = expenses.filter((item) => item.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+  } catch (error) {
+    if (auditEntry && !removeAuditEntry(auditEntry)) {
+      console.error("Failed to roll back audit entry for a deletion that did not happen.");
+    }
+    throw error;
+  }
   return { ok: true, expenses: remaining };
 }
+
+// Every deletion path must be registered here so the audit coverage gate checks it.
+export const DELETION_PATHS: ReadonlyArray<{
+  name: string;
+  run: (id: string, userId: string) => DeleteResult;
+}> = [{ name: "deleteExpense", run: deleteExpense }];
 
 export function updateExpense(
   id: string,
