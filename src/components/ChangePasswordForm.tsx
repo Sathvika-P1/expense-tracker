@@ -112,7 +112,7 @@ export function ChangePasswordForm({ accountId, onSaved, onCancel }: ChangePassw
 
         <div className="actions-row">
           <button type="submit" className="btn btn-primary">
-            Update password
+            Save
           </button>
           <button type="button" className="btn btn-secondary" onClick={onCancel}>
             Cancel

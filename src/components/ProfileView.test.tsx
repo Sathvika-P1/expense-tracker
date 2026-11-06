@@ -70,6 +70,7 @@ describe("ProfileView", () => {
     render(<ProfileView />);
     await user.click(screen.getByRole("button", { name: /Update password/ }));
     expect(screen.getByRole("heading", { name: "Update password" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
@@ -90,7 +91,7 @@ describe("ProfileView", () => {
     await user.type(screen.getByLabelText("Current password"), "Passw0rd!");
     await user.type(screen.getByLabelText("New password"), "NewPassw0rd!");
     await user.type(screen.getByLabelText("Confirm new password"), "NewPassw0rd!");
-    await user.click(screen.getByRole("button", { name: "Update password" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Password updated."));
   });
 
@@ -107,6 +108,7 @@ describe("ProfileView", () => {
     await user.click(screen.getByRole("button", { name: "Change photo" }));
     expect(document.querySelector('input[type="file"]')).toBeNull();
     expect(clickSpy).not.toHaveBeenCalled();
+    clickSpy.mockRestore();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 

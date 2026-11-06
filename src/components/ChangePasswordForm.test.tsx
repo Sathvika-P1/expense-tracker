@@ -17,7 +17,7 @@ async function fill(current: string, next: string, confirm: string) {
 describe("ChangePasswordForm", () => {
   it("changes the password on valid input (AC9)", async () => {
     const { user, onSaved } = await fill("Passw0rd!", "NewPassw0rd!", "NewPassw0rd!");
-    await user.click(screen.getByRole("button", { name: "Update password" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
     expect(await verifyPassword("local-user", "NewPassw0rd!")).toBe(true);
   });
@@ -31,8 +31,9 @@ describe("ChangePasswordForm", () => {
 
   it("flags a wrong current password on the current field (AC20)", async () => {
     const { user, onSaved } = await fill("wrong", "NewPassw0rd!", "NewPassw0rd!");
-    await user.click(screen.getByRole("button", { name: "Update password" }));
-    await expect(screen.findByLabelText("Current password")).resolves.toHaveAccessibleDescription(
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Current password is incorrect.");
+    expect(screen.getByLabelText("Current password")).toHaveAccessibleDescription(
       "Current password is incorrect.",
     );
     expect(onSaved).not.toHaveBeenCalled();
@@ -40,10 +41,11 @@ describe("ChangePasswordForm", () => {
 
   it("flags a mismatched confirmation on the confirm field (AC21)", async () => {
     const { user, onSaved } = await fill("Passw0rd!", "NewPassw0rd!", "different");
-    await user.click(screen.getByRole("button", { name: "Update password" }));
-    await expect(
-      screen.findByLabelText("Confirm new password"),
-    ).resolves.toHaveAccessibleDescription("Passwords do not match.");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText("Passwords do not match.");
+    expect(screen.getByLabelText("Confirm new password")).toHaveAccessibleDescription(
+      "Passwords do not match.",
+    );
     expect(onSaved).not.toHaveBeenCalled();
     expect(await verifyPassword("local-user", "Passw0rd!")).toBe(true);
   });
