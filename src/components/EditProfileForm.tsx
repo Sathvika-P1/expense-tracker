@@ -37,7 +37,7 @@ export function EditProfileForm({ account, onSaved, onCancel }: EditProfileFormP
 
   return (
     <div className="card" data-component="EditProfileForm">
-      <h2 className="card-title">Edit profile</h2>
+      <h1 className="card-title">Edit profile</h1>
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label className="label" htmlFor={nameId}>
@@ -83,7 +83,7 @@ export function EditProfileForm({ account, onSaved, onCancel }: EditProfileFormP
 
         <div className="field">
           <label className="label" htmlFor={currencyId}>
-            Default currency
+            Currency
           </label>
           <select
             className={errors.currency ? "input has-error" : "input"}

@@ -37,3 +37,16 @@
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
+
+.profile-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-2);
+}
+
+.profile-delete-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+}

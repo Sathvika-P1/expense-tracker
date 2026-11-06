@@ -14,7 +14,7 @@ function setup() {
 describe("EditProfileForm", () => {
   it("offers the fixed currency list (AC23)", () => {
     setup();
-    const select = screen.getByLabelText("Default currency");
+    const select = screen.getByLabelText("Currency");
     expect(
       within(select)
         .getAllByRole("option")

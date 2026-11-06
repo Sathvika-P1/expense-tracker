@@ -42,7 +42,7 @@ export function ChangePasswordForm({ accountId, onSaved, onCancel }: ChangePassw
 
   return (
     <div className="card" data-component="ChangePasswordForm">
-      <h2 className="card-title">Update password</h2>
+      <h1 className="card-title">Update password</h1>
       <form noValidate onSubmit={handleSubmit}>
         <div className="field">
           <label className="label" htmlFor={currentId}>

@@ -20,16 +20,18 @@ describe("ProfileView", () => {
     expect(screen.getByRole("heading", { name: "Edit profile" })).toBeInTheDocument();
     expect(screen.getByLabelText("Full name")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(screen.getByLabelText("Default currency")).toBeInTheDocument();
+    expect(screen.getByLabelText("Currency")).toBeInTheDocument();
   });
 
   it("shows the new name, email and currency after Save and stays on Profile (AC2,3,4,7)", async () => {
     const user = await openEdit();
     await user.clear(screen.getByLabelText("Full name"));
-    await user.type(screen.getByLabelText("Full name"), "Priya Rao");
+    await user.click(screen.getByLabelText("Full name"));
+    await user.paste("Priya Rao");
     await user.clear(screen.getByLabelText("Email"));
-    await user.type(screen.getByLabelText("Email"), "priya@example.com");
-    await user.selectOptions(screen.getByLabelText("Default currency"), "EUR");
+    await user.click(screen.getByLabelText("Email"));
+    await user.paste("priya@example.com");
+    await user.selectOptions(screen.getByLabelText("Currency"), "EUR");
     await user.click(screen.getByRole("button", { name: "Save changes" }));
     expect(screen.getByRole("heading", { level: 1, name: "Priya Rao" })).toBeInTheDocument();
     expect(details().getByText("priya@example.com")).toBeInTheDocument();
@@ -43,7 +45,7 @@ describe("ProfileView", () => {
     const user = await openEdit();
     await user.clear(screen.getByLabelText("Full name"));
     await user.type(screen.getByLabelText("Full name"), "Priya Rao");
-    await user.selectOptions(screen.getByLabelText("Default currency"), "EUR");
+    await user.selectOptions(screen.getByLabelText("Currency"), "EUR");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("heading", { name: "Edit profile" })).not.toBeInTheDocument();
     expect(
@@ -88,14 +90,14 @@ describe("ProfileView", () => {
     await user.type(screen.getByLabelText("Current password"), "Passw0rd!");
     await user.type(screen.getByLabelText("New password"), "NewPassw0rd!");
     await user.type(screen.getByLabelText("Confirm new password"), "NewPassw0rd!");
-    await user.click(screen.getAllByRole("button", { name: "Update password" }).at(-1)!);
+    await user.click(screen.getByRole("button", { name: "Update password" }));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Password updated."));
   });
 
   it("shows no currency selector while the form is closed (AC12)", () => {
     render(<ProfileView />);
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Default currency")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Currency")).not.toBeInTheDocument();
   });
 
   it("shows a Change photo placeholder that opens nothing (AC13, AC14)", async () => {
@@ -106,5 +108,34 @@ describe("ProfileView", () => {
     expect(document.querySelector('input[type="file"]')).toBeNull();
     expect(clickSpy).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows Member since from the account creation date", () => {
+    render(<ProfileView />);
+    const created = new Date(getAccount().createdAt).toLocaleDateString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
+    expect(screen.getByText(`Member since ${created}`)).toBeInTheDocument();
+    expect(details().getByText(created)).toBeInTheDocument();
+  });
+
+  it("keeps Log out and Delete as inert controls with a status message", async () => {
+    const user = userEvent.setup();
+    render(<ProfileView />);
+    await user.click(screen.getByRole("button", { name: "Log out" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Log in is built in ET-STORY-037.");
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Delete account is built in ET-STORY-039.");
+    expect(screen.getByRole("heading", { level: 1, name: "Sathvika Papishetti" })).toBeInTheDocument();
+  });
+
+  it("moves focus to the name heading after Save and back to the opener after Cancel", async () => {
+    const user = await openEdit();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Edit profile" })).toHaveFocus();
+    await user.click(screen.getByRole("button", { name: "Edit profile" }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(screen.getByRole("heading", { level: 1 })).toHaveFocus();
   });
 });
