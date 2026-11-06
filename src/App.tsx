@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
+import { ProfileView } from "./components/ProfileView";
+import { deleteAccount, getSessionAccount, getSessionUserId } from "./domain/accountRepository";
 import { getCurrentUserId } from "./domain/currentUser";
 import type { Expense } from "./domain/expense";
 import { deleteExpense, findExpenseById, loadExpenses } from "./domain/expenseRepository";
@@ -17,7 +19,9 @@ const DELETE_ERROR_MESSAGES = {
 type View =
   | { mode: "list" }
   | { mode: "edit"; expense: Expense }
-  | { mode: "access-denied" };
+  | { mode: "access-denied" }
+  | { mode: "profile" }
+  | { mode: "log-in" };
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
@@ -56,6 +60,29 @@ export default function App() {
     }
   }
 
+  if (view.mode === "log-in") {
+    // Placeholder until the real Log in screen (ET-STORY-037) lands.
+    return (
+      <main>
+        <h1>Log in</h1>
+      </main>
+    );
+  }
+
+  if (view.mode === "profile") {
+    return (
+      <ProfileView
+        email={getSessionAccount()?.email ?? ""}
+        expenseCount={expenses.length}
+        onDeleteAccount={() => deleteAccount(getSessionUserId() ?? "")}
+        onAccountGone={() => {
+          setExpenses([]);
+          setView({ mode: "log-in" });
+        }}
+      />
+    );
+  }
+
   if (view.mode === "access-denied") {
     return (
       <main>
@@ -90,6 +117,9 @@ export default function App() {
   return (
     <main>
       <h1>Expense Tracker</h1>
+      <button type="button" className="btn btn-secondary" onClick={() => setView({ mode: "profile" })}>
+        Profile
+      </button>
       <div ref={formRef}>
         <AddExpenseForm currentUserId={CURRENT_USER_ID} onSaved={() => setExpenses(loadExpenses())} />
       </div>

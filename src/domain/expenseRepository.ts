@@ -92,3 +92,8 @@ export function updateExpense(
   localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
   return { ok: true, expense: updated };
 }
+
+export function deleteExpensesByUser(userId: string): void {
+  const remaining = loadAll().filter((expense) => expense.userId !== userId);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+}

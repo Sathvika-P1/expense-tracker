@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { deleteExpense, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
+import { deleteExpense, deleteExpensesByUser, loadExpenses, saveExpense, updateExpense } from "./expenseRepository";
 import type { Expense, ExpenseInput } from "./expense";
 
 const validInput: ExpenseInput = {
@@ -184,5 +184,16 @@ describe("deleteExpense", () => {
     saveExpense(makeExpense({ id: "1" }));
 
     expect(deleteExpense("1", "anyone")).toEqual({ ok: true, expenses: [] });
+  });
+});
+
+describe("deleteExpensesByUser", () => {
+  it("removes only that user's records (AC9)", () => {
+    saveExpense(makeExpense({ id: "a", userId: "u1" }));
+    saveExpense(makeExpense({ id: "b", userId: "u1" }));
+    saveExpense(makeExpense({ id: "c", userId: "u2" }));
+    deleteExpensesByUser("u1");
+    expect(loadExpenses("u1")).toEqual([]);
+    expect(loadExpenses("u2")).toHaveLength(1);
   });
 });
