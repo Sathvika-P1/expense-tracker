@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { EditExpenseForm } from "./components/EditExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
+import { ProfileView } from "./components/ProfileView";
 import { getCurrentUserId } from "./domain/currentUser";
 import type { Expense } from "./domain/expense";
 import { deleteExpense, findExpenseById, loadExpenses } from "./domain/expenseRepository";
@@ -17,7 +18,21 @@ const DELETE_ERROR_MESSAGES = {
 type View =
   | { mode: "list" }
   | { mode: "edit"; expense: Expense }
-  | { mode: "access-denied" };
+  | { mode: "access-denied" }
+  | { mode: "profile" };
+
+function AppNav({ onExpenses, onProfile }: { onExpenses: () => void; onProfile: () => void }) {
+  return (
+    <nav className="app-nav" aria-label="Main">
+      <button type="button" className="btn btn-secondary" onClick={onExpenses}>
+        Expenses
+      </button>
+      <button type="button" className="btn btn-secondary" onClick={onProfile}>
+        Profile
+      </button>
+    </nav>
+  );
+}
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
@@ -56,6 +71,15 @@ export default function App() {
     }
   }
 
+  if (view.mode === "profile") {
+    return (
+      <main>
+        <AppNav onExpenses={backToList} onProfile={() => setView({ mode: "profile" })} />
+        <ProfileView />
+      </main>
+    );
+  }
+
   if (view.mode === "access-denied") {
     return (
       <main>
@@ -89,6 +113,7 @@ export default function App() {
 
   return (
     <main>
+      <AppNav onExpenses={backToList} onProfile={() => setView({ mode: "profile" })} />
       <h1>Expense Tracker</h1>
       <div ref={formRef}>
         <AddExpenseForm currentUserId={CURRENT_USER_ID} onSaved={() => setExpenses(loadExpenses())} />

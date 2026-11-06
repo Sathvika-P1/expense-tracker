@@ -302,3 +302,17 @@ describe("App", () => {
     expect(screen.getByText("Rescheduled")).toBeInTheDocument();
   });
 });
+
+describe("App profile navigation", () => {
+  it("switches between Expenses and Profile", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "Profile" }));
+    expect(screen.getByRole("region", { name: "Account details" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Edit profile" }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(screen.getByRole("region", { name: "Account details" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Expenses" }));
+    expect(screen.getByRole("heading", { name: "Expense Tracker" })).toBeInTheDocument();
+  });
+});
