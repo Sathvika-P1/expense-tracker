@@ -78,3 +78,36 @@ describe("ConfirmDialog", () => {
     expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
   });
 });
+
+describe("ConfirmDialog extensions", () => {
+  it("renders title, details and a destructive alertdialog with custom confirm label", () => {
+    render(
+      <ConfirmDialog
+        destructive
+        title="Delete your account?"
+        message="Cannot be undone."
+        details={<ul><li>All records removed.</li></ul>}
+        confirmLabel="Delete account"
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const dialog = screen.getByRole("alertdialog", { name: "Delete your account?" });
+    expect(dialog).toHaveTextContent("All records removed.");
+    expect(screen.getByRole("button", { name: "Delete account" })).toBeInTheDocument();
+  });
+
+  it("shows an error in an alert", () => {
+    render(<ConfirmDialog message="m" error="Something failed" onConfirm={vi.fn()} onCancel={vi.fn()} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Something failed");
+  });
+
+  it("disables both buttons and shows the pending label while pending", () => {
+    render(
+      <ConfirmDialog message="m" pending pendingLabel="Deleting…" onConfirm={vi.fn()} onCancel={vi.fn()} />,
+    );
+    expect(screen.getByRole("button", { name: "Deleting…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+});

@@ -1,0 +1,50 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-color: color-mix(in srgb, var(--color-fg) 55%, transparent);
+}
+
+.dialog {
+  width: min(calc(var(--space-4) * 20), 100%);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dialog:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.dialog h2 {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+}
+
+.dialog .banner {
+  margin-bottom: 0;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.btn-danger {
+  background-color: var(--color-negative);
+  color: var(--color-primary-fg);
+  border-radius: var(--radius-md);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}

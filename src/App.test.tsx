@@ -302,3 +302,43 @@ describe("App", () => {
     expect(screen.getByText("Rescheduled")).toBeInTheDocument();
   });
 });
+
+describe("App account deletion", () => {
+  function seed(withSession: boolean) {
+    localStorage.setItem(
+      "accounts",
+      JSON.stringify([{ id: "local-user", email: "a@b.com", password: "test-password" }]),
+    );
+    if (withSession) localStorage.setItem("session", "local-user");
+    saveExpense({
+      id: "e1",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: Date.now(),
+    });
+  }
+
+  async function confirmDeletion() {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "Profile" }));
+    await user.click(screen.getByRole("button", { name: "Delete" }));
+    await user.click(screen.getByRole("button", { name: "Delete account" }));
+  }
+
+  it("shows Log in and removes the user's expenses after confirming (AC4, AC9)", async () => {
+    seed(true);
+    await confirmDeletion();
+    expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
+    expect(expenseRepository.loadExpenses("local-user")).toEqual([]);
+  });
+
+  it("shows Log in without an error when the session has expired (AC6)", async () => {
+    seed(false);
+    await confirmDeletion();
+    expect(await screen.findByRole("heading", { name: "Log in" })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+});
