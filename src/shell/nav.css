@@ -1,0 +1,26 @@
+nav ul {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav .nav-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+nav .nav-link--active {
+  font-weight: bold;
+  border-left: 3px solid #2563eb;
+  background-color: #eef2ff;
+}
+
+@media (min-width: 768px) {
+  nav ul {
+    flex-direction: row;
+  }
+}
