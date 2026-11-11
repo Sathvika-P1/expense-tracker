@@ -12,6 +12,7 @@ const DELETE_ERROR_MESSAGES = {
   "invalid-id": "That expense identifier is not valid.",
   "not-found": "Expense not found.",
   forbidden: "You are not allowed to delete this expense.",
+  "audit-failed": "This expense could not be deleted because the deletion could not be recorded.",
 } as const;
 
 type View =

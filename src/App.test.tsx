@@ -75,6 +75,32 @@ describe("App", () => {
     expect(await screen.findByRole("status")).toHaveTextContent(/deleted/i);
   });
 
+  it("refuses the deletion and keeps the expense when the audit record cannot be written", async () => {
+    saveExpense({
+      id: "existing",
+      userId: "local-user",
+      amount: 5,
+      date: "2026-01-01",
+      category: "Bills",
+      createdAt: Date.now(),
+      finalized: true,
+    });
+    const realSetItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key, value) {
+      if (key === "expenseAuditLog") throw new Error("quota");
+      realSetItem.call(this, key, value);
+    });
+
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: /confirm/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/could not be recorded/i);
+    expect(screen.getByRole("cell", { name: "Bills" })).toBeInTheDocument();
+  });
+
   it("moves focus to the labelled expense list region when the last expense is deleted (AC12)", async () => {
     saveExpense({
       id: "existing",
