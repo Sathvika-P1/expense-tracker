@@ -112,6 +112,20 @@ describe("ExpenseList", () => {
     expect(screen.getAllByRole("row")).toHaveLength(11);
   });
 
+  it("clamps to the last remaining page when the only row on the last page is deleted", async () => {
+    const user = userEvent.setup();
+    const eleven = Array.from({ length: 11 }, (_, i) =>
+      makeExpense({ id: String(i), date: `2026-01-${String(i + 1).padStart(2, "0")}` }),
+    );
+    render(<ExpenseListHarness initialExpenses={eleven} />);
+
+    await user.click(screen.getByRole("button", { name: /next page/i }));
+    await user.click(screen.getByRole("button", { name: /delete/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
+
+    expect(screen.getAllByRole("row")).toHaveLength(11);
+  });
+
   it("shows page navigation controls when there is more than one page", () => {
     const many = Array.from({ length: 12 }, (_, i) => makeExpense({ id: String(i) }));
     render(
@@ -195,8 +209,9 @@ describe("ExpenseList", () => {
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /confirm/i })).toBeInTheDocument();
+    expect(screen.getByRole("alertdialog", { name: /delete this expense/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Delete expense" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
   });
 
@@ -225,7 +240,7 @@ describe("ExpenseList", () => {
 
     const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
     await user.click(deleteButtons[0]);
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /delete/i })).toHaveFocus();
@@ -238,7 +253,7 @@ describe("ExpenseList", () => {
     render(<ExpenseListHarness initialExpenses={expenses} />);
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     await waitFor(() => {
       expect(screen.getByRole("region", { name: /expense list/i })).toHaveFocus();
@@ -258,7 +273,7 @@ describe("ExpenseList", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     expect(onDelete).toHaveBeenCalledWith("42");
   });
@@ -294,7 +309,7 @@ describe("ExpenseList", () => {
 
     const deleteButton = screen.getByRole("button", { name: /delete/i });
     await user.click(deleteButton);
-    await user.click(screen.getByRole("button", { name: /confirm/i }));
+    await user.click(screen.getByRole("button", { name: "Delete expense" }));
 
     expect(deleteButton).toHaveFocus();
   });

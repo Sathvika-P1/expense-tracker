@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ET-STORY-027 — Delete expense</title>
+<style>
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --color-fg: #1f2420; /** Primary ink color for body text on the warm paper background */
+  --color-bg: #fbf8f3; /** Warm paper background for the app surface */
+  --color-primary: #146356; /** Primary brand color, a deep ledger-emerald used for key actions */
+  --color-primary-fg: #ffffff; /** Text/icon color placed on top of color-primary */
+  --color-border: #ddd4c4; /** Default border color for cards, inputs and dividers, warm tan */
+  --color-muted: #5a6058; /** Secondary text color for captions and helper copy */
+  --color-positive: #176b40; /** Text/accent color for income and positive amounts */
+  --color-negative: #b23a2e; /** Text/accent color for expenses and negative amounts */
+  --space-1: 4px; /** Smallest spacing unit */
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --radius-sm: 6px; /** Tight corner radius for chips and inputs */
+  --radius-md: 12px; /** Standard corner radius for buttons */
+  --radius-lg: 24px; /** Generous corner radius for cards and surfaces */
+  --font-size-sm: 13px;
+  --font-size-md: 16px;
+  --font-size-lg: 28px;
+  --font-size-xl: 40px; /** Hero/page-title size */
+  --font-family-base: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, sans-serif; /** Body copy typeface: a humanist sans for UI text */
+  --font-family-heading: 'IBM Plex Serif', Georgia, 'Times New Roman', serif; /** Editorial serif for headings, giving the ledger a distinct voice */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --border-width-thin: 1px; /** Default hairline border width */
+  --focus-ring-width: 2px; /** Width of the focus outline on interactive elements */
+  --focus-ring-offset: 1px;
+  --shadow-card: 0px 4px 12px 0px rgb(12.16% 14.12% 12.55% / 0.1); /** Default resting elevation for cards */
+  --button-primary-background: var(--color-primary); /** Background of the primary button variant */
+  --button-primary-foreground: var(--color-primary-fg); /** Text color of the primary button variant */
+  --button-primary-radius: var(--radius-md);
+  --button-primary-padding-x: var(--space-3);
+  --button-primary-padding-y: var(--space-2);
+  --card-default-background: var(--color-bg); /** Background of the default card component */
+  --card-default-border: var(--color-border); /** Border color of the default card component */
+  --card-default-radius: var(--radius-lg);
+  --card-default-padding: var(--space-4);
+}
+
+</style>
+<style>
+/* Prototype utility & component classes built entirely from design tokens */
+
+.text-fg {
+  color: var(--color-fg);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-positive {
+  color: var(--color-positive);
+}
+
+.text-negative {
+  color: var(--color-negative);
+}
+
+.bg-surface {
+  background-color: var(--color-bg);
+}
+
+.font-heading {
+  font-family: var(--font-family-heading);
+}
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+
+.text-sm { font-size: var(--font-size-sm); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+body {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+}
+
+h1, h2, h3, .heading {
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-md);
+}
+
+.btn-primary {
+  background-color: var(--button-primary-background);
+  color: var(--button-primary-foreground);
+  border-radius: var(--button-primary-radius);
+  padding: var(--button-primary-padding-y) var(--button-primary-padding-x);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Card */
+
+.card {
+  background-color: var(--card-default-background);
+  border: var(--border-width-thin) solid var(--card-default-border);
+  border-radius: var(--card-default-radius);
+  padding: var(--card-default-padding);
+  box-shadow: var(--shadow-card);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-fg);
+  margin: 0 0 var(--space-2) 0;
+}
+
+/* Chips */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  color: var(--color-fg);
+}
+
+.chip-primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: var(--border-width-thin) solid var(--color-primary);
+}
+
+.chip-positive {
+  color: var(--color-positive);
+  border: var(--border-width-thin) solid var(--color-positive);
+  background-color: var(--color-bg);
+}
+
+.chip-negative {
+  color: var(--color-negative);
+  border: var(--border-width-thin) solid var(--color-negative);
+  background-color: var(--color-bg);
+}
+
+/* Form controls */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.input {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.actions-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+.field-row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.field-row > .field { flex: 1 1 calc(var(--space-4) * 8); min-width: calc(var(--space-4) * 7); }
+
+select.input, textarea.input { width: 100%; font-family: var(--font-family-base); }
+textarea.input { min-height: calc(var(--space-4) * 3); resize: vertical; }
+
+.error-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-negative);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+}
+.input.has-error { border-color: var(--color-negative); }
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: var(--border-width-thin) solid var(--color-negative);
+  color: var(--color-negative);
+  background-color: var(--color-bg);
+  margin-bottom: var(--space-3);
+}
+.banner .banner-title { font-weight: var(--font-weight-bold); color: var(--color-negative); }
+.banner .banner-body { font-size: var(--font-size-sm); color: var(--color-fg); margin-top: var(--space-1); }
+.banner .banner-actions { margin-top: var(--space-2); display: flex; gap: var(--space-2); }
+
+.centered-block {
+  max-width: calc(var(--space-4) * 14);
+  margin: calc(var(--space-4) * 3) auto;
+  text-align: center;
+}
+
+.btn { min-height: calc(var(--space-4) * 2); }
+.btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.btn:focus-visible, .input:focus-visible, a:focus-visible { outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset); }
+
+@media (max-width: 480px) {
+  .field-row { flex-direction: column; }
+  .actions-row { flex-direction: column; }
+  .actions-row .btn { width: 100%; }
+}
+
+</style>
+<!-- App nav: top bar — Dashboard · Expenses · Reports · Settings (reused from ET-STORY-022 for visual consistency; project has no arc affiliation) -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .app-topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-bg);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .app-topbar .brand { font-family: var(--font-family-heading); font-weight: var(--font-weight-bold); font-size: var(--font-size-md); }
+  .app-topbar nav { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .app-topbar nav a { color: var(--color-muted); text-decoration: none; font-size: var(--font-size-sm); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
+  .app-topbar nav a.active { color: var(--color-primary-fg); background-color: var(--color-primary); }
+
+  main.page { max-width: calc(var(--space-4) * 20); margin: 0 auto; padding: var(--space-4); }
+
+  .breadcrumb { font-size: var(--font-size-sm); color: var(--color-muted); margin-bottom: var(--space-3); }
+  .breadcrumb a { color: var(--color-muted); }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+  .actions-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+  .banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: var(--border-width-thin) solid var(--color-negative);
+    color: var(--color-negative);
+    background-color: var(--color-bg);
+    margin-bottom: var(--space-3);
+  }
+  .banner .banner-title { font-weight: var(--font-weight-bold); color: var(--color-negative); }
+  .banner .banner-body { font-size: var(--font-size-sm); color: var(--color-fg); margin-top: var(--space-1); }
+  .banner .banner-actions { margin-top: var(--space-2); display: flex; gap: var(--space-2); }
+
+  .btn { min-height: calc(var(--space-4) * 2); }
+  .btn:disabled { cursor: not-allowed; opacity: 0.6; }
+  .btn:focus-visible, .input:focus-visible, a:focus-visible { outline: var(--focus-ring-width) solid var(--color-primary); outline-offset: var(--focus-ring-offset); }
+
+  /* Destructive button: no button-destructive-* token exists yet in tokens.json.
+     Composed from color-negative + color-primary-fg (contrast ~5.9:1, passes AA).
+     Flagged in the summary as a design-system gap. */
+  .btn-destructive {
+    background-color: var(--color-negative);
+    color: var(--color-primary-fg);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-3);
+  }
+  .btn-destructive:hover:not(:disabled) { filter: brightness(0.92); }
+
+  .list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .list-row:last-child { border-bottom: none; }
+  .list-row.removing { opacity: 0.4; }
+  .row-meta { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+  .row-actions { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+  .row-actions .btn { min-height: 44px; min-width: 44px; }
+
+  .centered-block {
+    max-width: calc(var(--space-4) * 14);
+    margin: calc(var(--space-4) * 3) auto;
+    text-align: center;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-4) var(--space-3);
+    color: var(--color-muted);
+  }
+  .empty-state .empty-icon { font-size: var(--font-size-lg); margin-bottom: var(--space-2); }
+
+  /* Confirmation dialog */
+  .dialog-scrim {
+    position: fixed;
+    inset: 0;
+    background-color: color-mix(in srgb, var(--color-fg) 40%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3);
+    z-index: 800;
+  }
+  .dialog {
+    background-color: var(--color-bg);
+    border: var(--border-width-thin) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-4);
+    max-width: calc(var(--space-4) * 14);
+    width: 100%;
+  }
+  .dialog h2 { margin-top: 0; }
+  .dialog .actions-row { justify-content: flex-end; margin-top: var(--space-4); }
+
+  /* Toast with undo + countdown */
+  .toast {
+    position: fixed;
+    bottom: var(--space-4);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-primary);
+    color: var(--color-primary-fg);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    font-size: var(--font-size-sm);
+    display: none;
+    z-index: 900;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: calc(100vw - var(--space-4) * 2);
+  }
+  .toast.show { display: flex; }
+  .toast .toast-undo {
+    background: none;
+    border: var(--border-width-thin) solid var(--color-primary-fg);
+    color: var(--color-primary-fg);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1) var(--space-2);
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    min-height: 44px;
+    font-family: var(--font-family-base);
+  }
+  .toast .toast-count { font-family: var(--font-family-base); opacity: 0.85; min-width: 2.5ch; text-align: right; }
+
+  .report-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-bg);
+    border: var(--border-width-thin) solid var(--color-muted);
+    color: var(--color-muted);
+  }
+
+  .log-entry {
+    padding: var(--space-3);
+    border-bottom: var(--border-width-thin) solid var(--color-border);
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-entry .log-head { display: flex; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+
+  @media (max-width: 480px) {
+    .row { flex-direction: column; align-items: stretch; }
+    .actions-row { flex-direction: column; }
+    .actions-row .btn { width: 100%; }
+    .list-row { flex-direction: column; align-items: stretch; }
+    .row-actions { justify-content: flex-start; }
+    .toast { flex-direction: column; align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reviewer bar -->
+<div id="review-bar" style="position:fixed;top:0;left:0;right:0;z-index:9999;
+  display:flex;align-items:center;gap:10px;padding:8px 16px;
+  background:var(--color-bg);border-bottom:1px solid var(--color-border);font-size:13px;font-family:var(--font-family-base)">
+  <span style="font-family:var(--font-family-base);color:var(--color-muted)">ET-STORY-027</span>
+  <button id="prev-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;">← Prev</button>
+  <span id="screen-label" style="flex:1;text-align:center;font-weight:600;color:var(--color-fg)"></span>
+  <button id="next-btn" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:13px;">Next →</button>
+</div>
+<div style="height:46px"></div><!-- spacer -->
+
+<div class="app-topbar">
+  <span class="brand font-heading">Ledger</span>
+  <nav>
+    <a href="#" class="active">Expenses</a>
+    <a href="#">Reports</a>
+    <a href="#">Settings</a>
+  </nav>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="screens">
+
+<!-- State: list-default -->
+<!--
+  Screen: Expense list (entry point)
+  Notes:
+    - Every row exposes a "Delete" action, always visible (no hover-only affordance), 44px min
+      touch target (guideline §1).
+    - Fixture rows cover: two of the current user's own expenses (deletable), one owned by
+      Marcus Lee (AC1), one attached to a Submitted report (AC8), and one stale row (EXP-0877)
+      whose delete request 404s server-side (AC7) even though it still renders here.
+    - "Simulate:" controls let a reviewer jump straight to the retention-window outcomes (AC6)
+      without waiting on a real timer.
+-->
+<div class="screen" data-key="list" data-name="Expense list">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card">
+      <!-- rows injected by renderList() -->
+    </div>
+    <div class="actions-row" style="margin-top: var(--space-3);">
+      <span class="text-sm text-muted" style="align-self:center;">Simulate:</span>
+      <button class="btn btn-secondary" onclick="show('undo-expired')">Undo window elapsed</button>
+      <button class="btn btn-secondary" onclick="show('purged-link')">Retention window passed (open stale link)</button>
+      <button class="btn btn-secondary" onclick="show('audit-log')">View activity log</button>
+    </div>
+  </main>
+</div>
+
+<!-- State: confirm-dialog -->
+<!--
+  Screen: Confirmation dialog (AC2)
+  Notes:
+    - Opens over the list (list rendered underneath, unchanged) when Delete is pressed on an
+      owned, deletable expense.
+    - role="alertdialog", aria-modal="true", labelled by the heading. Esc and the scrim both
+      cancel. Initial focus lands on Cancel, the safer default (guideline §4: destructive
+      actions confirm and name the consequence).
+-->
+<div class="screen" data-key="confirm-dialog" data-name="Confirm deletion">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card-under-dialog"></div>
+  </main>
+  <div class="dialog-scrim" onclick="if (event.target === this) cancelDelete()">
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-desc">
+      <h2 id="dialog-title" class="card-title">Delete this expense?</h2>
+      <p id="dialog-desc" class="text-md text-muted">
+        Delete "<span id="dialog-item-name">Team lunch — Blue Bottle Coffee</span>" (<span id="dialog-item-amount">$52.75</span>)?
+        You can undo for 10 seconds after deleting.
+      </p>
+      <div class="actions-row">
+        <button class="btn btn-secondary" id="dialog-cancel-btn" onclick="cancelDelete()">Cancel</button>
+        <button class="btn btn-destructive" id="dialog-confirm-btn" onclick="confirmDelete()">Delete expense</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: deleting -->
+<!--
+  Screen: Deleting — transient (AC3)
+  Notes:
+    - Shown for ~300ms after confirming. Button disabled and relabelled to prevent
+      double-submit (guideline §4). Auto-advances to the post-delete list with an undo toast.
+-->
+<div class="screen" data-key="deleting" data-name="Deleting…">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card-deleting"></div>
+  </main>
+  <div class="dialog-scrim">
+    <div class="dialog" role="alertdialog" aria-modal="true">
+      <h2 class="card-title">Delete this expense?</h2>
+      <p class="text-md text-muted">Deleting "Team lunch — Blue Bottle Coffee"…</p>
+      <div class="actions-row">
+        <button class="btn btn-secondary" disabled>Cancel</button>
+        <button class="btn btn-destructive" disabled>Deleting…</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- State: list-after-delete -->
+<!--
+  Screen: Expense list — after deletion, undo window open (AC3, AC5)
+  Notes:
+    - Deleted row is gone from the list (AC3). A toast offers "Undo" with a live countdown;
+      the countdown pauses on hover/focus of the toast (WCAG 2.2.1 — no unpausable timing).
+      An audit log entry was recorded at confirm time (see the Activity log screen, AC9).
+-->
+<div class="screen" data-key="list-after-delete" data-name="Deleted — undo window open">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card-after"></div>
+  </main>
+</div>
+
+<!-- State: list-cancelled -->
+<!--
+  Screen: Expense list — deletion cancelled (AC4)
+  Notes:
+    - Reached by pressing Cancel in the confirmation dialog. The expense remains unchanged
+      and visible; focus returns to that row's Delete button (guideline §4 keyboard support).
+-->
+<div class="screen" data-key="list-cancelled" data-name="Deletion cancelled">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card-cancelled"></div>
+    <p class="text-sm text-muted" style="margin-top:var(--space-2);">Deletion cancelled — "Team lunch — Blue Bottle Coffee" was not deleted. Focus returned to its Delete button.</p>
+  </main>
+</div>
+
+<!-- State: auth-error -->
+<!--
+  Screen: Authorization error (AC1)
+  Notes:
+    - Attempting to delete an expense owned by another user (Marcus Lee) never opens the
+      confirmation dialog — the system rejects the request outright and the expense is
+      untouched in the list below.
+-->
+<div class="screen" data-key="auth-error" data-name="Authorization error">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="banner" role="alert">
+      <span aria-hidden="true">🔒</span>
+      <div>
+        <div class="banner-title">You can't delete this expense</div>
+        <div class="banner-body">"Client dinner" (EXP-2091) belongs to Marcus Lee. Only the expense owner can delete it.</div>
+      </div>
+    </div>
+    <div class="card p-1" id="list-card-autherror"></div>
+  </main>
+</div>
+
+<!-- State: not-found-error -->
+<!--
+  Screen: Expense not found (AC7)
+  Notes:
+    - EXP-0877 was already removed server-side (e.g. deleted from another tab or its
+      retention window already passed). This tab's list was stale; the delete request
+      returns a not-found error and the row is dropped from the list once acknowledged.
+-->
+<div class="screen" data-key="not-found-error" data-name="Expense not found">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="banner" role="alert">
+      <span aria-hidden="true">✕</span>
+      <div>
+        <div class="banner-title">This expense no longer exists</div>
+        <div class="banner-body">EXP-0877 ("Ride share to airport") was already deleted. Your list has been refreshed.</div>
+      </div>
+    </div>
+    <div class="card p-1" id="list-card-notfound"></div>
+  </main>
+</div>
+
+<!-- State: report-locked-error -->
+<!--
+  Screen: Blocked by report status (AC8)
+  Notes:
+    - The expense is attached to a report that is Submitted (or Locked), so deletion is
+      blocked even though the requester owns the expense. The error names the report and
+      its status rather than silently disabling the Delete button, so the reason is clear.
+-->
+<div class="screen" data-key="report-locked-error" data-name="Blocked by report status">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="banner" role="alert">
+      <span aria-hidden="true">🔒</span>
+      <div>
+        <div class="banner-title">Can't delete — report is locked</div>
+        <div class="banner-body">"Conference badge" (EXP-3310) is on report RPT-311 "September travel", which is <strong>Submitted</strong>. Expenses can't be removed from a report once it has been submitted or locked. Withdraw or unlock the report first.</div>
+      </div>
+    </div>
+    <div class="card p-1" id="list-card-locked"></div>
+  </main>
+</div>
+
+<!-- State: undo-expired -->
+<!--
+  Screen: Undo window elapsed (AC5, AC6)
+  Notes:
+    - Simulates the 10-second undo window running out: the toast and its Undo button are
+      gone, and the expense stays deleted. Undo is the only user-facing restore path — after
+      this point nothing in the UI can bring the expense back until the retention window
+      also passes and the record is purged (see next screen).
+-->
+<div class="screen" data-key="undo-expired" data-name="Undo window elapsed">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card p-1" id="list-card-expired"></div>
+    <p class="text-sm text-muted" style="margin-top:var(--space-2);">The 10-second undo window has elapsed for "Team lunch — Blue Bottle Coffee". It stays deleted; it is retained internally for 30 days before being permanently purged.</p>
+  </main>
+</div>
+
+<!-- State: purged-link -->
+<!--
+  Screen: Permanently purged (AC6)
+  Notes:
+    - Represents a stale bookmark or old tab pointing at an expense whose 30-day retention
+      window has since passed and been permanently purged. Distinct from "not found" (AC7)
+      in wording, since this explains *why* it's gone rather than implying it never existed.
+-->
+<div class="screen" data-key="purged-link" data-name="Permanently purged">
+  <main class="page">
+    <div class="breadcrumb"><a href="#">Expenses</a> / EXP-1042</div>
+    <div class="card centered-block">
+      <div class="text-lg" style="margin-bottom: var(--space-2);" aria-hidden="true">🗑</div>
+      <h1 class="card-title">This expense was permanently deleted</h1>
+      <p class="text-md text-muted">EXP-1042 ("Team lunch — Blue Bottle Coffee") was deleted on 2026-08-20 and its 30-day retention window has passed. It can no longer be restored.</p>
+      <div class="actions-row" style="justify-content:center; margin-top: var(--space-4);">
+        <button class="btn btn-primary" onclick="show('list')">Back to expense list</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: empty-list -->
+<!--
+  Screen: Empty state (guideline §5)
+  Notes:
+    - Reached by deleting the last remaining own expense in this simulation. Reads as an
+      invitation to act, not a dead end.
+-->
+<div class="screen" data-key="empty-list" data-name="Empty state">
+  <main class="page">
+    <div class="breadcrumb">Expenses</div>
+    <div class="card">
+      <div class="empty-state">
+        <div class="empty-icon" aria-hidden="true">🧾</div>
+        <h2 class="card-title">No expenses yet</h2>
+        <p class="text-md text-muted">You've deleted all your expenses. Add one to start tracking.</p>
+        <div class="actions-row" style="justify-content:center; margin-top: var(--space-3);">
+          <button class="btn btn-primary" onclick="resetList(); show('list')">Add an expense</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- State: audit-log -->
+<!--
+  Screen: Settings — Activity log (AC9)
+  Notes:
+    - Each finalized deletion (i.e. confirmed in the dialog, per AC2's "before the deletion
+      is finalized") records an entry with the deleting user, a timestamp, and the expense's
+      details (id, title, amount, category, date). An undo is logged as a separate
+      "restored" entry rather than erasing the deletion record, preserving an accurate trail.
+    - This is a read-only log view; no actions are simulated here beyond navigation.
+-->
+<div class="screen" data-key="audit-log" data-name="Activity log">
+  <main class="page">
+    <div class="breadcrumb"><a href="#" onclick="show('list'); return false;">Expenses</a> / Settings / Activity log</div>
+    <div class="card p-1">
+      <div id="log-list"></div>
+    </div>
+  </main>
+</div>
+
+</div>
+
+<script>
+  // Fixture data — no real network calls; all interactions are simulated with setTimeout.
+  const OWN_ROWS_INITIAL = [
+    { id: 'EXP-1042', title: 'Team lunch — Blue Bottle Coffee', date: '2026-09-15', amount: 52.75, deletable: true },
+    { id: 'EXP-1201', title: 'Notebook & pens', date: '2026-09-18', amount: 12.40, deletable: true },
+  ];
+  const OTHER_ROW = { id: 'EXP-2091', title: 'Client dinner', date: '2026-09-10', amount: 120.00, owner: 'Marcus Lee' };
+  const LOCKED_ROW = { id: 'EXP-3310', title: 'Conference badge', date: '2026-09-05', amount: 275.00, category: 'Travel', report: 'RPT-311', reportName: 'September travel', reportStatus: 'Submitted' };
+  const STALE_ROW = { id: 'EXP-0877', title: 'Ride share to airport', date: '2026-09-02', amount: 34.20, stale: true };
+
+  let ownRows = OWN_ROWS_INITIAL.map(r => ({ ...r, category: 'Meals & entertainment' }));
+  let pendingDeleteId = 'EXP-1042';
+  let undoTimer = null;
+  let undoRemaining = 10;
+  let lastDeletedRow = null;
+  let lastFocusedDeleteId = null;
+
+  const auditLog = [
+    { action: 'Deleted', user: 'Priya Patel', ts: '2026-09-14 09:12', detail: 'EXP-0631 "Parking garage" — $18.00, Travel, 2026-09-01' },
+  ];
+
+  function formatAmount(n) { return `$${n.toFixed(2)}`; }
+
+  function renderRow(row, opts) {
+    opts = opts || {};
+    const disabled = opts.disabled ? 'disabled' : '';
+    const chip = opts.chip ? `<span class="report-chip">🔒 ${opts.chip}</span>` : '';
+    const meta = opts.metaExtra ? `<div class="text-sm text-muted">${row.id} · ${row.date} · ${opts.metaExtra}</div>` : `<div class="text-sm text-muted">${row.id} · ${row.date}</div>`;
+    const deleteBtn = opts.deleteHandler
+      ? `<button class="btn btn-secondary" id="del-btn-${row.id}" onclick="${opts.deleteHandler}" aria-label="Delete ${row.title}">Delete</button>`
+      : '';
+    return `
+      <div class="list-row ${opts.removing ? 'removing' : ''}" data-row-id="${row.id}">
+        <div class="row-meta">
+          <div class="text-md" style="font-weight:var(--font-weight-medium);">${row.title}</div>
+          ${meta}
+          ${chip}
+        </div>
+        <div class="row-actions">
+          <span class="text-negative text-md">${formatAmount(row.amount)}</span>
+          ${deleteBtn}
+        </div>
+      </div>`;
+  }
+
+  function baseListHtml(deleteHandlerFor, opts) {
+    opts = opts || {};
+    let html = '';
+    const rowsSource = opts.useInitialRows ? OWN_ROWS_INITIAL.map(r => ({ ...r, category: 'Meals & entertainment' })) : ownRows;
+    rowsSource.forEach(r => {
+      if (opts.excludeIds && opts.excludeIds.includes(r.id)) return;
+      html += renderRow(r, { deleteHandler: deleteHandlerFor ? `${deleteHandlerFor}('${r.id}')` : null });
+    });
+    if (!opts.excludeIds || !opts.excludeIds.includes(OTHER_ROW.id)) {
+      html += renderRow(OTHER_ROW, { metaExtra: 'owned by Marcus Lee', deleteHandler: `openConfirmOther()` });
+    }
+    if (!opts.excludeIds || !opts.excludeIds.includes(LOCKED_ROW.id)) {
+      html += renderRow(LOCKED_ROW, { chip: 'Submitted · RPT-311', deleteHandler: `openConfirmLocked()` });
+    }
+    if (!opts.excludeIds || !opts.excludeIds.includes(STALE_ROW.id)) {
+      html += renderRow(STALE_ROW, { deleteHandler: `openConfirmStale()` });
+    }
+    return html;
+  }
+
+  function renderList() {
+    document.getElementById('list-card').innerHTML = baseListHtml('openConfirm');
+  }
+
+  function renderStaticInto(elId, opts) {
+    document.getElementById(elId).innerHTML = baseListHtml('openConfirm', opts);
+  }
+
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  function idxByKey(key) { return screens.findIndex(s => s.dataset.key === key); }
+  let cur = 0;
+
+  function show(key) {
+    const i = typeof key === 'number' ? key : idxByKey(key);
+    cur = Math.max(0, Math.min(screens.length - 1, i));
+    screens.forEach((s, j) => s.style.display = j === cur ? 'block' : 'none');
+    document.getElementById('screen-label').textContent =
+      `${cur + 1} / ${screens.length}: ${screens[cur].dataset.name || screens[cur].dataset.key}`;
+    window.scrollTo({ top: 0 });
+
+    const k = screens[cur].dataset.key;
+    const toast = document.getElementById('toast');
+    if (k !== 'list-after-delete') {
+      clearInterval(undoTimer);
+      toast.classList.remove('show');
+    }
+
+    if (k === 'list') renderList();
+    if (k === 'confirm-dialog') {
+      if (!ownRows.find(r => r.id === pendingDeleteId)) pendingDeleteId = 'EXP-1042';
+      const row = ownRows.find(r => r.id === pendingDeleteId) || OWN_ROWS_INITIAL.find(r => r.id === pendingDeleteId);
+      document.getElementById('dialog-item-name').textContent = row.title;
+      document.getElementById('dialog-item-amount').textContent = formatAmount(row.amount);
+      renderStaticInto('list-card-under-dialog', { useInitialRows: true });
+      document.getElementById('dialog-cancel-btn').focus();
+    }
+    if (k === 'deleting') {
+      renderStaticInto('list-card-deleting', { useInitialRows: true });
+      const row = ownRows.find(r => r.id === pendingDeleteId) || OWN_ROWS_INITIAL.find(r => r.id === pendingDeleteId);
+      const deletingText = screens[cur].querySelector('.dialog p.text-md');
+      if (row && deletingText) deletingText.textContent = `Deleting "${row.title}"…`;
+    }
+    if (k === 'list-after-delete') {
+      if (!lastDeletedRow) {
+        const idx = ownRows.findIndex(r => r.id === 'EXP-1042');
+        if (idx >= 0) { lastDeletedRow = ownRows[idx]; ownRows.splice(idx, 1); }
+        startUndoToast();
+      }
+      renderList_afterDelete();
+    }
+    if (k === 'list-cancelled') {
+      renderStaticInto('list-card-cancelled', { useInitialRows: true });
+      focusDeleteBtn(pendingDeleteId);
+    }
+    if (k === 'auth-error') renderStaticInto('list-card-autherror', { useInitialRows: true });
+    if (k === 'not-found-error') renderStaticInto('list-card-notfound', { useInitialRows: true, excludeIds: [STALE_ROW.id] });
+    if (k === 'report-locked-error') renderStaticInto('list-card-locked', { useInitialRows: true });
+    if (k === 'undo-expired') {
+      if (!lastDeletedRow) {
+        const idx = ownRows.findIndex(r => r.id === 'EXP-1042');
+        if (idx >= 0) { lastDeletedRow = ownRows[idx]; ownRows.splice(idx, 1); }
+      }
+      renderList_afterDelete_excluding();
+    }
+    if (k === 'empty-list') { /* static */ }
+    if (k === 'audit-log') renderAuditLog();
+  }
+  document.getElementById('prev-btn').onclick = () => show(cur - 1);
+  document.getElementById('next-btn').onclick = () => show(cur + 1);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && !isDialogOpen()) show(cur + 1);
+    if (e.key === 'ArrowLeft' && !isDialogOpen()) show(cur - 1);
+    if (e.key === 'Escape' && screens[cur].dataset.key === 'confirm-dialog') cancelDelete();
+  });
+  function isDialogOpen() { return screens[cur] && screens[cur].dataset.key === 'confirm-dialog'; }
+
+  function focusDeleteBtn(id) {
+    setTimeout(() => {
+      const btn = screens[cur].querySelector(`[data-row-id="${id}"] button`);
+      if (btn) btn.focus();
+    }, 0);
+  }
+
+  function openConfirm(id) {
+    pendingDeleteId = id;
+    show('confirm-dialog');
+  }
+
+  function openConfirmOther() { show('auth-error'); }
+  function openConfirmStale() { show('not-found-error'); }
+  function openConfirmLocked() { show('report-locked-error'); }
+
+  function cancelDelete() {
+    show('list-cancelled');
+  }
+
+  function confirmDelete() {
+    show('deleting');
+    setTimeout(() => {
+      const idx = ownRows.findIndex(r => r.id === pendingDeleteId);
+      lastDeletedRow = ownRows[idx];
+      ownRows.splice(idx, 1);
+      auditLog.unshift({
+        action: 'Deleted',
+        user: 'Priya Patel',
+        ts: '2026-09-25 14:03',
+        detail: `${lastDeletedRow.id} "${lastDeletedRow.title}" — ${formatAmount(lastDeletedRow.amount)}, ${lastDeletedRow.date}`,
+      });
+      show(ownRows.length ? 'list-after-delete' : 'empty-list');
+      startUndoToast();
+    }, 300);
+  }
+
+  function renderList_afterDelete() {
+    document.getElementById('list-card-after').innerHTML = baseListHtml('openConfirm');
+  }
+
+  function renderList_afterDelete_excluding() {
+    document.getElementById('list-card-expired').innerHTML = baseListHtml('openConfirm', { excludeIds: lastDeletedRow ? [lastDeletedRow.id] : [] });
+  }
+
+  let toastPaused = false;
+  function startUndoToast() {
+    undoRemaining = 10;
+    toastPaused = false;
+    const t = document.getElementById('toast');
+    t.innerHTML = `<span>Expense deleted</span><span class="toast-count" id="toast-count">${undoRemaining}s</span><button class="toast-undo" id="toast-undo-btn" onclick="undoDelete()">Undo</button>`;
+    t.classList.add('show');
+    t.onmouseenter = () => toastPaused = true;
+    t.onmouseleave = () => toastPaused = false;
+    t.onfocusin = () => toastPaused = true;
+    t.onfocusout = () => toastPaused = false;
+    clearInterval(undoTimer);
+    undoTimer = setInterval(() => {
+      if (toastPaused) return;
+      undoRemaining -= 1;
+      const c = document.getElementById('toast-count');
+      if (c) c.textContent = `${undoRemaining}s`;
+      if (undoRemaining <= 0) {
+        clearInterval(undoTimer);
+        t.classList.remove('show');
+      }
+    }, 1000);
+  }
+
+  function undoDelete() {
+    clearInterval(undoTimer);
+    document.getElementById('toast').classList.remove('show');
+    if (lastDeletedRow) {
+      ownRows.push(lastDeletedRow);
+      auditLog.unshift({
+        action: 'Restored',
+        user: 'Priya Patel',
+        ts: '2026-09-25 14:03',
+        detail: `${lastDeletedRow.id} "${lastDeletedRow.title}" — ${formatAmount(lastDeletedRow.amount)}, ${lastDeletedRow.date}`,
+      });
+      lastDeletedRow = null;
+    }
+    show('list');
+    showRestoredToast();
+  }
+
+  function showRestoredToast() {
+    const t = document.getElementById('toast');
+    t.innerHTML = `<span>Expense restored</span>`;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function resetList() {
+    ownRows = OWN_ROWS_INITIAL.map(r => ({ ...r }));
+  }
+
+  function renderAuditLog() {
+    document.getElementById('log-list').innerHTML = auditLog.map(e => `
+      <div class="log-entry">
+        <div class="log-head">
+          <span class="text-md" style="font-weight:var(--font-weight-medium);">${e.action}</span>
+          <span class="text-sm text-muted">${e.ts}</span>
+        </div>
+        <div class="text-sm text-muted">by ${e.user}</div>
+        <div class="text-sm">${e.detail}</div>
+      </div>`).join('');
+  }
+
+  show(0);
+</script>
+
+</body>
+</html>
+
+<!-- arc:css-inlined -->
